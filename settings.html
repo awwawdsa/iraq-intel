@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>الإعدادات — رصد العراق</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg0:#080c10; --bg1:#0d1117; --bg2:#141b24; --bg3:#1c2533;
+  --border:#243040; --border2:#2e3d52;
+  --text1:#e8edf3; --text2:#8a9bb0; --text3:#4a5a6e;
+  --accent:#2a7fff; --accent2:#1a5fcc;
+  --gold:#c8963c; --red:#c0392b; --green:#27864a;
+  --orange:#d4702a; --teal:#1a8a7a; --purple:#7c4dff;
+  --font-ar:'IBM Plex Sans Arabic',sans-serif;
+  --font-mono:'JetBrains Mono',monospace;
+  --r:6px; --r2:10px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-ar);background:var(--bg0);color:var(--text1);min-height:100vh;font-size:14px;line-height:1.6;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.06) 2px,rgba(0,0,0,.06) 4px);pointer-events:none;z-index:9999}
+
+/* ── HEADER ── */
+.header{display:flex;align-items:center;justify-content:space-between;padding:14px 28px;background:var(--bg1);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;gap:16px}
+.brand{display:flex;align-items:center;gap:12px}
+.logo{width:36px;height:36px;background:var(--accent);border-radius:var(--r);display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-weight:600;color:#fff;font-size:15px}
+.brand-text{font-size:15px;font-weight:600}
+.brand-sub{font-size:11px;color:var(--text3);font-family:var(--font-mono)}
+.nav-links{display:flex;gap:6px}
+.nav-link{padding:7px 14px;border-radius:var(--r);font-size:13px;color:var(--text2);text-decoration:none;border:1px solid transparent;transition:all .2s;cursor:pointer}
+.nav-link:hover{background:var(--bg3);color:var(--text1)}
+.nav-link.active{background:rgba(42,127,255,.1);border-color:rgba(42,127,255,.25);color:var(--accent)}
+
+/* ── LAYOUT ── */
+.layout{display:grid;grid-template-columns:230px 1fr;min-height:calc(100vh - 57px)}
+
+/* ── SIDEBAR ── */
+.sidebar{background:var(--bg1);border-left:1px solid var(--border);padding:20px 0;position:sticky;top:57px;height:calc(100vh - 57px);overflow-y:auto}
+.sb-section{margin-bottom:8px}
+.sb-label{font-size:10px;color:var(--text3);font-family:var(--font-mono);letter-spacing:.8px;text-transform:uppercase;padding:8px 16px 6px}
+.sb-item{display:flex;align-items:center;gap:10px;padding:9px 16px;cursor:pointer;transition:all .15s;border-right:2px solid transparent;font-size:13px;color:var(--text2);user-select:none}
+.sb-item:hover{background:var(--bg2);color:var(--text1)}
+.sb-item.active{background:rgba(42,127,255,.08);border-right-color:var(--accent);color:var(--accent)}
+.sb-count{margin-right:auto;font-family:var(--font-mono);font-size:11px;background:var(--bg3);padding:1px 6px;border-radius:3px;color:var(--text3)}
+.sb-icon{font-size:15px;width:20px;text-align:center;flex-shrink:0}
+.sb-divider{height:1px;background:var(--border);margin:10px 0}
+
+/* ── CONTENT ── */
+.content{padding:28px 32px;max-width:1000px}
+.panel{display:none}
+.panel.active{display:block}
+
+/* ── PAGE HEADER ── */
+.page-hd{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px;gap:16px;flex-wrap:wrap}
+.page-hd-left{}
+.page-title{font-size:18px;font-weight:600;margin-bottom:4px}
+.page-desc{font-size:13px;color:var(--text2);line-height:1.6;max-width:560px}
+.btn-primary{background:var(--accent);color:#fff;border:none;padding:9px 20px;border-radius:var(--r);font-family:var(--font-ar);font-size:13px;font-weight:500;cursor:pointer;transition:background .2s;display:inline-flex;align-items:center;gap:8px;white-space:nowrap}
+.btn-primary:hover{background:var(--accent2)}
+.btn-ghost{background:none;border:1px solid var(--border);color:var(--text2);padding:8px 16px;border-radius:var(--r);font-family:var(--font-ar);font-size:13px;cursor:pointer;transition:all .2s}
+.btn-ghost:hover{border-color:var(--border2);color:var(--text1)}
+.btn-danger{background:none;border:1px solid transparent;color:var(--text3);padding:5px 10px;border-radius:var(--r);font-family:var(--font-ar);font-size:12px;cursor:pointer;transition:all .2s}
+.btn-danger:hover{border-color:var(--red);color:var(--red)}
+
+/* ── SEARCH BAR ── */
+.search-bar{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+.search-input{background:var(--bg3);border:1px solid var(--border);color:var(--text1);padding:8px 14px;border-radius:var(--r);font-family:var(--font-ar);font-size:13px;outline:none;flex:1;min-width:200px;transition:border-color .2s}
+.search-input:focus{border-color:var(--accent)}
+.search-input::placeholder{color:var(--text3)}
+.filter-select{background:var(--bg3);border:1px solid var(--border);color:var(--text1);padding:8px 12px;border-radius:var(--r);font-family:var(--font-ar);font-size:13px;outline:none;transition:border-color .2s;cursor:pointer}
+.filter-select:focus{border-color:var(--accent)}
+
+/* ── CARDS GRID ── */
+.cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}
+
+/* ── SOURCE CARD ── */
+.source-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r2);padding:16px;transition:border-color .2s;position:relative}
+.source-card:hover{border-color:var(--border2)}
+.source-card.inactive{opacity:.5}
+.sc-header{display:flex;align-items:flex-start;gap:12px;margin-bottom:12px}
+.sc-avatar{width:38px;height:38px;border-radius:var(--r);display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:12px;font-weight:600;flex-shrink:0}
+.sc-info{flex:1;min-width:0}
+.sc-name{font-size:13px;font-weight:600;color:var(--text1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sc-url{font-size:11px;color:var(--text3);font-family:var(--font-mono);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sc-actions{display:flex;gap:6px;flex-shrink:0}
+.sc-toggle{width:28px;height:16px;border-radius:8px;background:var(--bg3);border:1px solid var(--border);cursor:pointer;position:relative;transition:background .2s;flex-shrink:0}
+.sc-toggle.on{background:var(--accent);border-color:var(--accent)}
+.sc-toggle::after{content:'';position:absolute;width:10px;height:10px;border-radius:50%;background:#fff;top:2px;right:2px;transition:right .2s}
+.sc-toggle.on::after{right:14px}
+.sc-meta{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.sc-badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-family:var(--font-mono)}
+.type-rss      {background:rgba(42,127,255,.12);color:#6aa3ff}
+.type-telegram {background:rgba(26,138,122,.12);color:#3abfab}
+.type-twitter  {background:rgba(200,150,60,.12);color:var(--gold)}
+.type-youtube  {background:rgba(192,57,43,.12);color:#e05a4a}
+.type-scrape   {background:rgba(124,77,255,.12);color:#a87fe0}
+.region-western      {background:rgba(42,127,255,.1);color:#6aa3ff}
+.region-arab         {background:rgba(200,150,60,.1);color:var(--gold)}
+.region-iraqi        {background:rgba(39,134,74,.1);color:#4aba77}
+.region-iranian      {background:rgba(192,57,43,.1);color:#e05a4a}
+.region-turkish      {background:rgba(124,77,255,.1);color:#a87fe0}
+.region-international{background:rgba(26,138,122,.1);color:#3abfab}
+.region-kurdish      {background:rgba(200,160,50,.1);color:#d4b84b}
+.sc-trust{display:flex;align-items:center;gap:8px}
+.trust-bar{flex:1;height:3px;background:var(--bg3);border-radius:2px;overflow:hidden}
+.trust-fill{height:100%;border-radius:2px;background:var(--accent)}
+.trust-label{font-family:var(--font-mono);font-size:10px;color:var(--text3);min-width:28px;text-align:left}
+
+/* ── ADD FORM ── */
+.add-form{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r2);padding:20px;margin-bottom:20px;display:none}
+.add-form.open{display:block;animation:slideDown .2s ease}
+@keyframes slideDown{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.form-row.triple{grid-template-columns:1fr 1fr 1fr}
+.form-row.single{grid-template-columns:1fr}
+.field-lbl{font-size:11px;color:var(--text2);font-family:var(--font-mono);margin-bottom:5px;display:block}
+.field-req{color:var(--red)}
+.fi{background:var(--bg3);border:1px solid var(--border);color:var(--text1);padding:8px 12px;border-radius:var(--r);font-family:var(--font-ar);font-size:13px;outline:none;width:100%;transition:border-color .2s}
+.fi:focus{border-color:var(--accent)}
+.fi::placeholder{color:var(--text3)}
+.fi-range{width:100%;accent-color:var(--accent)}
+.form-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:16px;padding-top:14px;border-top:1px solid var(--border)}
+
+/* ── KEYWORDS ── */
+.kw-groups{display:flex;flex-direction:column;gap:14px}
+.kw-group{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r2);overflow:hidden;transition:border-color .2s}
+.kw-group:hover{border-color:var(--border2)}
+.kg-header{display:flex;align-items:center;gap:12px;padding:14px 16px;cursor:pointer}
+.kg-color{width:12px;height:12px;border-radius:50%;flex-shrink:0}
+.kg-name{font-size:13px;font-weight:600;color:var(--text1);flex:1}
+.kg-count{font-family:var(--font-mono);font-size:11px;color:var(--text3);background:var(--bg3);padding:2px 8px;border-radius:3px}
+.kg-toggle-btn{font-size:12px;color:var(--text3);transition:transform .2s;margin-right:4px}
+.kg-body{padding:0 16px 16px;display:none}
+.kg-body.open{display:block}
+.kg-desc{font-size:12px;color:var(--text2);margin-bottom:12px;line-height:1.5}
+.kw-chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.kw-chip{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:4px;font-size:12px;font-family:var(--font-mono);border:1px solid;cursor:default}
+.kw-chip.ar{background:rgba(42,127,255,.1);color:#6aa3ff;border-color:rgba(42,127,255,.2)}
+.kw-chip.en{background:rgba(26,138,122,.1);color:#3abfab;border-color:rgba(26,138,122,.2)}
+.kw-chip.fa{background:rgba(200,150,60,.1);color:var(--gold);border-color:rgba(200,150,60,.2)}
+.kw-chip.tr{background:rgba(124,77,255,.1);color:#a87fe0;border-color:rgba(124,77,255,.2)}
+.kw-chip.hash{background:rgba(39,134,74,.1);color:#4aba77;border-color:rgba(39,134,74,.2)}
+.kw-remove{cursor:pointer;opacity:.5;font-size:14px;line-height:1}
+.kw-remove:hover{opacity:1}
+.kw-add-row{display:flex;gap:8px;margin-top:8px}
+.kw-input{flex:1;background:var(--bg3);border:1px solid var(--border);color:var(--text1);padding:6px 10px;border-radius:var(--r);font-family:var(--font-ar);font-size:12px;outline:none;transition:border-color .2s}
+.kw-input:focus{border-color:var(--accent)}
+.lang-select{background:var(--bg3);border:1px solid var(--border);color:var(--text1);padding:6px 8px;border-radius:var(--r);font-family:var(--font-mono);font-size:12px;outline:none}
+.btn-add-kw{background:rgba(42,127,255,.15);border:1px solid rgba(42,127,255,.3);color:var(--accent);padding:6px 12px;border-radius:var(--r);font-family:var(--font-ar);font-size:12px;cursor:pointer;transition:all .2s;white-space:nowrap}
+.btn-add-kw:hover{background:rgba(42,127,255,.25)}
+.kg-sources-row{margin-top:10px;padding-top:10px;border-top:1px solid var(--border);font-size:12px;color:var(--text3)}
+.kg-sources-list{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}
+.kg-src-tag{background:var(--bg3);border:1px solid var(--border);padding:2px 8px;border-radius:3px;font-size:11px;color:var(--text2);font-family:var(--font-mono)}
+.kg-alert-row{margin-top:10px;padding-top:10px;border-top:1px solid var(--border);display:flex;align-items:center;gap:10px;font-size:12px;color:var(--text2)}
+.toggle-sm{width:32px;height:18px;border-radius:9px;background:var(--bg3);border:1px solid var(--border);cursor:pointer;position:relative;transition:background .2s;flex-shrink:0}
+.toggle-sm.on{background:var(--accent);border-color:var(--accent)}
+.toggle-sm::after{content:'';position:absolute;width:12px;height:12px;border-radius:50%;background:#fff;top:2px;right:2px;transition:right .2s}
+.toggle-sm.on::after{right:16px}
+
+/* ── API SETTINGS ── */
+.api-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px}
+.api-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r2);padding:18px}
+.api-card-header{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.api-icon{font-size:20px}
+.api-name{font-size:13px;font-weight:600}
+.api-status{font-size:11px;font-family:var(--font-mono);padding:2px 8px;border-radius:3px}
+.api-status.connected{background:rgba(39,134,74,.12);color:#4aba77}
+.api-status.missing{background:rgba(192,57,43,.12);color:#e05a4a}
+.api-input-row{display:flex;gap:8px}
+.api-input{flex:1;background:var(--bg3);border:1px solid var(--border);color:var(--text1);padding:8px 12px;border-radius:var(--r);font-family:var(--font-mono);font-size:12px;outline:none;transition:border-color .2s}
+.api-input:focus{border-color:var(--accent)}
+.btn-save-api{background:var(--bg3);border:1px solid var(--border);color:var(--text2);padding:8px 14px;border-radius:var(--r);cursor:pointer;font-size:12px;font-family:var(--font-ar);transition:all .2s;white-space:nowrap}
+.btn-save-api:hover{border-color:var(--accent);color:var(--accent)}
+.api-desc{font-size:11px;color:var(--text3);margin-top:8px;line-height:1.5}
+
+/* ── STATS ROW ── */
+.stats-mini{display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap}
+.stat-mini{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:10px 16px;display:flex;align-items:center;gap:10px}
+.stat-mini-num{font-family:var(--font-mono);font-size:18px;font-weight:600;color:var(--text1)}
+.stat-mini-lbl{font-size:11px;color:var(--text3)}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(16px);background:var(--bg2);border:1px solid var(--border2);border-radius:var(--r2);padding:10px 20px;font-size:13px;opacity:0;transition:all .25s;z-index:9998;pointer-events:none;white-space:nowrap}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast.ok{border-color:var(--green);color:#4aba77}
+.toast.err{border-color:var(--red);color:#e05a4a}
+
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-track{background:var(--bg1)}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="brand">
+    <div class="logo">IQ</div>
+    <div>
+      <div class="brand-text">رصد العراق — الإعدادات</div>
+      <div class="brand-sub">SETTINGS & SOURCES</div>
+    </div>
+  </div>
+  <div class="nav-links">
+    <a class="nav-link" href="dashboard.html">📊 الداشبورد</a>
+    <a class="nav-link" href="admin.html">✍️ إضافة محتوى</a>
+    <span class="nav-link active">⚙️ الإعدادات</span>
+  </div>
+</header>
+
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sb-section">
+      <div class="sb-label">المصادر</div>
+      <div class="sb-item active" onclick="showPanel('sources',this)">
+        <span class="sb-icon">📡</span> كل المصادر
+        <span class="sb-count" id="sb-count-all">0</span>
+      </div>
+      <div class="sb-item" onclick="showPanelFiltered('sources','rss',this)">
+        <span class="sb-icon">🔗</span> RSS / مواقع
+        <span class="sb-count" id="sb-count-rss">0</span>
+      </div>
+      <div class="sb-item" onclick="showPanelFiltered('sources','telegram',this)">
+        <span class="sb-icon">✈️</span> تلغرام
+        <span class="sb-count" id="sb-count-telegram">0</span>
+      </div>
+      <div class="sb-item" onclick="showPanelFiltered('sources','twitter',this)">
+        <span class="sb-icon">𝕏</span> X / Twitter
+        <span class="sb-count" id="sb-count-twitter">0</span>
+      </div>
+      <div class="sb-item" onclick="showPanelFiltered('sources','youtube',this)">
+        <span class="sb-icon">▶</span> يوتيوب
+        <span class="sb-count" id="sb-count-youtube">0</span>
+      </div>
+    </div>
+    <div class="sb-divider"></div>
+    <div class="sb-section">
+      <div class="sb-label">الكلمات المفتاحية</div>
+      <div class="sb-item" onclick="showPanel('keywords',this)">
+        <span class="sb-icon">🏷</span> مجموعات الرصد
+        <span class="sb-count" id="sb-count-kw">0</span>
+      </div>
+    </div>
+    <div class="sb-divider"></div>
+    <div class="sb-section">
+      <div class="sb-label">النظام</div>
+      <div class="sb-item" onclick="showPanel('apis',this)">
+        <span class="sb-icon">🔑</span> مفاتيح API
+      </div>
+      <div class="sb-item" onclick="showPanel('export',this)">
+        <span class="sb-icon">💾</span> تصدير / استيراد
+      </div>
+    </div>
+  </aside>
+
+  <!-- CONTENT -->
+  <main class="content">
+
+    <!-- ══ SOURCES PANEL ══ -->
+    <div class="panel active" id="panel-sources">
+      <div class="page-hd">
+        <div class="page-hd-left">
+          <div class="page-title">إدارة المصادر</div>
+          <div class="page-desc">أضف أي مصدر — موقع RSS، قناة تلغرام، حساب X، أو قناة يوتيوب. كل مصدر نشط يُغذّي محرك الجلب تلقائياً.</div>
+        </div>
+        <button class="btn-primary" onclick="toggleAddForm()">+ إضافة مصدر</button>
+      </div>
+
+      <!-- ADD FORM -->
+      <div class="add-form" id="add-source-form">
+        <div class="form-row">
+          <div>
+            <label class="field-lbl"><span class="field-req">*</span> اسم المصدر</label>
+            <input class="fi" id="sf-name" placeholder="Reuters، ICG، قناة الحدث...">
+          </div>
+          <div>
+            <label class="field-lbl"><span class="field-req">*</span> نوع المصدر</label>
+            <select class="fi" id="sf-type" onchange="updateSourceTypeHint()">
+              <option value="rss">موقع / RSS</option>
+              <option value="telegram">قناة تلغرام</option>
+              <option value="twitter">حساب X / Twitter</option>
+              <option value="youtube">قناة يوتيوب</option>
+              <option value="scrape">موقع بدون RSS</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row single">
+          <div>
+            <label class="field-lbl" id="sf-url-label"><span class="field-req">*</span> رابط RSS</label>
+            <input class="fi" id="sf-url" placeholder="https://example.com/feed.xml">
+            <div style="font-size:11px;color:var(--text3);margin-top:4px" id="sf-url-hint">مثال: https://www.crisisgroup.org/rss.xml</div>
+          </div>
+        </div>
+        <div class="form-row triple">
+          <div>
+            <label class="field-lbl">المنطقة</label>
+            <select class="fi" id="sf-region">
+              <option value="international">دولية</option>
+              <option value="western">غربية</option>
+              <option value="arab">عربية</option>
+              <option value="iraqi">عراقية</option>
+              <option value="iranian">إيرانية</option>
+              <option value="turkish">تركية</option>
+              <option value="kurdish">كردية</option>
+            </select>
+          </div>
+          <div>
+            <label class="field-lbl">اللغة الرئيسية</label>
+            <select class="fi" id="sf-lang">
+              <option value="en">إنجليزية</option>
+              <option value="ar">عربية</option>
+              <option value="multi">متعددة</option>
+              <option value="fa">فارسية</option>
+              <option value="tr">تركية</option>
+              <option value="ku">كردية</option>
+            </select>
+          </div>
+          <div>
+            <label class="field-lbl">درجة الموثوقية: <span id="sf-trust-val" style="color:var(--accent)">75</span></label>
+            <input type="range" class="fi-range" id="sf-trust" min="0" max="100" value="75"
+                   oninput="document.getElementById('sf-trust-val').textContent=this.value" style="padding:8px 0">
+          </div>
+        </div>
+        <div class="form-row">
+          <div>
+            <label class="field-lbl">الموقع الرئيسي</label>
+            <input class="fi" id="sf-website" placeholder="https://...">
+          </div>
+          <div>
+            <label class="field-lbl">ملاحظات</label>
+            <input class="fi" id="sf-notes" placeholder="ملاحظة عن المصدر...">
+          </div>
+        </div>
+        <div class="form-actions">
+          <button class="btn-ghost" onclick="toggleAddForm()">إلغاء</button>
+          <button class="btn-primary" onclick="addSource()">حفظ المصدر</button>
+        </div>
+      </div>
+
+      <!-- SEARCH -->
+      <div class="search-bar">
+        <input class="search-input" id="src-search" placeholder="بحث في المصادر..." oninput="renderSources()">
+        <select class="filter-select" id="src-filter-region" onchange="renderSources()">
+          <option value="">كل المناطق</option>
+          <option value="western">غربية</option>
+          <option value="arab">عربية</option>
+          <option value="iraqi">عراقية</option>
+          <option value="iranian">إيرانية</option>
+          <option value="turkish">تركية</option>
+          <option value="international">دولية</option>
+          <option value="kurdish">كردية</option>
+        </select>
+        <select class="filter-select" id="src-filter-type" onchange="renderSources()">
+          <option value="">كل الأنواع</option>
+          <option value="rss">RSS</option>
+          <option value="telegram">تلغرام</option>
+          <option value="twitter">X</option>
+          <option value="youtube">يوتيوب</option>
+        </select>
+      </div>
+
+      <!-- STATS MINI -->
+      <div class="stats-mini">
+        <div class="stat-mini"><div class="stat-mini-num" id="sm-total">0</div><div class="stat-mini-lbl">إجمالي</div></div>
+        <div class="stat-mini"><div class="stat-mini-num" id="sm-active" style="color:var(--green)">0</div><div class="stat-mini-lbl">نشط</div></div>
+        <div class="stat-mini"><div class="stat-mini-num" id="sm-inactive" style="color:var(--text3)">0</div><div class="stat-mini-lbl">معطّل</div></div>
+      </div>
+
+      <div class="cards-grid" id="sources-grid">
+        <div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--text3);font-family:var(--font-mono)">جاري التحميل...</div>
+      </div>
+    </div>
+
+    <!-- ══ KEYWORDS PANEL ══ -->
+    <div class="panel" id="panel-keywords">
+      <div class="page-hd">
+        <div class="page-hd-left">
+          <div class="page-title">مجموعات الرصد</div>
+          <div class="page-desc">كل مجموعة تضم كلمات مفتاحية وهاشتاقات بلغات متعددة. أي مصدر يحتوي كلمة من المجموعة يُجلب تلقائياً.</div>
+        </div>
+        <button class="btn-primary" onclick="addGroup()">+ مجموعة جديدة</button>
+      </div>
+      <div class="kw-groups" id="kw-groups-list"></div>
+    </div>
+
+    <!-- ══ APIs PANEL ══ -->
+    <div class="panel" id="panel-apis">
+      <div class="page-hd">
+        <div class="page-hd-left">
+          <div class="page-title">مفاتيح API</div>
+          <div class="page-desc">مفاتيح الاتصال بالخدمات الخارجية. تُخزن محلياً في متصفحك فقط ولا تُرسل لأي خادم.</div>
+        </div>
+      </div>
+      <div class="api-grid" id="apis-grid"></div>
+    </div>
+
+    <!-- ══ EXPORT PANEL ══ -->
+    <div class="panel" id="panel-export">
+      <div class="page-hd">
+        <div class="page-hd-left">
+          <div class="page-title">تصدير واستيراد الإعدادات</div>
+          <div class="page-desc">احفظ إعداداتك كاملةً أو استعدها على جهاز آخر. ملف JSON واحد يحتوي المصادر والكلمات المفتاحية.</div>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:14px;max-width:480px">
+        <div class="api-card">
+          <div class="api-card-header"><span class="api-icon">📤</span><span class="api-name">تصدير الإعدادات</span></div>
+          <p style="font-size:13px;color:var(--text2);margin-bottom:14px;">تحميل ملف JSON يحتوي كل مصادرك ومجموعات الكلمات المفتاحية.</p>
+          <button class="btn-primary" onclick="exportSettings()">تحميل الإعدادات</button>
+        </div>
+        <div class="api-card">
+          <div class="api-card-header"><span class="api-icon">📥</span><span class="api-name">استيراد إعدادات</span></div>
+          <p style="font-size:13px;color:var(--text2);margin-bottom:14px;">رفع ملف JSON لاستعادة الإعدادات. سيُضاف للموجود حالياً.</p>
+          <input type="file" accept=".json" id="import-file" style="display:none" onchange="importSettings(event)">
+          <button class="btn-primary" onclick="document.getElementById('import-file').click()">اختيار ملف</button>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ══════════════════════════════════════
+   DATA STORE — localStorage
+══════════════════════════════════════ */
+function getData(key, def) {
+  try { return JSON.parse(localStorage.getItem(key)) || def; }
+  catch { return def; }
+}
+function setData(key, val) { localStorage.setItem(key, JSON.stringify(val)); }
+
+// مصادر مبدئية
+const DEFAULT_SOURCES = [
+  {id:'icg',      name:'International Crisis Group', type:'rss',      url:'https://www.crisisgroup.org/rss.xml',                         region:'international', lang:'en', trust:95, active:true,  website:'https://crisisgroup.org',     notes:'الأهم للعراق — ميداني'},
+  {id:'carnegie', name:'Carnegie Endowment',          type:'rss',      url:'https://carnegieendowment.org/rss/solr/feed/?query=iraq',     region:'western',       lang:'en', trust:90, active:true,  website:'https://carnegieendowment.org',notes:''},
+  {id:'rand',     name:'RAND Corporation',            type:'rss',      url:'https://www.rand.org/topics/iraq.xml',                        region:'western',       lang:'en', trust:90, active:true,  website:'https://rand.org',            notes:''},
+  {id:'mei',      name:'Middle East Institute',       type:'rss',      url:'https://www.mei.edu/rss.xml',                                 region:'western',       lang:'en', trust:88, active:true,  website:'https://mei.edu',             notes:''},
+  {id:'reuters',  name:'Reuters',                     type:'rss',      url:'https://feeds.reuters.com/reuters/worldNews',                 region:'western',       lang:'en', trust:92, active:true,  website:'https://reuters.com',         notes:''},
+  {id:'almonitor',name:'Al-Monitor',                  type:'rss',      url:'https://www.al-monitor.com/rss',                             region:'international', lang:'en', trust:88, active:true,  website:'https://al-monitor.com',      notes:''},
+  {id:'rudaw',    name:'Rudaw',                       type:'rss',      url:'https://www.rudaw.net/english/feed',                         region:'kurdish',       lang:'multi',trust:78,active:true, website:'https://rudaw.net',           notes:''},
+  {id:'k24',      name:'Kurdistan 24',                type:'rss',      url:'https://www.kurdistan24.net/feed',                           region:'kurdish',       lang:'multi',trust:75,active:true, website:'https://kurdistan24.net',     notes:''},
+  {id:'mee',      name:'Middle East Eye',             type:'rss',      url:'https://www.middleeasteye.net/rss',                          region:'international', lang:'en', trust:78, active:true,  website:'https://middleeasteye.net',   notes:''},
+  {id:'fp',       name:'Foreign Policy',              type:'rss',      url:'https://foreignpolicy.com/feed/',                            region:'western',       lang:'en', trust:85, active:true,  website:'https://foreignpolicy.com',   notes:''},
+  {id:'brookings',name:'Brookings Institution',       type:'rss',      url:'https://www.brookings.edu/feed/',                            region:'western',       lang:'en', trust:88, active:false, website:'https://brookings.edu',       notes:''},
+  {id:'chatham',  name:'Chatham House',               type:'rss',      url:'https://www.chathamhouse.org/rss.xml',                       region:'western',       lang:'en', trust:88, active:true,  website:'https://chathamhouse.org',    notes:''},
+  {id:'tasnim',   name:'Tasnim News',                 type:'rss',      url:'https://tn.ir/en/rss',                                       region:'iranian',       lang:'multi',trust:55,active:true, website:'https://tn.ir',               notes:'قريب من IRGC'},
+  {id:'iranintl', name:'Iran International',          type:'rss',      url:'https://www.iranintl.com/rss',                               region:'iranian',       lang:'multi',trust:72,active:true, website:'https://iranintl.com',        notes:'معارض'},
+  {id:'acled',    name:'ACLED',                       type:'rss',      url:'https://acleddata.com/feed/',                                region:'international', lang:'en', trust:92, active:true,  website:'https://acleddata.com',       notes:'بيانات النزاعات'},
+  {id:'unocha',   name:'UNOCHA Iraq',                 type:'rss',      url:'https://reliefweb.int/country/irq/rss.xml',                  region:'international', lang:'en', trust:90, active:true,  website:'https://unocha.org/iraq',     notes:'إنساني'},
+  {id:'ft',       name:'Financial Times ME',          type:'rss',      url:'https://www.ft.com/rss/home/middle-east',                    region:'western',       lang:'en', trust:88, active:true,  website:'https://ft.com',              notes:'اقتصاد ونفط'},
+  {id:'aawsat',   name:'الشرق الأوسط',               type:'rss',      url:'https://aawsat.com/home/rss',                                region:'arab',          lang:'ar', trust:75, active:true,  website:'https://aawsat.com',          notes:''},
+  {id:'aljazeera',name:'الجزيرة',                    type:'rss',      url:'https://www.aljazeera.net/xml/rss/all.xml',                  region:'arab',          lang:'ar', trust:72, active:true,  website:'https://aljazeera.net',       notes:''},
+  {id:'bbc-ar',   name:'BBC عربي',                   type:'rss',      url:'https://feeds.bbci.co.uk/arabic/rss.xml',                    region:'western',       lang:'ar', trust:88, active:true,  website:'https://bbc.com/arabic',      notes:''},
+  {id:'anadolu',  name:'وكالة الأناضول',             type:'rss',      url:'https://www.aa.com.tr/ar/rss/default?cat=middle-east',       region:'turkish',       lang:'multi',trust:72,active:true, website:'https://aa.com.tr/ar',        notes:'تركية رسمية'},
+  {id:'tg-kataib',name:'كتائب حزب الله',             type:'telegram', url:'https://t.me/s/kataibmedia',                                 region:'iraqi',         lang:'ar', trust:60, active:true,  website:'',                            notes:'مصدر أولي — تحقق'},
+  {id:'tg-pmf',   name:'الحشد الشعبي الرسمي',       type:'telegram', url:'https://t.me/s/hashd_official',                              region:'iraqi',         lang:'ar', trust:65, active:true,  website:'',                            notes:'رسمي'},
+  {id:'tg-babil', name:'قناة بابل نيوز',             type:'telegram', url:'https://t.me/s/babilnews',                                   region:'iraqi',         lang:'ar', trust:70, active:false, website:'',                            notes:''},
+  {id:'yt-aliraqia',name:'العراقية',                 type:'youtube',  url:'https://www.youtube.com/@AlIraqiyaTV',                       region:'iraqi',         lang:'ar', trust:70, active:false, website:'https://youtube.com',         notes:'قناة حكومية'},
+];
+
+const DEFAULT_GROUPS = [
+  {
+    id:'iraq-core', name:'العراق — أساسي', color:'#2a7fff',
+    desc:'الكلمات الأساسية لرصد كل ما يتعلق بالعراق',
+    active:true, alert:true,
+    keywords:[
+      {word:'العراق',lang:'ar'},{word:'عراقي',lang:'ar'},{word:'بغداد',lang:'ar'},
+      {word:'iraq',lang:'en'},{word:'iraqi',lang:'en'},{word:'baghdad',lang:'en'},
+      {word:'عراق',lang:'fa'},{word:'irak',lang:'tr'},{word:'#Iraq',lang:'hash'},
+      {word:'#Baghdad',lang:'hash'},{word:'#العراق',lang:'hash'}
+    ],
+    sources:['all']
+  },
+  {
+    id:'pmf-factions', name:'الفصائل والحشد', color:'#c0392b',
+    desc:'رصد الحشد الشعبي والفصائل المسلحة وعملياتها',
+    active:true, alert:true,
+    keywords:[
+      {word:'الحشد الشعبي',lang:'ar'},{word:'الحشد',lang:'ar'},{word:'فصائل',lang:'ar'},
+      {word:'كتائب حزب الله',lang:'ar'},{word:'النجباء',lang:'ar'},{word:'عصائب',lang:'ar'},
+      {word:'PMF',lang:'en'},{word:'popular mobilization',lang:'en'},
+      {word:'hashd',lang:'en'},{word:'kataib hezbollah',lang:'en'},
+      {word:'#الحشد_الشعبي',lang:'hash'},{word:'#PMF',lang:'hash'}
+    ],
+    sources:['icg','almonitor','tg-pmf','tg-kataib']
+  },
+  {
+    id:'kurdistan', name:'كردستان العراق', color:'#c8a028',
+    desc:'شؤون الإقليم والبيشمركة وعلاقتها بالمركز وتركيا',
+    active:true, alert:false,
+    keywords:[
+      {word:'كردستان',lang:'ar'},{word:'البيشمركة',lang:'ar'},{word:'بارزاني',lang:'ar'},
+      {word:'أربيل',lang:'ar'},{word:'السليمانية',lang:'ar'},{word:'دهوك',lang:'ar'},
+      {word:'kurdistan',lang:'en'},{word:'peshmerga',lang:'en'},{word:'barzani',lang:'en'},
+      {word:'erbil',lang:'en'},{word:'kürdistan',lang:'tr'},
+      {word:'#Kurdistan',lang:'hash'}
+    ],
+    sources:['rudaw','k24','icg','chatham']
+  },
+  {
+    id:'oil-energy', name:'النفط والطاقة', color:'#1a8a7a',
+    desc:'أسعار النفط، صادرات البصرة، عقود الطاقة، أوبك',
+    active:true, alert:false,
+    keywords:[
+      {word:'نفط العراق',lang:'ar'},{word:'البصرة',lang:'ar'},{word:'حقل نفط',lang:'ar'},
+      {word:'الطاقة',lang:'ar'},{word:'موازنة',lang:'ar'},{word:'أوبك',lang:'ar'},
+      {word:'iraq oil',lang:'en'},{word:'basra',lang:'en'},{word:'oil field',lang:'en'},
+      {word:'opec iraq',lang:'en'},{word:'energy iraq',lang:'en'},
+      {word:'#IraqOil',lang:'hash'}
+    ],
+    sources:['ft','acled','reuters']
+  },
+  {
+    id:'security-ops', name:'العمليات الأمنية', color:'#d4702a',
+    desc:'الهجمات والاشتباكات والعمليات العسكرية داخل العراق',
+    active:true, alert:true,
+    keywords:[
+      {word:'هجوم',lang:'ar'},{word:'انفجار',lang:'ar'},{word:'عملية',lang:'ar'},
+      {word:'اعتقال',lang:'ar'},{word:'داعش',lang:'ar'},{word:'مسيّرة',lang:'ar'},
+      {word:'attack iraq',lang:'en'},{word:'explosion iraq',lang:'en'},
+      {word:'isis iraq',lang:'en'},{word:'strike iraq',lang:'en'},{word:'drone iraq',lang:'en'},
+      {word:'#IraqAttack',lang:'hash'}
+    ],
+    sources:['acled','icg','reuters','almonitor','tg-kataib']
+  },
+  {
+    id:'diplomacy', name:'الدبلوماسية والسياسة', color:'#7c4dff',
+    desc:'المواقف الدولية، الزيارات، الاتفاقيات، القرارات',
+    active:true, alert:false,
+    keywords:[
+      {word:'العلاقات العراقية',lang:'ar'},{word:'وزير الخارجية',lang:'ar'},
+      {word:'السفارة',lang:'ar'},{word:'الاتفاقية',lang:'ar'},{word:'السوداني',lang:'ar'},
+      {word:'iraq diplomacy',lang:'en'},{word:'iraq sanctions',lang:'en'},
+      {word:'iraq us relations',lang:'en'},{word:'iran iraq',lang:'en'},
+      {word:'#IraqDiplomacy',lang:'hash'}
+    ],
+    sources:['carnegie','mei','fp','chatham','reuters']
+  },
+];
+
+let sources  = getData('iq_sources',  DEFAULT_SOURCES);
+let kwGroups = getData('iq_kwgroups', DEFAULT_GROUPS);
+let currentTypeFilter = '';
+
+function save() {
+  setData('iq_sources',  sources);
+  setData('iq_kwgroups', kwGroups);
+}
+
+/* ══════════════════════════════════════
+   NAV
+══════════════════════════════════════ */
+function showPanel(name, el) {
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.sb-item').forEach(i=>i.classList.remove('active'));
+  document.getElementById('panel-'+name).classList.add('active');
+  if (el) el.classList.add('active');
+  currentTypeFilter = '';
+  if (name==='sources')  renderSources();
+  if (name==='keywords') renderKeywords();
+  if (name==='apis')     renderApis();
+}
+
+function showPanelFiltered(name, type, el) {
+  showPanel(name, el);
+  currentTypeFilter = type;
+  document.getElementById('src-filter-type').value = type;
+  renderSources();
+}
+
+/* ══════════════════════════════════════
+   TOAST
+══════════════════════════════════════ */
+let _tt;
+function toast(msg, type='ok') {
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.className=`toast ${type} show`;
+  clearTimeout(_tt);
+  _tt=setTimeout(()=>t.classList.remove('show'),2800);
+}
+
+/* ══════════════════════════════════════
+   SOURCES
+══════════════════════════════════════ */
+const TYPE_META = {
+  rss:     {label:'RSS',      colors:['rgba(42,127,255,.15)','#6aa3ff']},
+  telegram:{label:'تلغرام',   colors:['rgba(26,138,122,.15)','#3abfab']},
+  twitter: {label:'X',        colors:['rgba(200,150,60,.15)','#d4a84b']},
+  youtube: {label:'يوتيوب',   colors:['rgba(192,57,43,.15)','#e05a4a']},
+  scrape:  {label:'Scraping', colors:['rgba(124,77,255,.15)','#a87fe0']},
+};
+const REGION_LABELS = {western:'غربية',arab:'عربية',iraqi:'عراقية',iranian:'إيرانية',turkish:'تركية',international:'دولية',kurdish:'كردية'};
+
+function renderSources() {
+  const search  = (document.getElementById('src-search')?.value||'').toLowerCase();
+  const region  = document.getElementById('src-filter-region')?.value||'';
+  const typeF   = document.getElementById('src-filter-type')?.value || currentTypeFilter || '';
+
+  let list = sources;
+  if (search)  list = list.filter(s=>s.name.toLowerCase().includes(search)||s.url.toLowerCase().includes(search));
+  if (region)  list = list.filter(s=>s.region===region);
+  if (typeF)   list = list.filter(s=>s.type===typeF);
+
+  // Update sidebar counts
+  ['all','rss','telegram','twitter','youtube'].forEach(t=>{
+    const el=document.getElementById('sb-count-'+t);
+    if(el) el.textContent = t==='all' ? sources.length : sources.filter(s=>s.type===t).length;
+  });
+
+  // Stats mini
+  const active=sources.filter(s=>s.active).length;
+  document.getElementById('sm-total').textContent   = sources.length;
+  document.getElementById('sm-active').textContent  = active;
+  document.getElementById('sm-inactive').textContent= sources.length-active;
+
+  const grid=document.getElementById('sources-grid');
+  if(!list.length){
+    grid.innerHTML=`<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--text3);font-family:var(--font-mono)">لا توجد مصادر مطابقة</div>`;
+    return;
+  }
+
+  grid.innerHTML = list.map(s=>{
+    const tm   = TYPE_META[s.type]||{label:s.type,colors:['var(--bg3)','var(--text2)']};
+    const init = s.name.split(' ').slice(0,2).map(w=>w[0]||'').join('').toUpperCase().slice(0,2);
+    const urlDisplay = s.url.replace(/^https?:\/\//,'').slice(0,38);
+    return `
+    <div class="source-card ${s.active?'':'inactive'}" id="sc-${s.id}">
+      <div class="sc-header">
+        <div class="sc-avatar" style="background:${tm.colors[0]};color:${tm.colors[1]}">${init}</div>
+        <div class="sc-info">
+          <div class="sc-name">${s.name}</div>
+          <div class="sc-url" title="${s.url}">${urlDisplay}</div>
+        </div>
+        <div class="sc-actions">
+          <div class="sc-toggle ${s.active?'on':''}" onclick="toggleSource('${s.id}')" title="${s.active?'إيقاف':'تفعيل'}"></div>
+          <button class="btn-danger" onclick="deleteSource('${s.id}')">✕</button>
+        </div>
+      </div>
+      <div class="sc-meta">
+        <span class="sc-badge type-${s.type}">${tm.label}</span>
+        <span class="sc-badge region-${s.region}">${REGION_LABELS[s.region]||s.region}</span>
+        <span class="sc-badge" style="background:var(--bg3);color:var(--text3);font-size:10px">${s.lang.toUpperCase()}</span>
+        ${s.notes?`<span class="sc-badge" style="background:var(--bg3);color:var(--text3);font-size:10px" title="${s.notes}">ملاحظة</span>`:''}
+      </div>
+      <div class="sc-trust">
+        <div class="trust-bar"><div class="trust-fill" style="width:${s.trust}%;background:${s.trust>=80?'var(--green)':s.trust>=60?'var(--gold)':'var(--red)'}"></div></div>
+        <div class="trust-label">${s.trust}%</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function toggleSource(id) {
+  const s=sources.find(x=>x.id===id);
+  if(s){ s.active=!s.active; save(); renderSources(); toast(s.active?'✓ تم تفعيل المصدر':'المصدر معطّل'); }
+}
+
+function deleteSource(id) {
+  if(!confirm('حذف هذا المصدر؟')) return;
+  sources=sources.filter(s=>s.id!==id);
+  save(); renderSources(); toast('تم الحذف','ok');
+}
+
+function toggleAddForm() {
+  const f=document.getElementById('add-source-form');
+  f.classList.toggle('open');
+}
+
+function updateSourceTypeHint() {
+  const type=document.getElementById('sf-type').value;
+  const hints={
+    rss:     {label:'رابط RSS',    hint:'مثال: https://example.com/feed.xml'},
+    telegram:{label:'رابط القناة', hint:'مثال: https://t.me/s/channelname'},
+    twitter: {label:'رابط الحساب', hint:'مثال: https://twitter.com/username  (يُستخدم Nitter)'},
+    youtube: {label:'رابط القناة', hint:'مثال: https://youtube.com/@ChannelName'},
+    scrape:  {label:'رابط الموقع', hint:'مثال: https://example.com — سيتم جلب الصفحة الرئيسية'},
+  };
+  const h=hints[type]||hints.rss;
+  document.getElementById('sf-url-label').innerHTML=`<span class="field-req">*</span> ${h.label}`;
+  document.getElementById('sf-url-hint').textContent=h.hint;
+}
+
+function addSource() {
+  const name=document.getElementById('sf-name').value.trim();
+  const url =document.getElementById('sf-url').value.trim();
+  if(!name||!url){ toast('الاسم والرابط مطلوبان','err'); return; }
+
+  const id='src_'+Date.now();
+  sources.push({
+    id, name, type:document.getElementById('sf-type').value,
+    url, region:document.getElementById('sf-region').value,
+    lang:document.getElementById('sf-lang').value,
+    trust:parseInt(document.getElementById('sf-trust').value),
+    active:true,
+    website:document.getElementById('sf-website').value.trim(),
+    notes:document.getElementById('sf-notes').value.trim(),
+  });
+  save();
+  // Reset form
+  ['sf-name','sf-url','sf-website','sf-notes'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('sf-trust').value=75;
+  document.getElementById('sf-trust-val').textContent='75';
+  toggleAddForm();
+  renderSources();
+  toast('✓ تم إضافة المصدر');
+}
+
+/* ══════════════════════════════════════
+   KEYWORD GROUPS
+══════════════════════════════════════ */
+const LANG_LABELS={ar:'ع',en:'EN',fa:'FA',tr:'TR',hash:'#'};
+
+function renderKeywords() {
+  document.getElementById('sb-count-kw').textContent=kwGroups.length;
+  const el=document.getElementById('kw-groups-list');
+  el.innerHTML=kwGroups.map((g,gi)=>{
+    const srcNames = g.sources.includes('all')
+      ? ['كل المصادر']
+      : g.sources.map(id=>sources.find(s=>s.id===id)?.name||id);
+    return `
+    <div class="kw-group">
+      <div class="kg-header" onclick="toggleGroup(${gi})">
+        <div class="kg-color" style="background:${g.color}"></div>
+        <div class="kg-name">${g.name}</div>
+        <div class="kg-count">${g.keywords.length} كلمة</div>
+        <div class="toggle-sm ${g.active?'on':''}" onclick="event.stopPropagation();toggleGroupActive(${gi})" title="تفعيل/إيقاف"></div>
+        <div class="kg-toggle-btn" id="kg-arrow-${gi}">▼</div>
+      </div>
+      <div class="kg-body" id="kg-body-${gi}">
+        <div class="kg-desc">${g.desc}</div>
+        <div class="kw-chips" id="kw-chips-${gi}">
+          ${g.keywords.map((k,ki)=>`
+            <span class="kw-chip ${k.lang}">
+              ${LANG_LABELS[k.lang]||k.lang} ${k.word}
+              <span class="kw-remove" onclick="removeKeyword(${gi},${ki})">×</span>
+            </span>
+          `).join('')}
+        </div>
+        <div class="kw-add-row">
+          <input class="kw-input" id="kw-input-${gi}" placeholder="أضف كلمة..." onkeydown="if(event.key==='Enter')addKeyword(${gi})">
+          <select class="lang-select" id="kw-lang-${gi}">
+            <option value="ar">ع</option>
+            <option value="en">EN</option>
+            <option value="fa">FA</option>
+            <option value="tr">TR</option>
+            <option value="hash">#</option>
+          </select>
+          <button class="btn-add-kw" onclick="addKeyword(${gi})">+ إضافة</button>
+        </div>
+        <div class="kg-sources-row">
+          <span>المصادر المرتبطة:</span>
+          <div class="kg-sources-list">
+            ${srcNames.map(n=>`<span class="kg-src-tag">${n}</span>`).join('')}
+          </div>
+        </div>
+        <div class="kg-alert-row">
+          <div class="toggle-sm ${g.alert?'on':''}" onclick="toggleGroupAlert(${gi})"></div>
+          <span>تنبيه فوري عند رصد أخبار حرجة من هذه المجموعة</span>
+        </div>
+        <div style="margin-top:10px;display:flex;gap:8px">
+          <button class="btn-ghost" style="font-size:12px;padding:5px 12px" onclick="editGroupSources(${gi})">تعديل المصادر</button>
+          <button class="btn-danger" onclick="deleteGroup(${gi})">حذف المجموعة</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function toggleGroup(gi) {
+  const body=document.getElementById(`kg-body-${gi}`);
+  const arrow=document.getElementById(`kg-arrow-${gi}`);
+  body.classList.toggle('open');
+  arrow.textContent=body.classList.contains('open')?'▲':'▼';
+}
+
+function toggleGroupActive(gi) {
+  kwGroups[gi].active=!kwGroups[gi].active;
+  save(); renderKeywords();
+}
+
+function toggleGroupAlert(gi) {
+  kwGroups[gi].alert=!kwGroups[gi].alert;
+  save(); renderKeywords();
+}
+
+function addKeyword(gi) {
+  const word=document.getElementById(`kw-input-${gi}`).value.trim();
+  const lang=document.getElementById(`kw-lang-${gi}`).value;
+  if(!word) return;
+  if(kwGroups[gi].keywords.find(k=>k.word===word)){toast('الكلمة موجودة مسبقاً','err');return;}
+  kwGroups[gi].keywords.push({word,lang});
+  document.getElementById(`kw-input-${gi}`).value='';
+  save(); renderKeywords();
+  // re-open
+  setTimeout(()=>{ const b=document.getElementById(`kg-body-${gi}`); b.classList.add('open'); document.getElementById(`kg-arrow-${gi}`).textContent='▲'; },50);
+  toast('✓ تمت إضافة الكلمة');
+}
+
+function removeKeyword(gi,ki) {
+  kwGroups[gi].keywords.splice(ki,1);
+  save(); renderKeywords();
+}
+
+function deleteGroup(gi) {
+  if(!confirm(`حذف مجموعة "${kwGroups[gi].name}"؟`)) return;
+  kwGroups.splice(gi,1);
+  save(); renderKeywords(); toast('تم الحذف');
+}
+
+function editGroupSources(gi) {
+  const g=kwGroups[gi];
+  const active=sources.map(s=>`${s.name} [${s.id}]`).join('\n');
+  const current=g.sources.join(', ');
+  const newVal=prompt(`المصادر المرتبطة بـ "${g.name}"\n(أدخل IDs مفصولة بفاصلة، أو "all" للكل)\n\nالمتاح:\n${active}\n\nالحالي:`,current);
+  if(newVal===null) return;
+  g.sources=newVal.trim()==='all'?['all']:newVal.split(',').map(s=>s.trim()).filter(Boolean);
+  save(); renderKeywords(); toast('✓ تم تحديث المصادر');
+}
+
+function addGroup() {
+  const name=prompt('اسم المجموعة الجديدة:');
+  if(!name) return;
+  const colors=['#2a7fff','#c0392b','#27864a','#c8963c','#7c4dff','#1a8a7a','#d4702a'];
+  kwGroups.push({
+    id:'grp_'+Date.now(), name, color:colors[kwGroups.length%colors.length],
+    desc:'', active:true, alert:false, keywords:[], sources:['all']
+  });
+  save(); renderKeywords(); toast('✓ تمت إضافة المجموعة');
+}
+
+/* ══════════════════════════════════════
+   API KEYS
+══════════════════════════════════════ */
+const APIS=[
+  {key:'sb_url',     name:'Supabase URL',        icon:'🗄',  desc:'رابط مشروعك على supabase.com',                    ph:'https://xxxx.supabase.co'},
+  {key:'sb_key',     name:'Supabase Anon Key',   icon:'🔐', desc:'المفتاح العام (anon key) من Project Settings',     ph:'eyJhbGci...'},
+  {key:'anthropic_key',name:'Anthropic API Key', icon:'🤖', desc:'لتحليل المقالات والتلخيص التلقائي بـ Claude',       ph:'sk-ant-...'},
+  {key:'deepl_key',  name:'DeepL API Key',       icon:'🌍', desc:'للترجمة الاحترافية للنصوص الرسمية (اختياري)',       ph:'xxxxxxxx:fx'},
+];
+
+function renderApis() {
+  document.getElementById('apis-grid').innerHTML=APIS.map(a=>{
+    const val=localStorage.getItem(a.key)||'';
+    const connected=!!val;
+    return `
+    <div class="api-card">
+      <div class="api-card-header">
+        <span class="api-icon">${a.icon}</span>
+        <span class="api-name">${a.name}</span>
+        <span class="api-status ${connected?'connected':'missing'}">${connected?'متصل':'غير مضاف'}</span>
+      </div>
+      <div class="api-input-row">
+        <input class="api-input" id="api-${a.key}" type="password"
+               value="${val}" placeholder="${a.ph}" autocomplete="off">
+        <button class="btn-save-api" onclick="saveApi('${a.key}')">حفظ</button>
+      </div>
+      <div class="api-desc">${a.desc}</div>
+    </div>`;
+  }).join('');
+}
+
+function saveApi(key) {
+  const val=document.getElementById('api-'+key).value.trim();
+  if(val) localStorage.setItem(key,val);
+  else    localStorage.removeItem(key);
+  renderApis();
+  toast('✓ تم الحفظ');
+}
+
+/* ══════════════════════════════════════
+   EXPORT / IMPORT
+══════════════════════════════════════ */
+function exportSettings() {
+  const data=JSON.stringify({sources,kwGroups,exported:new Date().toISOString()},null,2);
+  const blob=new Blob([data],{type:'application/json'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=`iraq-intel-settings-${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+  toast('✓ تم التصدير');
+}
+
+function importSettings(e) {
+  const file=e.target.files[0];
+  if(!file) return;
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    try{
+      const data=JSON.parse(ev.target.result);
+      if(data.sources){
+        // Merge — avoid duplicates
+        data.sources.forEach(s=>{ if(!sources.find(x=>x.id===s.id)) sources.push(s); });
+      }
+      if(data.kwGroups){
+        data.kwGroups.forEach(g=>{ if(!kwGroups.find(x=>x.id===g.id)) kwGroups.push(g); });
+      }
+      save(); renderSources(); renderKeywords();
+      toast('✓ تم الاستيراد');
+    }catch{ toast('ملف غير صالح','err'); }
+  };
+  reader.readAsText(file);
+}
+
+/* ══════════════════════════════════════
+   INIT
+══════════════════════════════════════ */
+window.addEventListener('DOMContentLoaded',()=>{
+  renderSources();
+  renderKeywords();
+});
+</script>
+</body>
+</html>

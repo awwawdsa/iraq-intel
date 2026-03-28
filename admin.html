@@ -1,0 +1,1448 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>لوحة الإدارة — رصد العراق</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --bg0:      #080c10;
+  --bg1:      #0d1117;
+  --bg2:      #141b24;
+  --bg3:      #1c2533;
+  --border:   #243040;
+  --border2:  #2e3d52;
+  --text1:    #e8edf3;
+  --text2:    #8a9bb0;
+  --text3:    #4a5a6e;
+  --accent:   #2a7fff;
+  --accent2:  #1a5fcc;
+  --gold:     #c8963c;
+  --red:      #c0392b;
+  --orange:   #d4702a;
+  --green:    #27864a;
+  --teal:     #1a8a7a;
+  --purple:   #7c4dff;
+  --font-ar:  'IBM Plex Sans Arabic', sans-serif;
+  --font-mono:'JetBrains Mono', monospace;
+  --r:        6px;
+  --r2:       10px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: var(--font-ar);
+  background: var(--bg0);
+  color: var(--text1);
+  min-height: 100vh;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,.06) 2px, rgba(0,0,0,.06) 4px);
+  pointer-events: none;
+  z-index: 9999;
+}
+
+/* ── HEADER ── */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 28px;
+  background: var(--bg1);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.header-brand { display: flex; align-items: center; gap: 12px; }
+.header-logo {
+  width: 36px; height: 36px;
+  background: var(--accent);
+  border-radius: var(--r);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; font-weight: 600; color: #fff;
+  font-family: var(--font-mono);
+}
+.header-title  { font-size: 15px; font-weight: 600; }
+.header-sub    { font-size: 11px; color: var(--text3); font-family: var(--font-mono); }
+.back-btn {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  color: var(--text2);
+  padding: 7px 16px;
+  border-radius: var(--r);
+  cursor: pointer;
+  font-family: var(--font-ar);
+  font-size: 13px;
+  text-decoration: none;
+  transition: all .2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.back-btn:hover { background: var(--border); color: var(--text1); }
+
+/* ── LAYOUT ── */
+.layout {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  min-height: calc(100vh - 57px);
+}
+
+/* ── SIDEBAR ── */
+.sidebar {
+  background: var(--bg1);
+  border-left: 1px solid var(--border);
+  padding: 20px 0;
+}
+
+.sidebar-label {
+  font-size: 10px;
+  color: var(--text3);
+  font-family: var(--font-mono);
+  letter-spacing: .8px;
+  text-transform: uppercase;
+  padding: 0 16px 8px;
+}
+
+.sidebar-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  cursor: pointer;
+  transition: all .15s;
+  border-right: 2px solid transparent;
+  font-size: 13px;
+  color: var(--text2);
+  user-select: none;
+}
+.sidebar-item:hover { background: var(--bg2); color: var(--text1); }
+.sidebar-item.active {
+  background: rgba(42,127,255,.08);
+  border-right-color: var(--accent);
+  color: var(--accent);
+}
+
+.sidebar-icon {
+  width: 28px; height: 28px;
+  border-radius: var(--r);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+.icon-url    { background: rgba(42,127,255,.15);  color: var(--accent); }
+.icon-pdf    { background: rgba(192,57,43,.15);   color: #e05a4a; }
+.icon-note   { background: rgba(200,150,60,.15);  color: var(--gold); }
+.icon-field  { background: rgba(39,134,74,.15);   color: #4aba77; }
+.icon-manage { background: rgba(124,77,255,.15);  color: var(--purple); }
+
+.sidebar-divider { height: 1px; background: var(--border); margin: 12px 0; }
+
+/* ── MAIN CONTENT ── */
+.content { padding: 28px 32px; }
+
+.panel { display: none; }
+.panel.active { display: block; }
+
+/* ── FORM ELEMENTS ── */
+.form-title {
+  font-size: 17px;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+.form-desc {
+  font-size: 13px;
+  color: var(--text2);
+  margin-bottom: 24px;
+  line-height: 1.6;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+.form-grid.single { grid-template-columns: 1fr; }
+
+.field { display: flex; flex-direction: column; gap: 6px; }
+.field.full { grid-column: 1 / -1; }
+
+.field-label {
+  font-size: 11px;
+  color: var(--text2);
+  font-family: var(--font-mono);
+  letter-spacing: .3px;
+}
+.field-required { color: var(--red); margin-right: 3px; }
+
+.field-input, .field-select, .field-textarea {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  color: var(--text1);
+  padding: 9px 12px;
+  border-radius: var(--r);
+  font-family: var(--font-ar);
+  font-size: 13px;
+  outline: none;
+  transition: border-color .2s, box-shadow .2s;
+  width: 100%;
+}
+.field-input:focus, .field-select:focus, .field-textarea:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(42,127,255,.1);
+}
+.field-input::placeholder, .field-textarea::placeholder { color: var(--text3); }
+.field-textarea { resize: vertical; min-height: 110px; line-height: 1.6; }
+.field-select option { background: var(--bg3); }
+
+/* AI assist button */
+.ai-row {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+}
+.ai-row .field-input { flex: 1; }
+
+.btn-ai {
+  background: rgba(42,127,255,.12);
+  border: 1px solid rgba(42,127,255,.3);
+  color: var(--accent);
+  padding: 9px 14px;
+  border-radius: var(--r);
+  cursor: pointer;
+  font-family: var(--font-ar);
+  font-size: 12px;
+  white-space: nowrap;
+  transition: all .2s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+.btn-ai:hover { background: rgba(42,127,255,.2); }
+.btn-ai:disabled { opacity: .4; cursor: not-allowed; }
+
+/* Importance slider */
+.importance-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.importance-slider {
+  flex: 1;
+  -webkit-appearance: none;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--border);
+  outline: none;
+}
+.importance-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 16px; height: 16px;
+  border-radius: 50%;
+  background: var(--accent);
+  cursor: pointer;
+}
+.importance-val {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--accent);
+  min-width: 28px;
+  text-align: center;
+}
+
+/* Tag input */
+.tags-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  min-height: 40px;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 6px 10px;
+  align-items: center;
+  transition: border-color .2s;
+}
+.tags-wrap:focus-within { border-color: var(--accent); }
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(42,127,255,.15);
+  color: var(--accent);
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-family: var(--font-mono);
+}
+.tag-remove {
+  cursor: pointer;
+  opacity: .6;
+  font-size: 14px;
+  line-height: 1;
+}
+.tag-remove:hover { opacity: 1; }
+.tags-input {
+  background: none;
+  border: none;
+  color: var(--text1);
+  font-family: var(--font-ar);
+  font-size: 13px;
+  outline: none;
+  min-width: 120px;
+  flex: 1;
+}
+
+/* PDF drop zone */
+.drop-zone {
+  border: 2px dashed var(--border2);
+  border-radius: var(--r2);
+  padding: 40px 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: all .2s;
+  background: var(--bg2);
+  position: relative;
+}
+.drop-zone:hover, .drop-zone.dragover {
+  border-color: var(--accent);
+  background: rgba(42,127,255,.05);
+}
+.drop-zone input[type=file] {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+.drop-icon { font-size: 36px; margin-bottom: 12px; }
+.drop-text { font-size: 14px; color: var(--text2); }
+.drop-sub  { font-size: 12px; color: var(--text3); margin-top: 4px; }
+.drop-file-name {
+  margin-top: 12px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--green);
+  display: none;
+}
+
+/* AI result box */
+.ai-result {
+  background: rgba(42,127,255,.05);
+  border: 1px solid rgba(42,127,255,.2);
+  border-radius: var(--r);
+  padding: 14px 16px;
+  font-size: 13px;
+  color: var(--text2);
+  line-height: 1.7;
+  display: none;
+  margin-top: 12px;
+  border-right: 2px solid var(--accent);
+}
+.ai-result.visible { display: block; }
+.ai-result-label {
+  font-size: 10px;
+  color: var(--accent);
+  font-family: var(--font-mono);
+  letter-spacing: .5px;
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Confidentiality badges */
+.conf-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.conf-opt {
+  flex: 1;
+  min-width: 100px;
+  padding: 10px 14px;
+  border-radius: var(--r);
+  border: 1px solid var(--border);
+  cursor: pointer;
+  text-align: center;
+  transition: all .2s;
+  font-size: 12px;
+  color: var(--text2);
+  user-select: none;
+}
+.conf-opt:hover { border-color: var(--border2); }
+.conf-opt.selected.public   { border-color: var(--green);  background: rgba(39,134,74,.1);  color: #4aba77; }
+.conf-opt.selected.internal { border-color: var(--gold);   background: rgba(200,150,60,.1); color: var(--gold); }
+.conf-opt.selected.private  { border-color: var(--red);    background: rgba(192,57,43,.1);  color: #e05a4a; }
+.conf-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+  margin-left: 6px;
+}
+.conf-dot.public   { background: var(--green); }
+.conf-dot.internal { background: var(--gold); }
+.conf-dot.private  { background: var(--red); }
+
+/* Submit button */
+.submit-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
+}
+
+.btn-submit {
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  padding: 11px 28px;
+  border-radius: var(--r);
+  font-family: var(--font-ar);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all .2s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.btn-submit:hover { background: var(--accent2); }
+.btn-submit:disabled { opacity: .4; cursor: not-allowed; }
+
+.btn-clear {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text3);
+  padding: 10px 20px;
+  border-radius: var(--r);
+  font-family: var(--font-ar);
+  font-size: 13px;
+  cursor: pointer;
+  transition: all .2s;
+}
+.btn-clear:hover { border-color: var(--red); color: var(--red); }
+
+/* Toast */
+.toast {
+  position: fixed;
+  bottom: 28px;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: var(--bg2);
+  border: 1px solid var(--border2);
+  border-radius: var(--r2);
+  padding: 12px 24px;
+  font-size: 13px;
+  opacity: 0;
+  transition: all .3s;
+  z-index: 999;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+.toast.success { border-color: var(--green); color: #4aba77; }
+.toast.error   { border-color: var(--red);   color: #e05a4a; }
+.toast.loading { border-color: var(--accent); color: var(--accent); }
+
+/* Spinner */
+.spin {
+  width: 14px; height: 14px;
+  border: 2px solid rgba(42,127,255,.2);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin .7s linear infinite;
+  display: inline-block;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Recent entries table */
+.recent-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 8px;
+}
+.recent-table th {
+  font-size: 11px;
+  font-family: var(--font-mono);
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border);
+  text-align: right;
+}
+.recent-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid rgba(36,48,64,.4);
+  font-size: 13px;
+  color: var(--text2);
+  vertical-align: middle;
+}
+.recent-table tr:hover td { background: rgba(255,255,255,.02); }
+.entry-title-cell { max-width: 340px; }
+.entry-title { color: var(--text1); font-size: 13px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 340px; }
+.entry-type-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-family: var(--font-mono);
+}
+.type-url   { background: rgba(42,127,255,.12);  color: #6aa3ff; }
+.type-pdf   { background: rgba(192,57,43,.12);   color: #e05a4a; }
+.type-note  { background: rgba(200,150,60,.12);  color: var(--gold); }
+.type-field { background: rgba(39,134,74,.12);   color: #4aba77; }
+
+.delete-btn {
+  background: none;
+  border: 1px solid transparent;
+  color: var(--text3);
+  padding: 4px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: all .2s;
+}
+.delete-btn:hover { border-color: var(--red); color: var(--red); }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: var(--bg1); }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="header-brand">
+    <div class="header-logo">IQ</div>
+    <div>
+      <div class="header-title">لوحة الإدارة — إضافة محتوى</div>
+      <div class="header-sub">ADMIN PANEL</div>
+    </div>
+  </div>
+  <a href="dashboard.html" class="back-btn">← العودة للداشبورد</a>
+</header>
+
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-label">نوع المحتوى</div>
+
+    <div class="sidebar-item active" onclick="showPanel('url',this)">
+      <div class="sidebar-icon icon-url">🔗</div>
+      رابط مقال
+    </div>
+    <div class="sidebar-item" onclick="showPanel('pdf',this)">
+      <div class="sidebar-icon icon-pdf">📄</div>
+      تقرير PDF
+    </div>
+    <div class="sidebar-item" onclick="showPanel('note',this)">
+      <div class="sidebar-icon icon-note">✍️</div>
+      تحليلي الخاص
+    </div>
+    <div class="sidebar-item" onclick="showPanel('field',this)">
+      <div class="sidebar-icon icon-field">📍</div>
+      معلومة ميدانية
+    </div>
+
+    <div class="sidebar-divider"></div>
+    <div class="sidebar-label">إدارة</div>
+    <div class="sidebar-item" onclick="showPanel('manage',this)">
+      <div class="sidebar-icon icon-manage">🗂</div>
+      المدخلات الأخيرة
+    </div>
+  </aside>
+
+  <!-- CONTENT -->
+  <main class="content">
+
+    <!-- ══ PANEL: URL ══ -->
+    <div class="panel active" id="panel-url">
+      <div class="form-title">إضافة رابط مقال</div>
+      <div class="form-desc">أضف رابط أي مقال أو تقرير لا يظهر في RSS — سيقوم Claude بجلب المحتوى وتلخيصه وتحليله تلقائياً.</div>
+
+      <div class="form-grid single" style="margin-bottom:20px;">
+        <div class="field">
+          <label class="field-label"><span class="field-required">*</span> رابط المقال</label>
+          <div class="ai-row">
+            <input class="field-input" id="url-link" type="url" placeholder="https://..." oninput="urlChanged()">
+            <button class="btn-ai" id="url-fetch-btn" onclick="fetchUrl()" disabled>
+              <span class="spin" id="url-spin" style="display:none"></span>
+              ✦ جلب وتحليل
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="ai-result" id="url-ai-result">
+        <div class="ai-result-label">✦ تحليل Claude</div>
+        <div id="url-ai-text"></div>
+      </div>
+
+      <div class="form-grid" style="margin-top:20px;">
+        <div class="field full">
+          <label class="field-label"><span class="field-required">*</span> العنوان بالعربية</label>
+          <input class="field-input" id="url-title" placeholder="عنوان المقالة">
+        </div>
+        <div class="field">
+          <label class="field-label">اسم المصدر</label>
+          <input class="field-input" id="url-source" placeholder="Reuters, ICG, ...">
+        </div>
+        <div class="field">
+          <label class="field-label">التصنيف</label>
+          <select class="field-select" id="url-category">
+            <option value="politics">سياسة</option>
+            <option value="security">أمن</option>
+            <option value="diplomacy">دبلوماسية</option>
+            <option value="economy">اقتصاد</option>
+            <option value="military">عسكري</option>
+            <option value="energy">طاقة</option>
+            <option value="kurdistan">كردستان</option>
+            <option value="other">أخرى</option>
+          </select>
+        </div>
+        <div class="field full">
+          <label class="field-label">الملخص</label>
+          <textarea class="field-textarea" id="url-summary" placeholder="ملخص المقالة بالعربية..."></textarea>
+        </div>
+        <div class="field full">
+          <label class="field-label">الأطراف والشخصيات</label>
+          <input class="field-input" id="url-actors" placeholder="الحكومة العراقية، إيران، واشنطن...">
+        </div>
+        <div class="field">
+          <label class="field-label">مستوى الأهمية</label>
+          <div class="importance-row">
+            <input type="range" class="importance-slider" id="url-importance" min="1" max="5" value="3"
+                   oninput="updateImportanceLabel('url')">
+            <span class="importance-val" id="url-importance-val">متوسطة</span>
+          </div>
+        </div>
+        <div class="field">
+          <label class="field-label">الكلمات المفتاحية</label>
+          <div class="tags-wrap" id="url-tags-wrap">
+            <input class="tags-input" id="url-tags-input" placeholder="أضف كلمة واضغط Enter"
+                   onkeydown="addTag('url', event)">
+          </div>
+        </div>
+      </div>
+
+      <div class="submit-row">
+        <button class="btn-clear" onclick="clearForm('url')">مسح</button>
+        <button class="btn-submit" onclick="submitEntry('url')">
+          حفظ في قاعدة البيانات ←
+        </button>
+      </div>
+    </div>
+
+    <!-- ══ PANEL: PDF ══ -->
+    <div class="panel" id="panel-pdf">
+      <div class="form-title">رفع تقرير PDF</div>
+      <div class="form-desc">ارفع تقرير PDF من مركز بحثي أو وثيقة رسمية — سيستخرج Claude النص الأساسي ويحلله ويصنفه.</div>
+
+      <div class="drop-zone" id="pdf-drop" ondragover="dragOver(event)" ondragleave="dragLeave(event)" ondrop="dropFile(event)">
+        <input type="file" accept=".pdf" onchange="fileSelected(event)">
+        <div class="drop-icon">📄</div>
+        <div class="drop-text">اسحب ملف PDF هنا أو اضغط للاختيار</div>
+        <div class="drop-sub">الحجم الأقصى: 10MB</div>
+        <div class="drop-file-name" id="pdf-file-name"></div>
+      </div>
+
+      <div style="margin:16px 0; display:flex; justify-content:center;">
+        <button class="btn-ai" id="pdf-analyze-btn" onclick="analyzePdf()" disabled style="padding:10px 24px;">
+          <span class="spin" id="pdf-spin" style="display:none"></span>
+          ✦ استخراج وتحليل المحتوى
+        </button>
+      </div>
+
+      <div class="ai-result" id="pdf-ai-result">
+        <div class="ai-result-label">✦ ما استخلصه Claude من التقرير</div>
+        <div id="pdf-ai-text"></div>
+      </div>
+
+      <div class="form-grid" style="margin-top:20px;">
+        <div class="field full">
+          <label class="field-label"><span class="field-required">*</span> عنوان التقرير</label>
+          <input class="field-input" id="pdf-title" placeholder="عنوان التقرير بالعربية">
+        </div>
+        <div class="field">
+          <label class="field-label">المصدر / المؤسسة</label>
+          <input class="field-input" id="pdf-source" placeholder="ICG, RAND, Chatham House...">
+        </div>
+        <div class="field">
+          <label class="field-label">التصنيف</label>
+          <select class="field-select" id="pdf-category">
+            <option value="politics">سياسة</option>
+            <option value="security">أمن</option>
+            <option value="diplomacy">دبلوماسية</option>
+            <option value="economy">اقتصاد</option>
+            <option value="military">عسكري</option>
+            <option value="energy">طاقة</option>
+            <option value="kurdistan">كردستان</option>
+            <option value="other">أخرى</option>
+          </select>
+        </div>
+        <div class="field full">
+          <label class="field-label">الخلاصة التحريرية</label>
+          <textarea class="field-textarea" id="pdf-summary" placeholder="ملخصك للتقرير..."></textarea>
+        </div>
+        <div class="field">
+          <label class="field-label">مستوى الأهمية</label>
+          <div class="importance-row">
+            <input type="range" class="importance-slider" id="pdf-importance" min="1" max="5" value="4"
+                   oninput="updateImportanceLabel('pdf')">
+            <span class="importance-val" id="pdf-importance-val">عالية</span>
+          </div>
+        </div>
+        <div class="field">
+          <label class="field-label">رابط التقرير الأصلي (اختياري)</label>
+          <input class="field-input" id="pdf-url" placeholder="https://...">
+        </div>
+      </div>
+
+      <div class="submit-row">
+        <button class="btn-clear" onclick="clearForm('pdf')">مسح</button>
+        <button class="btn-submit" onclick="submitEntry('pdf')">
+          حفظ في قاعدة البيانات ←
+        </button>
+      </div>
+    </div>
+
+    <!-- ══ PANEL: NOTE (تحليلك الخاص) ══ -->
+    <div class="panel" id="panel-note">
+      <div class="form-title">تحليلي الخاص</div>
+      <div class="form-desc">اكتب تحليلك أو تعليقك على حدث أو مستجد — يُخزَّن كمحتوى تحريري موقّع باسمك ويظهر في الداشبورد.</div>
+
+      <div class="form-grid">
+        <div class="field full">
+          <label class="field-label"><span class="field-required">*</span> العنوان</label>
+          <input class="field-input" id="note-title" placeholder="عنوان تحليلك أو تعليقك">
+        </div>
+        <div class="field full">
+          <label class="field-label"><span class="field-required">*</span> التحليل أو التعليق</label>
+          <textarea class="field-textarea" id="note-body" placeholder="اكتب تحليلك هنا..." style="min-height:160px;"></textarea>
+        </div>
+
+        <div class="field">
+          <label class="field-label">يتعلق بحدث أو موضوع</label>
+          <input class="field-input" id="note-topic" placeholder="مثل: الانتخابات، الحشد الشعبي...">
+        </div>
+        <div class="field">
+          <label class="field-label">التصنيف</label>
+          <select class="field-select" id="note-category">
+            <option value="politics">سياسة</option>
+            <option value="security">أمن</option>
+            <option value="diplomacy">دبلوماسية</option>
+            <option value="economy">اقتصاد</option>
+            <option value="military">عسكري</option>
+            <option value="energy">طاقة</option>
+            <option value="kurdistan">كردستان</option>
+            <option value="other">أخرى</option>
+          </select>
+        </div>
+
+        <div class="field full">
+          <label class="field-label">السياق أو المصادر التي استندت إليها</label>
+          <textarea class="field-textarea" id="note-context" placeholder="مصادرك أو السياق الذي بنيت عليه تحليلك..." style="min-height:70px;"></textarea>
+        </div>
+
+        <div class="field">
+          <label class="field-label">مستوى الأهمية</label>
+          <div class="importance-row">
+            <input type="range" class="importance-slider" id="note-importance" min="1" max="5" value="3"
+                   oninput="updateImportanceLabel('note')">
+            <span class="importance-val" id="note-importance-val">متوسطة</span>
+          </div>
+        </div>
+        <div class="field">
+          <label class="field-label">الكلمات المفتاحية</label>
+          <div class="tags-wrap" id="note-tags-wrap">
+            <input class="tags-input" id="note-tags-input" placeholder="أضف كلمة واضغط Enter"
+                   onkeydown="addTag('note', event)">
+          </div>
+        </div>
+      </div>
+
+      <div class="submit-row">
+        <button class="btn-clear" onclick="clearForm('note')">مسح</button>
+        <button class="btn-submit" onclick="submitEntry('note')">
+          نشر التحليل ←
+        </button>
+      </div>
+    </div>
+
+    <!-- ══ PANEL: FIELD (معلومة ميدانية) ══ -->
+    <div class="panel" id="panel-field">
+      <div class="form-title">معلومة ميدانية</div>
+      <div class="form-desc">سجّل معلومة من مصدرك الميداني — حدد موقعها وزمنها ومستوى سريتها. لن تُضاف للداشبورد العام إلا إذا اخترت "عام".</div>
+
+      <div class="form-grid">
+        <div class="field full">
+          <label class="field-label"><span class="field-required">*</span> وصف المعلومة</label>
+          <textarea class="field-textarea" id="field-body" placeholder="ما الذي رصدته أو سمعته..."></textarea>
+        </div>
+
+        <div class="field">
+          <label class="field-label">الموقع / المنطقة</label>
+          <input class="field-input" id="field-location" placeholder="بغداد، الأنبار، القيارة...">
+        </div>
+        <div class="field">
+          <label class="field-label">التاريخ والوقت</label>
+          <input class="field-input" id="field-date" type="datetime-local">
+        </div>
+
+        <div class="field">
+          <label class="field-label">نوع المعلومة</label>
+          <select class="field-select" id="field-type">
+            <option value="security">حركة أمنية</option>
+            <option value="military">تحرك عسكري</option>
+            <option value="politics">سياسي</option>
+            <option value="social">اجتماعي</option>
+            <option value="other">أخرى</option>
+          </select>
+        </div>
+        <div class="field">
+          <label class="field-label">موثوقية المصدر (1-5)</label>
+          <div class="importance-row">
+            <input type="range" class="importance-slider" id="field-reliability" min="1" max="5" value="3"
+                   oninput="updateReliabilityLabel()">
+            <span class="importance-val" id="field-reliability-val">متوسطة</span>
+          </div>
+        </div>
+
+        <div class="field full">
+          <label class="field-label">مستوى السرية</label>
+          <div class="conf-row">
+            <div class="conf-opt public selected" onclick="selectConf(this,'public')">
+              <span class="conf-dot public"></span> عام
+              <div style="font-size:10px;color:inherit;opacity:.7;margin-top:2px;">يظهر في الداشبورد</div>
+            </div>
+            <div class="conf-opt internal" onclick="selectConf(this,'internal')">
+              <span class="conf-dot internal"></span> داخلي
+              <div style="font-size:10px;color:inherit;opacity:.7;margin-top:2px;">للفريق فقط</div>
+            </div>
+            <div class="conf-opt private" onclick="selectConf(this,'private')">
+              <span class="conf-dot private"></span> سري
+              <div style="font-size:10px;color:inherit;opacity:.7;margin-top:2px;">أرشيف خاص</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="field full">
+          <label class="field-label">ملاحظات إضافية</label>
+          <textarea class="field-textarea" id="field-notes" placeholder="سياق إضافي أو تفاصيل مساعدة..." style="min-height:70px;"></textarea>
+        </div>
+      </div>
+
+      <div class="submit-row">
+        <button class="btn-clear" onclick="clearForm('field')">مسح</button>
+        <button class="btn-submit" onclick="submitEntry('field')">
+          تسجيل المعلومة ←
+        </button>
+      </div>
+    </div>
+
+    <!-- ══ PANEL: MANAGE ══ -->
+    <div class="panel" id="panel-manage">
+      <div class="form-title">المدخلات الأخيرة</div>
+      <div class="form-desc">عرض وإدارة آخر المحتوى المضاف يدوياً.</div>
+
+      <div style="overflow-x:auto;">
+        <table class="recent-table" id="manage-table">
+          <thead>
+            <tr>
+              <th>النوع</th>
+              <th>العنوان</th>
+              <th>التصنيف</th>
+              <th>الأهمية</th>
+              <th>التاريخ</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="manage-tbody">
+            <tr><td colspan="6" style="text-align:center;padding:40px;color:var(--text3)">لا توجد مدخلات بعد</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+/* ══════════════════════════════════
+   CONFIG
+══════════════════════════════════ */
+const SB_URL = localStorage.getItem('sb_url') || '';
+const SB_KEY = localStorage.getItem('sb_key') || '';
+const ANTHROPIC_KEY = localStorage.getItem('anthropic_key') || '';
+
+/* ══════════════════════════════════
+   NAV
+══════════════════════════════════ */
+function showPanel(name, el) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+  document.getElementById('panel-' + name).classList.add('active');
+  el.classList.add('active');
+  if (name === 'manage') loadManage();
+}
+
+/* ══════════════════════════════════
+   TOAST
+══════════════════════════════════ */
+let toastTimer;
+function showToast(msg, type = 'loading') {
+  const t = document.getElementById('toast');
+  t.className = `toast ${type} show`;
+  t.innerHTML = type === 'loading'
+    ? `<span class="spin"></span> ${msg}`
+    : (type === 'success' ? `✓ ${msg}` : `✗ ${msg}`);
+  clearTimeout(toastTimer);
+  if (type !== 'loading') {
+    toastTimer = setTimeout(() => t.classList.remove('show'), 3000);
+  }
+}
+function hideToast() {
+  document.getElementById('toast').classList.remove('show');
+}
+
+/* ══════════════════════════════════
+   IMPORTANCE LABELS
+══════════════════════════════════ */
+const IMP_LABELS = { 1:'منخفضة', 2:'منخفضة-متوسطة', 3:'متوسطة', 4:'عالية', 5:'حرجة' };
+
+function updateImportanceLabel(prefix) {
+  const v = document.getElementById(`${prefix}-importance`).value;
+  document.getElementById(`${prefix}-importance-val`).textContent = IMP_LABELS[v];
+}
+
+function updateReliabilityLabel() {
+  const v = document.getElementById('field-reliability').value;
+  document.getElementById('field-reliability-val').textContent = IMP_LABELS[v];
+}
+
+/* ══════════════════════════════════
+   TAGS
+══════════════════════════════════ */
+const tagsStore = {};
+
+function addTag(prefix, e) {
+  if (e.key !== 'Enter') return;
+  e.preventDefault();
+  const input = document.getElementById(`${prefix}-tags-input`);
+  const val   = input.value.trim();
+  if (!val) return;
+  if (!tagsStore[prefix]) tagsStore[prefix] = [];
+  if (tagsStore[prefix].includes(val)) { input.value = ''; return; }
+  tagsStore[prefix].push(val);
+  renderTags(prefix);
+  input.value = '';
+}
+
+function removeTag(prefix, tag) {
+  tagsStore[prefix] = (tagsStore[prefix] || []).filter(t => t !== tag);
+  renderTags(prefix);
+}
+
+function renderTags(prefix) {
+  const wrap  = document.getElementById(`${prefix}-tags-wrap`);
+  const input = document.getElementById(`${prefix}-tags-input`);
+  const tags  = tagsStore[prefix] || [];
+  wrap.innerHTML = '';
+  tags.forEach(t => {
+    const span = document.createElement('span');
+    span.className = 'tag';
+    span.innerHTML = `${t}<span class="tag-remove" onclick="removeTag('${prefix}','${t}')">×</span>`;
+    wrap.appendChild(span);
+  });
+  wrap.appendChild(input);
+}
+
+/* ══════════════════════════════════
+   CONFIDENTIALITY
+══════════════════════════════════ */
+let selectedConf = 'public';
+function selectConf(el, val) {
+  document.querySelectorAll('.conf-opt').forEach(o => {
+    o.classList.remove('selected');
+  });
+  el.classList.add('selected');
+  selectedConf = val;
+}
+
+/* ══════════════════════════════════
+   URL: fetch & analyze
+══════════════════════════════════ */
+function urlChanged() {
+  const v = document.getElementById('url-link').value.trim();
+  document.getElementById('url-fetch-btn').disabled = !v;
+}
+
+async function fetchUrl() {
+  const url = document.getElementById('url-link').value.trim();
+  if (!url) return;
+
+  const btn  = document.getElementById('url-fetch-btn');
+  const spin = document.getElementById('url-spin');
+  btn.disabled = true;
+  spin.style.display = 'inline-block';
+  showToast('جاري جلب المقال وتحليله...');
+
+  try {
+    // Call Claude API to analyze the URL
+    const prompt = `حلل هذا الرابط وأعطني JSON فقط بالشكل التالي بدون أي نص آخر:
+{
+  "title_ar": "العنوان بالعربية",
+  "summary_ar": "ملخص 3-4 جمل بالعربية",
+  "actors": "الأطراف الرئيسية",
+  "category": "politics|security|diplomacy|economy|military|energy|kurdistan|other",
+  "importance": 1-5,
+  "keywords": ["كلمة1","كلمة2"]
+}
+
+الرابط: ${url}`;
+
+    const res = await callClaude(prompt);
+    if (!res) throw new Error('no response');
+
+    const data = JSON.parse(res.replace(/```json?|```/g,'').trim());
+
+    document.getElementById('url-title').value   = data.title_ar   || '';
+    document.getElementById('url-summary').value = data.summary_ar || '';
+    document.getElementById('url-actors').value  = data.actors     || '';
+    document.getElementById('url-category').value= data.category   || 'other';
+
+    if (data.importance) {
+      document.getElementById('url-importance').value = data.importance;
+      updateImportanceLabel('url');
+    }
+    if (data.keywords) {
+      tagsStore['url'] = data.keywords;
+      renderTags('url');
+    }
+
+    document.getElementById('url-ai-text').textContent = data.summary_ar || '';
+    document.getElementById('url-ai-result').classList.add('visible');
+
+    showToast('تم التحليل بنجاح', 'success');
+  } catch(e) {
+    showToast('أدخل المعلومات يدوياً', 'error');
+    // Still let user fill manually
+  }
+
+  btn.disabled = false;
+  spin.style.display = 'none';
+}
+
+/* ══════════════════════════════════
+   PDF: drop & analyze
+══════════════════════════════════ */
+let pdfFile = null;
+
+function dragOver(e) {
+  e.preventDefault();
+  document.getElementById('pdf-drop').classList.add('dragover');
+}
+function dragLeave(e) {
+  document.getElementById('pdf-drop').classList.remove('dragover');
+}
+function dropFile(e) {
+  e.preventDefault();
+  document.getElementById('pdf-drop').classList.remove('dragover');
+  const f = e.dataTransfer.files[0];
+  if (f && f.type === 'application/pdf') setPdfFile(f);
+}
+function fileSelected(e) {
+  const f = e.target.files[0];
+  if (f) setPdfFile(f);
+}
+function setPdfFile(f) {
+  pdfFile = f;
+  const nameEl = document.getElementById('pdf-file-name');
+  nameEl.textContent = `✓ ${f.name} (${(f.size/1024/1024).toFixed(1)} MB)`;
+  nameEl.style.display = 'block';
+  document.getElementById('pdf-analyze-btn').disabled = false;
+}
+
+async function analyzePdf() {
+  if (!pdfFile) return;
+
+  const btn  = document.getElementById('pdf-analyze-btn');
+  const spin = document.getElementById('pdf-spin');
+  btn.disabled = true;
+  spin.style.display = 'inline-block';
+  showToast('جاري قراءة التقرير وتحليله...');
+
+  try {
+    // Read PDF as base64
+    const b64 = await fileToBase64(pdfFile);
+
+    const res = await callClaudeWithPdf(b64, `حلل هذا التقرير وأعطني JSON فقط:
+{
+  "title_ar": "العنوان بالعربية",
+  "summary_ar": "خلاصة التقرير في 4-5 جمل",
+  "key_findings": "أبرز نتيجة أو توصية",
+  "actors": "الأطراف الرئيسية",
+  "category": "politics|security|diplomacy|economy|military|energy|other",
+  "importance": 3-5
+}`);
+
+    if (res) {
+      const data = JSON.parse(res.replace(/```json?|```/g,'').trim());
+      document.getElementById('pdf-title').value   = data.title_ar      || '';
+      document.getElementById('pdf-summary').value = data.summary_ar    || '';
+
+      const display = [data.summary_ar, data.key_findings ? `\n\nالنتيجة الرئيسية: ${data.key_findings}` : ''].join('');
+      document.getElementById('pdf-ai-text').textContent = display;
+      document.getElementById('pdf-ai-result').classList.add('visible');
+
+      if (data.importance) {
+        document.getElementById('pdf-importance').value = data.importance;
+        updateImportanceLabel('pdf');
+      }
+      if (data.category) document.getElementById('pdf-category').value = data.category;
+    }
+
+    showToast('تم تحليل التقرير', 'success');
+  } catch(e) {
+    showToast('أكمل البيانات يدوياً', 'error');
+  }
+
+  btn.disabled = false;
+  spin.style.display = 'none';
+}
+
+function fileToBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload  = () => resolve(reader.result.split(',')[1]);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+/* ══════════════════════════════════
+   CLAUDE API CALLS
+══════════════════════════════════ */
+async function callClaude(prompt) {
+  const key = localStorage.getItem('anthropic_key') || '';
+  if (!key) return null;
+
+  const res = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'x-api-key': key,
+      'anthropic-version': '2023-06-01',
+      'content-type': 'application/json',
+      'anthropic-dangerous-direct-browser-access': 'true',
+    },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 800,
+      system: 'أنت محلل استخباراتي. أجب بـ JSON فقط بدون أي نص إضافي.',
+      messages: [{ role: 'user', content: prompt }],
+    })
+  });
+  const data = await res.json();
+  return data.content?.[0]?.text || null;
+}
+
+async function callClaudeWithPdf(b64, prompt) {
+  const key = localStorage.getItem('anthropic_key') || '';
+  if (!key) return null;
+
+  const res = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'x-api-key': key,
+      'anthropic-version': '2023-06-01',
+      'content-type': 'application/json',
+      'anthropic-dangerous-direct-browser-access': 'true',
+    },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 1000,
+      system: 'أنت محلل استخباراتي متخصص بالشأن العراقي. أجب بـ JSON فقط.',
+      messages: [{
+        role: 'user',
+        content: [
+          { type: 'document', source: { type: 'base64', media_type: 'application/pdf', data: b64 } },
+          { type: 'text', text: prompt }
+        ]
+      }]
+    })
+  });
+  const data = await res.json();
+  return data.content?.[0]?.text || null;
+}
+
+/* ══════════════════════════════════
+   SUPABASE SAVE
+══════════════════════════════════ */
+async function sbInsert(table, row) {
+  const url = localStorage.getItem('sb_url');
+  const key = localStorage.getItem('sb_key');
+  if (!url || !key) {
+    // Save to localStorage as fallback
+    const store = JSON.parse(localStorage.getItem('local_entries') || '[]');
+    store.unshift({ ...row, id: Date.now().toString(), created_at: new Date().toISOString() });
+    localStorage.setItem('local_entries', JSON.stringify(store.slice(0, 100)));
+    return true;
+  }
+
+  const res = await fetch(`${url}/rest/v1/${table}`, {
+    method: 'POST',
+    headers: {
+      'apikey': key,
+      'Authorization': `Bearer ${key}`,
+      'Content-Type': 'application/json',
+      'Prefer': 'return=minimal',
+    },
+    body: JSON.stringify(row),
+  });
+  return res.ok;
+}
+
+/* ══════════════════════════════════
+   SUBMIT
+══════════════════════════════════ */
+const IMP_TO_SIG = { 1:'low', 2:'low', 3:'medium', 4:'high', 5:'critical' };
+
+async function submitEntry(type) {
+  showToast('جاري الحفظ...');
+
+  let row = {
+    mentions_iraq: true,
+    fetched_at: new Date().toISOString(),
+    published_at: new Date().toISOString(),
+    language: 'ar',
+  };
+
+  try {
+    if (type === 'url') {
+      const title = document.getElementById('url-title').value.trim();
+      if (!title) { showToast('العنوان مطلوب', 'error'); return; }
+      row = {
+        ...row,
+        title_original: title,
+        title_ar: title,
+        body_ar: document.getElementById('url-summary').value,
+        original_url: document.getElementById('url-link').value,
+        category: document.getElementById('url-category').value,
+        importance_score: parseInt(document.getElementById('url-importance').value) * 20,
+        iraq_keywords: tagsStore['url'] || [],
+        raw_json: { actors: document.getElementById('url-actors').value, source: 'manual_url' }
+      };
+      await sbInsert('articles', row);
+      // Save analysis separately
+      if (document.getElementById('url-summary').value) {
+        saveLocalAnalysis(row, document.getElementById('url-actors').value,
+          IMP_TO_SIG[document.getElementById('url-importance').value]);
+      }
+
+    } else if (type === 'pdf') {
+      const title = document.getElementById('pdf-title').value.trim();
+      if (!title) { showToast('العنوان مطلوب', 'error'); return; }
+      row = {
+        ...row,
+        title_original: title,
+        title_ar: title,
+        body_ar: document.getElementById('pdf-summary').value,
+        original_url: document.getElementById('pdf-url').value || null,
+        category: document.getElementById('pdf-category').value,
+        importance_score: parseInt(document.getElementById('pdf-importance').value) * 20,
+        raw_json: { source: document.getElementById('pdf-source').value, type: 'pdf' }
+      };
+      await sbInsert('articles', row);
+
+    } else if (type === 'note') {
+      const title = document.getElementById('note-title').value.trim();
+      const body  = document.getElementById('note-body').value.trim();
+      if (!title || !body) { showToast('العنوان والنص مطلوبان', 'error'); return; }
+      row = {
+        ...row,
+        title_original: title,
+        title_ar: title,
+        body_ar: body,
+        category: document.getElementById('note-category').value,
+        importance_score: parseInt(document.getElementById('note-importance').value) * 20,
+        iraq_keywords: tagsStore['note'] || [],
+        raw_json: {
+          type: 'editorial_note',
+          context: document.getElementById('note-context').value,
+          topic: document.getElementById('note-topic').value,
+        }
+      };
+      await sbInsert('articles', row);
+
+    } else if (type === 'field') {
+      const body = document.getElementById('field-body').value.trim();
+      if (!body) { showToast('وصف المعلومة مطلوب', 'error'); return; }
+      row = {
+        ...row,
+        title_original: `معلومة ميدانية — ${document.getElementById('field-location').value || 'غير محدد'}`,
+        title_ar: `معلومة ميدانية — ${document.getElementById('field-location').value || 'غير محدد'}`,
+        body_ar: body,
+        category: document.getElementById('field-type').value,
+        importance_score: parseInt(document.getElementById('field-reliability').value) * 20,
+        raw_json: {
+          type: 'field_intel',
+          location: document.getElementById('field-location').value,
+          event_date: document.getElementById('field-date').value,
+          confidentiality: selectedConf,
+          notes: document.getElementById('field-notes').value,
+        }
+      };
+      // Only public entries go to main articles table
+      if (selectedConf === 'public') {
+        await sbInsert('articles', row);
+      } else {
+        // Save locally for private/internal
+        const store = JSON.parse(localStorage.getItem('field_intel') || '[]');
+        store.unshift({ ...row, saved_at: new Date().toISOString() });
+        localStorage.setItem('field_intel', JSON.stringify(store.slice(0, 200)));
+      }
+    }
+
+    // Log to local manage store
+    logEntry(type, row);
+    clearForm(type);
+    showToast('تم الحفظ بنجاح', 'success');
+
+  } catch(e) {
+    showToast('حدث خطأ — تم الحفظ محلياً', 'error');
+    logEntry(type, row);
+  }
+}
+
+function saveLocalAnalysis(row, actors, significance) {
+  // Store in localStorage for offline use
+  const analyses = JSON.parse(localStorage.getItem('local_analyses') || '[]');
+  analyses.unshift({ title: row.title_ar, actors, significance, summary: row.body_ar });
+  localStorage.setItem('local_analyses', JSON.stringify(analyses.slice(0, 200)));
+}
+
+/* ══════════════════════════════════
+   LOCAL LOG
+══════════════════════════════════ */
+function logEntry(type, row) {
+  const log = JSON.parse(localStorage.getItem('admin_log') || '[]');
+  log.unshift({
+    type,
+    title: row.title_ar || row.title_original || '—',
+    category: row.category,
+    importance: row.importance_score,
+    saved_at: new Date().toISOString(),
+  });
+  localStorage.setItem('admin_log', JSON.stringify(log.slice(0, 100)));
+}
+
+function loadManage() {
+  const log   = JSON.parse(localStorage.getItem('admin_log') || '[]');
+  const tbody = document.getElementById('manage-tbody');
+  const TYPE_LABELS = { url:'رابط', pdf:'PDF', note:'تحليل', field:'ميداني' };
+  const CAT_LABELS  = { politics:'سياسة', security:'أمن', diplomacy:'دبلوماسية',
+    economy:'اقتصاد', military:'عسكري', energy:'طاقة', kurdistan:'كردستان', other:'أخرى' };
+
+  if (!log.length) {
+    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:40px;color:var(--text3)">لا توجد مدخلات بعد</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = log.map((e, i) => `
+    <tr>
+      <td><span class="entry-type-badge type-${e.type}">${TYPE_LABELS[e.type]||e.type}</span></td>
+      <td class="entry-title-cell"><div class="entry-title">${e.title}</div></td>
+      <td>${CAT_LABELS[e.category]||'—'}</td>
+      <td style="font-family:var(--font-mono);font-size:11px;color:var(--text3)">${e.importance||'—'}</td>
+      <td style="font-family:var(--font-mono);font-size:11px;color:var(--text3)">${e.saved_at?.slice(0,10)||'—'}</td>
+      <td><button class="delete-btn" onclick="deleteEntry(${i})">حذف</button></td>
+    </tr>
+  `).join('');
+}
+
+function deleteEntry(i) {
+  const log = JSON.parse(localStorage.getItem('admin_log') || '[]');
+  log.splice(i, 1);
+  localStorage.setItem('admin_log', JSON.stringify(log));
+  loadManage();
+}
+
+/* ══════════════════════════════════
+   CLEAR FORMS
+══════════════════════════════════ */
+function clearForm(type) {
+  const inputs = document.querySelectorAll(`#panel-${type} input, #panel-${type} textarea, #panel-${type} select`);
+  inputs.forEach(el => {
+    if (el.type === 'range') {
+      el.value = el.defaultValue || 3;
+    } else if (el.type !== 'file') {
+      el.value = '';
+    }
+  });
+  tagsStore[type] = [];
+  if (document.getElementById(`${type}-tags-wrap`)) renderTags(type);
+  const aiResult = document.getElementById(`${type}-ai-result`);
+  if (aiResult) aiResult.classList.remove('visible');
+  if (type === 'url') {
+    document.getElementById('url-fetch-btn').disabled = true;
+    updateImportanceLabel('url');
+  }
+  if (type === 'pdf') {
+    pdfFile = null;
+    document.getElementById('pdf-file-name').style.display = 'none';
+    document.getElementById('pdf-analyze-btn').disabled = true;
+    updateImportanceLabel('pdf');
+  }
+  if (type === 'note') updateImportanceLabel('note');
+  if (type === 'field') updateReliabilityLabel();
+}
+
+/* ══════════════════════════════════
+   ANTHROPIC KEY SETUP
+══════════════════════════════════ */
+function checkAnthropicKey() {
+  const key = localStorage.getItem('anthropic_key');
+  if (!key) {
+    const k = prompt('أدخل Anthropic API Key لتفعيل التحليل الذكي (اختياري):');
+    if (k) localStorage.setItem('anthropic_key', k.trim());
+  }
+}
+
+// Check on load
+window.addEventListener('DOMContentLoaded', () => {
+  updateImportanceLabel('url');
+  updateImportanceLabel('pdf');
+  updateImportanceLabel('note');
+  updateReliabilityLabel();
+
+  // Set default datetime
+  const now = new Date();
+  now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+  const el = document.getElementById('field-date');
+  if (el) el.value = now.toISOString().slice(0,16);
+});
+</script>
+</body>
+</html>
