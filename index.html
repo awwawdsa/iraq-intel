@@ -3,1738 +3,850 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>رصد العراق — منصة الاستخبارات الإعلامية</title>
+<title>الراصد — رصد العراق</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
-
 <style>
-/* ═══════════════════════════════════════════
-   DESIGN SYSTEM — غرفة عمليات
-═══════════════════════════════════════════ */
 :root {
-  --bg0:      #080c10;
-  --bg1:      #0d1117;
-  --bg2:      #141b24;
-  --bg3:      #1c2533;
-  --border:   #243040;
-  --border2:  #2e3d52;
-  --text1:    #e8edf3;
-  --text2:    #8a9bb0;
-  --text3:    #4a5a6e;
-  --accent:   #2a7fff;
-  --accent2:  #1a5fcc;
-  --gold:     #c8963c;
-  --gold2:    #a07028;
-  --red:      #c0392b;
-  --orange:   #d4702a;
-  --green:    #27864a;
-  --teal:     #1a8a7a;
-  --font-ar:  'IBM Plex Sans Arabic', sans-serif;
-  --font-mono:'JetBrains Mono', monospace;
-  --r:        6px;
-  --r2:       10px;
-}
-
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-html { scroll-behavior: smooth; }
-
-body {
-  font-family: var(--font-ar);
-  background: var(--bg0);
-  color: var(--text1);
-  min-height: 100vh;
-  font-size: 14px;
-  line-height: 1.6;
-  overflow-x: hidden;
-}
-
-/* scan-line texture */
-body::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  background: repeating-linear-gradient(
-    0deg,
-    transparent,
-    transparent 2px,
-    rgba(0,0,0,.08) 2px,
-    rgba(0,0,0,.08) 4px
-  );
-  pointer-events: none;
-  z-index: 9999;
-}
-
-/* ═══════════════════════════════════════════
-   HEADER
-═══════════════════════════════════════════ */
-.header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 14px 28px;
-  background: var(--bg1);
-  border-bottom: 1px solid var(--border);
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  gap: 20px;
-}
-
-.header-brand {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.header-logo {
-  width: 36px;
-  height: 36px;
-  background: var(--accent);
-  border-radius: var(--r);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 18px;
-  font-weight: 600;
-  color: #fff;
-  font-family: var(--font-mono);
-  letter-spacing: -1px;
-}
-
-.header-title {
-  font-size: 15px;
-  font-weight: 600;
-  color: var(--text1);
-  letter-spacing: .3px;
-}
-
-.header-sub {
-  font-size: 11px;
-  color: var(--text3);
-  font-family: var(--font-mono);
-  letter-spacing: .5px;
-}
-
-.header-meta {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-}
-
-.live-badge {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 11px;
-  color: var(--green);
-  font-family: var(--font-mono);
-  letter-spacing: .5px;
-}
-
-.live-dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: var(--green);
-  animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-  0%,100% { opacity: 1; transform: scale(1); }
-  50%      { opacity: .5; transform: scale(1.3); }
-}
-
-.header-time {
-  font-family: var(--font-mono);
-  font-size: 12px;
-  color: var(--text2);
-}
-
-.config-btn {
-  background: var(--bg3);
-  border: 1px solid var(--border);
-  color: var(--text2);
-  padding: 6px 14px;
-  border-radius: var(--r);
-  cursor: pointer;
-  font-family: var(--font-ar);
-  font-size: 12px;
-  transition: all .2s;
-}
-.config-btn:hover { background: var(--border); color: var(--text1); }
-
-/* ═══════════════════════════════════════════
-   NAV TABS
-═══════════════════════════════════════════ */
-.nav {
-  display: flex;
-  gap: 2px;
-  padding: 10px 28px;
-  background: var(--bg1);
-  border-bottom: 1px solid var(--border);
-  overflow-x: auto;
-}
-
-.nav-tab {
-  padding: 7px 18px;
-  border-radius: var(--r);
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--text2);
-  cursor: pointer;
-  transition: all .2s;
-  white-space: nowrap;
-  border: 1px solid transparent;
-  user-select: none;
-}
-.nav-tab:hover { color: var(--text1); background: var(--bg3); }
-.nav-tab.active {
-  color: var(--accent);
-  background: rgba(42,127,255,.1);
-  border-color: rgba(42,127,255,.25);
-}
-
-/* ═══════════════════════════════════════════
-   LAYOUT
-═══════════════════════════════════════════ */
-.main { padding: 24px 28px; max-width: 1600px; margin: 0 auto; }
-
-.section { display: none; }
-.section.active { display: block; }
-
-/* ═══════════════════════════════════════════
-   STATS CARDS
-═══════════════════════════════════════════ */
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 14px;
-  margin-bottom: 28px;
-}
-
-.stat-card {
-  background: var(--bg2);
-  border: 1px solid var(--border);
-  border-radius: var(--r2);
-  padding: 18px 20px;
-  position: relative;
-  overflow: hidden;
-  transition: border-color .2s;
-}
-.stat-card:hover { border-color: var(--border2); }
-
-.stat-card::before {
-  content: '';
-  position: absolute;
-  top: 0; right: 0;
-  width: 3px;
-  height: 100%;
-}
-.stat-card.blue::before  { background: var(--accent); }
-.stat-card.gold::before  { background: var(--gold); }
-.stat-card.red::before   { background: var(--red); }
-.stat-card.green::before { background: var(--green); }
-.stat-card.teal::before  { background: var(--teal); }
-
-.stat-label {
-  font-size: 11px;
-  color: var(--text3);
-  font-family: var(--font-mono);
-  letter-spacing: .5px;
-  margin-bottom: 8px;
-  text-transform: uppercase;
-}
-
-.stat-value {
-  font-size: 28px;
-  font-weight: 600;
-  color: var(--text1);
-  font-family: var(--font-mono);
-  line-height: 1;
-  margin-bottom: 6px;
-}
-
-.stat-sub {
-  font-size: 12px;
-  color: var(--text2);
-}
-
-.stat-trend {
-  display: inline-flex;
-  align-items: center;
-  gap: 3px;
-  font-size: 11px;
-  padding: 2px 6px;
-  border-radius: 4px;
-}
-.stat-trend.up   { color: var(--green); background: rgba(39,134,74,.12); }
-.stat-trend.down { color: var(--red);   background: rgba(192,57,43,.12); }
-
-/* ═══════════════════════════════════════════
-   CHARTS ROW
-═══════════════════════════════════════════ */
-.charts-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 14px;
-  margin-bottom: 28px;
-}
-
-@media (max-width: 1100px) {
-  .charts-row { grid-template-columns: 1fr 1fr; }
-}
-@media (max-width: 700px) {
-  .charts-row { grid-template-columns: 1fr; }
-}
-
-.card {
-  background: var(--bg2);
-  border: 1px solid var(--border);
-  border-radius: var(--r2);
-  padding: 20px;
-}
-
-.card-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 16px;
-}
-
-.card-title {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--text1);
-  letter-spacing: .2px;
-}
-
-.card-badge {
-  font-size: 10px;
-  color: var(--text3);
-  font-family: var(--font-mono);
-  background: var(--bg3);
-  padding: 3px 8px;
-  border-radius: 4px;
-  border: 1px solid var(--border);
-}
-
-.chart-wrap {
-  position: relative;
-  height: 180px;
-}
-
-/* ═══════════════════════════════════════════
-   ARTICLES TABLE
-═══════════════════════════════════════════ */
-.filters-row {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 16px;
-  flex-wrap: wrap;
-  align-items: center;
-}
-
-.filter-select, .filter-input {
-  background: var(--bg3);
-  border: 1px solid var(--border);
-  color: var(--text1);
-  padding: 7px 12px;
-  border-radius: var(--r);
-  font-family: var(--font-ar);
-  font-size: 13px;
-  outline: none;
-  transition: border-color .2s;
-}
-.filter-select:focus, .filter-input:focus { border-color: var(--accent); }
-
-.filter-input { min-width: 220px; }
-
-.filter-btn {
-  padding: 7px 16px;
-  border-radius: var(--r);
-  font-size: 13px;
-  font-family: var(--font-ar);
-  cursor: pointer;
-  transition: all .2s;
-  border: 1px solid var(--border);
-  background: var(--bg3);
-  color: var(--text2);
-}
-.filter-btn:hover { background: var(--border); color: var(--text1); }
-.filter-btn.active {
-  background: rgba(42,127,255,.15);
-  border-color: rgba(42,127,255,.4);
-  color: var(--accent);
-}
-
-.articles-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.articles-table th {
-  font-size: 11px;
-  font-family: var(--font-mono);
-  color: var(--text3);
-  text-transform: uppercase;
-  letter-spacing: .5px;
-  padding: 10px 14px;
-  text-align: right;
-  border-bottom: 1px solid var(--border);
-  white-space: nowrap;
-}
-
-.articles-table td {
-  padding: 12px 14px;
-  border-bottom: 1px solid rgba(36,48,64,.5);
-  vertical-align: middle;
-}
-
-.articles-table tr:hover td { background: rgba(255,255,255,.02); }
-
-.art-title {
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--text1);
-  line-height: 1.4;
-  max-width: 420px;
-}
-.art-title a {
-  color: inherit;
-  text-decoration: none;
-}
-.art-title a:hover { color: var(--accent); }
-
-.art-source {
-  font-size: 11px;
-  color: var(--text3);
-  margin-top: 2px;
-  font-family: var(--font-mono);
-}
-
-.badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 3px 8px;
-  border-radius: 4px;
-  font-size: 11px;
-  font-weight: 500;
-  white-space: nowrap;
-}
-
-.badge-cat-security   { background: rgba(192,57,43,.15);  color: #e05a4a; border: 1px solid rgba(192,57,43,.3); }
-.badge-cat-politics   { background: rgba(42,127,255,.12); color: #6aa3ff; border: 1px solid rgba(42,127,255,.25); }
-.badge-cat-diplomacy  { background: rgba(200,150,60,.12); color: #d4a84b; border: 1px solid rgba(200,150,60,.25); }
-.badge-cat-economy    { background: rgba(39,134,74,.12);  color: #4aba77; border: 1px solid rgba(39,134,74,.25); }
-.badge-cat-military   { background: rgba(192,57,43,.1);   color: #c05a3a; border: 1px solid rgba(192,57,43,.2); }
-.badge-cat-energy     { background: rgba(26,138,122,.12); color: #3abfab; border: 1px solid rgba(26,138,122,.25); }
-.badge-cat-kurdistan  { background: rgba(130,80,200,.12); color: #a87fe0; border: 1px solid rgba(130,80,200,.25); }
-.badge-cat-other      { background: var(--bg3); color: var(--text2); border: 1px solid var(--border); }
-
-.sig-critical { color: var(--red);    font-family: var(--font-mono); font-size: 11px; }
-.sig-high     { color: var(--orange); font-family: var(--font-mono); font-size: 11px; }
-.sig-medium   { color: var(--gold);   font-family: var(--font-mono); font-size: 11px; }
-.sig-low      { color: var(--text3);  font-family: var(--font-mono); font-size: 11px; }
-
-.art-date {
-  font-family: var(--font-mono);
-  font-size: 11px;
-  color: var(--text3);
-  white-space: nowrap;
-}
-
-.expand-btn {
-  background: none;
-  border: 1px solid var(--border);
-  color: var(--text3);
-  padding: 4px 10px;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 11px;
-  font-family: var(--font-ar);
-  transition: all .2s;
-}
-.expand-btn:hover { border-color: var(--accent); color: var(--accent); }
-
-.art-summary-row td {
-  padding: 0 14px 12px 14px;
-  background: rgba(42,127,255,.04);
-  border-bottom: 1px solid var(--border);
-}
-
-.art-summary-box {
-  font-size: 13px;
-  color: var(--text2);
-  line-height: 1.7;
-  padding: 12px 16px;
-  border-right: 2px solid var(--accent);
-  background: rgba(42,127,255,.05);
-  border-radius: 0 var(--r) var(--r) 0;
-}
-
-.art-summary-box .actors {
-  margin-top: 8px;
-  font-size: 12px;
-  color: var(--text3);
-}
-.art-summary-box .actors span {
-  color: var(--gold);
-  font-family: var(--font-mono);
-  font-size: 11px;
-  background: rgba(200,150,60,.1);
-  padding: 1px 6px;
-  border-radius: 3px;
-  margin-right: 4px;
-}
-
-.pagination {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-top: 16px;
-  padding-top: 14px;
-  border-top: 1px solid var(--border);
-}
-
-.page-info {
-  font-size: 12px;
-  color: var(--text3);
-  font-family: var(--font-mono);
-}
-
-.page-btns {
-  display: flex;
-  gap: 6px;
-}
-
-.page-btn {
-  padding: 5px 12px;
-  border-radius: var(--r);
-  border: 1px solid var(--border);
-  background: var(--bg3);
-  color: var(--text2);
-  font-size: 12px;
-  cursor: pointer;
-  transition: all .2s;
-  font-family: var(--font-mono);
-}
-.page-btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
-.page-btn:disabled { opacity: .3; cursor: not-allowed; }
-.page-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
-
-/* ═══════════════════════════════════════════
-   TIMELINE
-═══════════════════════════════════════════ */
-.timeline-filters {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 24px;
-  flex-wrap: wrap;
-}
-
-.timeline {
-  position: relative;
-  padding-right: 32px;
-}
-
-.timeline::before {
-  content: '';
-  position: absolute;
-  right: 10px;
-  top: 0;
-  bottom: 0;
-  width: 1px;
-  background: linear-gradient(to bottom, var(--accent), var(--border), transparent);
-}
-
-.tl-item {
-  display: flex;
-  gap: 20px;
-  margin-bottom: 20px;
-  position: relative;
-  animation: slideIn .3s ease both;
-}
-
-@keyframes slideIn {
-  from { opacity: 0; transform: translateX(-10px); }
-  to   { opacity: 1; transform: translateX(0); }
-}
-
-.tl-dot {
-  position: absolute;
-  right: -27px;
-  top: 6px;
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  border: 2px solid var(--bg2);
-  flex-shrink: 0;
-}
-.tl-dot.critical { background: var(--red); box-shadow: 0 0 8px rgba(192,57,43,.5); }
-.tl-dot.high     { background: var(--orange); }
-.tl-dot.medium   { background: var(--gold); }
-.tl-dot.low      { background: var(--text3); }
-
-.tl-content {
-  flex: 1;
-  background: var(--bg2);
-  border: 1px solid var(--border);
-  border-radius: var(--r2);
-  padding: 14px 16px;
-  transition: border-color .2s;
-}
-.tl-content:hover { border-color: var(--border2); }
-
-.tl-header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 8px;
-}
-
-.tl-title {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--text1);
-  line-height: 1.4;
-}
-
-.tl-meta {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-shrink: 0;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-}
-
-.tl-date {
-  font-family: var(--font-mono);
-  font-size: 11px;
-  color: var(--text3);
-}
-
-.tl-summary {
-  font-size: 12px;
-  color: var(--text2);
-  line-height: 1.6;
-  margin-bottom: 10px;
-}
-
-.tl-sources {
-  display: flex;
-  gap: 6px;
-  flex-wrap: wrap;
-}
-
-.tl-source-tag {
-  font-size: 11px;
-  padding: 2px 8px;
-  background: var(--bg3);
-  border: 1px solid var(--border);
-  border-radius: 4px;
-  color: var(--text3);
-  font-family: var(--font-mono);
-}
-
-/* ═══════════════════════════════════════════
-   SOURCES COMPARISON
-═══════════════════════════════════════════ */
-.sources-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 14px;
-}
-
-.source-card {
-  background: var(--bg2);
-  border: 1px solid var(--border);
-  border-radius: var(--r2);
-  padding: 16px 18px;
-  transition: border-color .2s;
-}
-.source-card:hover { border-color: var(--border2); }
-
-.source-header {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 14px;
-}
-
-.source-avatar {
-  width: 36px;
-  height: 36px;
-  border-radius: var(--r);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: var(--font-mono);
-  font-size: 11px;
-  font-weight: 600;
-  flex-shrink: 0;
-}
-
-.source-name { font-size: 13px; font-weight: 600; color: var(--text1); }
-.source-type { font-size: 11px; color: var(--text3); font-family: var(--font-mono); }
-
-.source-stats {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
-  margin-bottom: 12px;
-}
-
-.source-stat-item { text-align: center; }
-.source-stat-num  { font-size: 20px; font-weight: 600; font-family: var(--font-mono); color: var(--text1); }
-.source-stat-lbl  { font-size: 10px; color: var(--text3); }
-
-.trust-bar {
-  height: 4px;
-  background: var(--bg3);
-  border-radius: 2px;
-  overflow: hidden;
-  margin-bottom: 6px;
-}
-.trust-fill {
-  height: 100%;
-  border-radius: 2px;
-  background: linear-gradient(to left, var(--accent), var(--teal));
-}
-.trust-label {
-  font-size: 11px;
-  color: var(--text3);
-  font-family: var(--font-mono);
-}
-
-.region-badge {
-  display: inline-block;
-  font-size: 10px;
-  padding: 2px 7px;
-  border-radius: 3px;
-  font-family: var(--font-mono);
-}
-.region-western      { background: rgba(42,127,255,.1);  color: #6aa3ff; }
-.region-arab         { background: rgba(200,150,60,.1);  color: #d4a84b; }
-.region-iraqi        { background: rgba(39,134,74,.1);   color: #4aba77; }
-.region-iranian      { background: rgba(192,57,43,.1);   color: #e05a4a; }
-.region-turkish      { background: rgba(130,80,200,.1);  color: #a87fe0; }
-.region-international{ background: rgba(26,138,122,.1);  color: #3abfab; }
-.region-kurdish      { background: rgba(200,160,50,.1);  color: #d4b84b; }
-
-/* ═══════════════════════════════════════════
-   CONFIG MODAL
-═══════════════════════════════════════════ */
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,.7);
-  z-index: 1000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity .2s;
-}
-.modal-overlay.open { opacity: 1; pointer-events: all; }
-
-.modal {
-  background: var(--bg2);
-  border: 1px solid var(--border2);
-  border-radius: var(--r2);
-  padding: 28px;
-  width: 480px;
-  max-width: 95vw;
-  transform: translateY(-20px);
-  transition: transform .2s;
-}
-.modal-overlay.open .modal { transform: translateY(0); }
-
-.modal-title { font-size: 16px; font-weight: 600; margin-bottom: 20px; }
-
-.form-group { margin-bottom: 16px; }
-.form-label { font-size: 12px; color: var(--text2); margin-bottom: 6px; display: block; font-family: var(--font-mono); }
-.form-input {
-  width: 100%;
-  background: var(--bg3);
-  border: 1px solid var(--border);
-  color: var(--text1);
-  padding: 9px 12px;
-  border-radius: var(--r);
-  font-family: var(--font-mono);
-  font-size: 13px;
-  outline: none;
-  transition: border-color .2s;
-}
-.form-input:focus { border-color: var(--accent); }
-
-.modal-btns {
-  display: flex;
-  gap: 10px;
-  margin-top: 20px;
-  justify-content: flex-end;
-}
-
-.btn-primary {
-  background: var(--accent);
-  color: #fff;
-  border: none;
-  padding: 9px 20px;
-  border-radius: var(--r);
-  font-family: var(--font-ar);
-  font-size: 13px;
-  cursor: pointer;
-  transition: background .2s;
-}
-.btn-primary:hover { background: var(--accent2); }
-
-.btn-ghost {
-  background: none;
-  border: 1px solid var(--border);
-  color: var(--text2);
-  padding: 9px 20px;
-  border-radius: var(--r);
-  font-family: var(--font-ar);
-  font-size: 13px;
-  cursor: pointer;
-  transition: all .2s;
-}
-.btn-ghost:hover { border-color: var(--border2); color: var(--text1); }
-
-/* ═══════════════════════════════════════════
-   EMPTY / LOADING
-═══════════════════════════════════════════ */
-.loading-row td {
-  text-align: center;
-  padding: 40px;
-  color: var(--text3);
-  font-family: var(--font-mono);
-  font-size: 13px;
-}
-
-.empty-state {
-  text-align: center;
-  padding: 60px 20px;
-  color: var(--text3);
-}
-
-.empty-state-icon { font-size: 40px; margin-bottom: 12px; }
-.empty-state-text { font-size: 14px; }
-
-.spinner {
-  display: inline-block;
-  width: 16px;
-  height: 16px;
-  border: 2px solid var(--border);
-  border-top-color: var(--accent);
-  border-radius: 50%;
-  animation: spin .7s linear infinite;
-  vertical-align: middle;
-  margin-left: 8px;
-}
-@keyframes spin { to { transform: rotate(360deg); } }
-
-/* ═══════════════════════════════════════════
-   SCROLLBAR
-═══════════════════════════════════════════ */
-::-webkit-scrollbar { width: 6px; height: 6px; }
-::-webkit-scrollbar-track { background: var(--bg1); }
-::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: var(--text3); }
+  --bg:     #0a0e13;
+  --bg1:    #0f1520;
+  --bg2:    #141d2b;
+  --bg3:    #1a2438;
+  --line:   #1e2d42;
+  --line2:  #263548;
+  --t1:     #e2e8f0;
+  --t2:     #7a90a8;
+  --t3:     #3d5068;
+  --accent: #2563eb;
+  --gold:   #c8913a;
+  --red:    #dc2626;
+  --orange: #c2622a;
+  --green:  #16a34a;
+  --teal:   #0d7c6e;
+  --font:   'IBM Plex Sans Arabic', sans-serif;
+  --mono:   'JetBrains Mono', monospace;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  font-family:var(--font);
+  background:var(--bg);
+  color:var(--t1);
+  min-height:100vh;
+  font-size:14px;
+  line-height:1.6;
+}
+
+/* ── TOPBAR ── */
+.topbar{
+  position:fixed;top:0;left:0;right:0;z-index:200;
+  background:rgba(10,14,19,.95);
+  backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--line);
+  padding:0 20px;
+  height:56px;
+  display:flex;align-items:center;justify-content:space-between;gap:16px;
+}
+.tb-brand{display:flex;align-items:center;gap:10px}
+.tb-logo{
+  width:32px;height:32px;
+  background:var(--accent);
+  border-radius:8px;
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--mono);font-weight:600;color:#fff;font-size:13px;
+}
+.tb-name{font-size:15px;font-weight:600;letter-spacing:.2px}
+.tb-live{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--green);font-family:var(--mono)}
+.tb-dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(1.4)}}
+.tb-right{display:flex;align-items:center;gap:10px}
+.tb-btn{
+  background:var(--bg3);border:1px solid var(--line);
+  color:var(--t2);padding:6px 14px;border-radius:6px;
+  cursor:pointer;font-family:var(--font);font-size:12px;
+  transition:all .2s;text-decoration:none;display:inline-flex;align-items:center;gap:5px;
+}
+.tb-btn:hover{background:var(--line);color:var(--t1)}
+.tb-time{font-family:var(--mono);font-size:11px;color:var(--t3)}
+
+/* ── FILTERS BAR ── */
+.filters{
+  position:fixed;top:56px;left:0;right:0;z-index:190;
+  background:rgba(10,14,19,.92);
+  backdrop-filter:blur(8px);
+  border-bottom:1px solid var(--line);
+  padding:0 20px;
+  height:48px;
+  display:flex;align-items:center;gap:8px;
+  overflow-x:auto;
+}
+.filters::-webkit-scrollbar{display:none}
+.f-chip{
+  padding:5px 14px;border-radius:20px;
+  font-size:12px;font-weight:500;
+  border:1px solid var(--line);
+  color:var(--t2);background:none;
+  cursor:pointer;transition:all .2s;
+  white-space:nowrap;user-select:none;
+  flex-shrink:0;
+}
+.f-chip:hover{border-color:var(--line2);color:var(--t1)}
+.f-chip.on{background:var(--accent);border-color:var(--accent);color:#fff}
+.f-chip.red.on  {background:var(--red);border-color:var(--red)}
+.f-chip.gold.on {background:var(--gold);border-color:var(--gold)}
+.f-chip.green.on{background:var(--green);border-color:var(--green)}
+.f-chip.teal.on {background:var(--teal);border-color:var(--teal)}
+.f-divider{width:1px;height:20px;background:var(--line);flex-shrink:0}
+
+/* ── LAYOUT ── */
+.layout{
+  display:grid;
+  grid-template-columns:260px 1fr 280px;
+  gap:0;
+  padding-top:104px;
+  min-height:100vh;
+  max-width:1400px;
+  margin:0 auto;
+}
+@media(max-width:1100px){.layout{grid-template-columns:0 1fr 0}}
+@media(max-width:700px){.layout{grid-template-columns:1fr}}
+
+/* ── LEFT SIDEBAR ── */
+.sidebar-left{
+  padding:20px 16px;
+  border-left:1px solid var(--line);
+  position:sticky;top:104px;height:calc(100vh - 104px);
+  overflow-y:auto;
+}
+.sidebar-left::-webkit-scrollbar{width:3px}
+.sidebar-left::-webkit-scrollbar-thumb{background:var(--line2);border-radius:2px}
+
+.sl-section{margin-bottom:24px}
+.sl-title{font-size:10px;color:var(--t3);font-family:var(--mono);letter-spacing:.8px;text-transform:uppercase;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--line)}
+
+.src-item{
+  display:flex;align-items:center;gap:8px;
+  padding:6px 8px;border-radius:6px;
+  cursor:pointer;transition:background .15s;
+  margin-bottom:2px;
+}
+.src-item:hover{background:var(--bg2)}
+.src-item.active{background:rgba(37,99,235,.1)}
+.src-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.src-name{font-size:12px;color:var(--t2);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.src-item.active .src-name{color:var(--accent)}
+.src-count{font-family:var(--mono);font-size:10px;color:var(--t3)}
+
+/* ── FEED ── */
+.feed{padding:0 0 60px;border-right:1px solid var(--line);border-left:1px solid var(--line)}
+
+.feed-header{
+  padding:16px 20px;
+  border-bottom:1px solid var(--line);
+  display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:104px;z-index:100;
+  background:rgba(10,14,19,.95);
+  backdrop-filter:blur(8px);
+}
+.feed-title{font-size:13px;font-weight:600;color:var(--t1)}
+.feed-count{font-size:11px;color:var(--t3);font-family:var(--mono)}
+.refresh-btn{
+  display:flex;align-items:center;gap:5px;
+  background:none;border:1px solid var(--line);
+  color:var(--t2);padding:5px 12px;border-radius:6px;
+  cursor:pointer;font-size:12px;font-family:var(--font);
+  transition:all .2s;
+}
+.refresh-btn:hover{border-color:var(--accent);color:var(--accent)}
+.refresh-btn.spinning svg{animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── NEWS CARD ── */
+.card{
+  border-bottom:1px solid var(--line);
+  padding:18px 20px;
+  transition:background .15s;
+  cursor:default;
+  animation:fadeIn .3s ease both;
+}
+.card:hover{background:rgba(255,255,255,.015)}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+.card-meta{
+  display:flex;align-items:center;gap:8px;
+  margin-bottom:10px;flex-wrap:wrap;
+}
+.card-source{
+  display:flex;align-items:center;gap:5px;
+  font-size:12px;font-weight:600;color:var(--t2);
+}
+.src-avatar{
+  width:20px;height:20px;border-radius:4px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:9px;font-weight:700;font-family:var(--mono);
+  flex-shrink:0;
+}
+.card-time{font-size:11px;color:var(--t3);font-family:var(--mono)}
+.card-region{font-size:10px;padding:2px 6px;border-radius:3px;font-family:var(--mono)}
+
+.sig-badge{
+  display:inline-flex;align-items:center;gap:3px;
+  font-size:10px;font-family:var(--mono);padding:2px 7px;border-radius:3px;
+  margin-right:auto;
+}
+.sig-critical{background:rgba(220,38,38,.15);color:#f87171;border:1px solid rgba(220,38,38,.25)}
+.sig-high    {background:rgba(194,98,42,.15); color:#fb923c;border:1px solid rgba(194,98,42,.25)}
+.sig-medium  {background:rgba(200,145,58,.15);color:#fbbf24;border:1px solid rgba(200,145,58,.25)}
+.sig-low     {background:rgba(61,80,104,.15); color:var(--t3);border:1px solid var(--line)}
+
+.card-cat{font-size:10px;padding:2px 7px;border-radius:3px;font-family:var(--mono)}
+.cat-security  {background:rgba(220,38,38,.1); color:#f87171}
+.cat-politics  {background:rgba(37,99,235,.1); color:#60a5fa}
+.cat-diplomacy {background:rgba(200,145,58,.1);color:#fbbf24}
+.cat-economy   {background:rgba(22,163,74,.1); color:#4ade80}
+.cat-military  {background:rgba(194,98,42,.1); color:#fb923c}
+.cat-energy    {background:rgba(13,124,110,.1);color:#2dd4bf}
+.cat-kurdistan {background:rgba(124,58,237,.1);color:#a78bfa}
+.cat-other     {background:var(--bg3);color:var(--t3)}
+
+/* ── CARD TITLE ── */
+.card-title{
+  font-size:15px;font-weight:600;
+  color:var(--t1);line-height:1.5;
+  margin-bottom:10px;
+}
+
+/* ── CONTENT TABS ── */
+.content-tabs{margin-bottom:10px}
+.ctabs{display:flex;gap:0;border-bottom:1px solid var(--line);margin-bottom:12px}
+.ctab{
+  padding:6px 14px;font-size:11px;color:var(--t3);
+  cursor:pointer;border-bottom:2px solid transparent;
+  transition:all .15s;font-family:var(--mono);
+  margin-bottom:-1px;
+}
+.ctab:hover{color:var(--t2)}
+.ctab.on{color:var(--accent);border-bottom-color:var(--accent)}
+
+.ctab-content{display:none;font-size:13px;line-height:1.8;color:var(--t2)}
+.ctab-content.on{display:block}
+
+.original-text{
+  font-size:12px;color:var(--t3);line-height:1.7;
+  border-right:2px solid var(--line2);
+  padding-right:12px;
+  font-family:Georgia,serif;
+  direction:ltr;text-align:left;
+}
+
+.translation-text{
+  color:var(--t1);line-height:1.8;
+  border-right:2px solid var(--accent);
+  padding-right:12px;
+}
+
+.analysis-box{
+  background:rgba(37,99,235,.05);
+  border:1px solid rgba(37,99,235,.15);
+  border-radius:8px;padding:12px 14px;
+}
+.analysis-label{
+  font-size:10px;color:var(--accent);
+  font-family:var(--mono);letter-spacing:.5px;
+  margin-bottom:6px;display:flex;align-items:center;gap:5px;
+}
+.analysis-text{font-size:13px;color:var(--t1);line-height:1.7}
+.actors-row{
+  margin-top:10px;padding-top:8px;
+  border-top:1px solid rgba(37,99,235,.1);
+  font-size:11px;color:var(--t3);
+}
+.actor-tag{
+  display:inline-block;
+  background:rgba(200,145,58,.1);color:var(--gold);
+  padding:2px 7px;border-radius:3px;
+  font-size:11px;font-family:var(--mono);
+  margin:2px 3px 2px 0;
+}
+
+/* ── CARD FOOTER ── */
+.card-footer{
+  display:flex;align-items:center;gap:12px;
+  margin-top:12px;padding-top:10px;
+  border-top:1px solid var(--line);
+}
+.card-link{
+  display:inline-flex;align-items:center;gap:4px;
+  font-size:11px;color:var(--t3);text-decoration:none;
+  font-family:var(--mono);transition:color .15s;
+}
+.card-link:hover{color:var(--accent)}
+.kw-tags{display:flex;gap:4px;flex-wrap:wrap;flex:1}
+.kw-tag{
+  font-size:10px;padding:1px 6px;border-radius:3px;
+  background:var(--bg3);color:var(--t3);
+  font-family:var(--mono);
+}
+
+/* ── RIGHT SIDEBAR ── */
+.sidebar-right{
+  padding:20px 16px;
+  position:sticky;top:104px;height:calc(100vh - 104px);
+  overflow-y:auto;
+}
+.sidebar-right::-webkit-scrollbar{width:3px}
+.sidebar-right::-webkit-scrollbar-thumb{background:var(--line2);border-radius:2px}
+
+.sr-section{margin-bottom:24px}
+.sr-title{font-size:10px;color:var(--t3);font-family:var(--mono);letter-spacing:.8px;text-transform:uppercase;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--line)}
+
+.trending-item{
+  display:flex;align-items:flex-start;gap:10px;
+  padding:8px 0;border-bottom:1px solid var(--line);
+  cursor:pointer;transition:opacity .15s;
+}
+.trending-item:hover{opacity:.75}
+.trend-num{font-family:var(--mono);font-size:16px;font-weight:600;color:var(--line2);min-width:20px}
+.trend-word{font-size:13px;color:var(--t1);font-weight:500}
+.trend-count{font-size:11px;color:var(--t3);font-family:var(--mono)}
+
+.critical-item{
+  background:rgba(220,38,38,.05);
+  border:1px solid rgba(220,38,38,.15);
+  border-radius:8px;padding:10px 12px;
+  margin-bottom:8px;cursor:pointer;
+  transition:background .15s;
+}
+.critical-item:hover{background:rgba(220,38,38,.08)}
+.critical-title{font-size:12px;font-weight:500;color:var(--t1);line-height:1.4;margin-bottom:4px}
+.critical-meta{font-size:10px;color:var(--t3);font-family:var(--mono)}
+
+/* ── SEARCH ── */
+.search-wrap{
+  padding:10px 20px;
+  border-bottom:1px solid var(--line);
+  background:rgba(10,14,19,.95);
+}
+.search-input{
+  width:100%;background:var(--bg2);
+  border:1px solid var(--line);color:var(--t1);
+  padding:8px 14px;border-radius:8px;
+  font-family:var(--font);font-size:13px;
+  outline:none;transition:border-color .2s;
+}
+.search-input:focus{border-color:var(--accent)}
+.search-input::placeholder{color:var(--t3)}
+
+/* ── LOADING / EMPTY ── */
+.loading{text-align:center;padding:60px 20px;color:var(--t3)}
+.loading-spinner{
+  width:24px;height:24px;border:2px solid var(--line);
+  border-top-color:var(--accent);border-radius:50%;
+  animation:spin .7s linear infinite;
+  margin:0 auto 12px;
+}
+.empty{text-align:center;padding:60px 20px}
+.empty-icon{font-size:40px;margin-bottom:12px}
+.empty-text{color:var(--t3);font-size:14px}
+
+/* ── NEW BADGE ── */
+.new-badge{
+  position:fixed;top:112px;left:50%;transform:translateX(-50%);
+  background:var(--accent);color:#fff;
+  padding:8px 20px;border-radius:20px;
+  font-size:13px;cursor:pointer;
+  box-shadow:0 4px 20px rgba(37,99,235,.4);
+  z-index:150;display:none;
+  transition:all .2s;
+}
+.new-badge:hover{background:#1d4ed8}
 </style>
 </head>
 <body>
 
-<!-- ═══ HEADER ═══ -->
-<header class="header">
-  <div class="header-brand">
-    <div class="header-logo">IQ</div>
-    <div>
-      <div class="header-title">رصد العراق — منصة الاستخبارات الإعلامية</div>
-      <div class="header-sub">IRAQ INTEL PLATFORM v1.0</div>
-    </div>
+<!-- TOPBAR -->
+<header class="topbar">
+  <div class="tb-brand">
+    <div class="tb-logo">IQ</div>
+    <div class="tb-name">الراصد</div>
+    <div class="tb-live"><div class="tb-dot"></div>مباشر</div>
   </div>
-  <div class="header-meta">
-    <div class="live-badge"><div class="live-dot"></div> مباشر</div>
-    <div class="header-time" id="clock">--:--:--</div>
-    <button class="config-btn" onclick="openConfig()">⚙ إعداد API</button>
+  <div class="tb-right">
+    <div class="tb-time" id="clock"></div>
+    <a href="settings.html" class="tb-btn">⚙ الإعدادات</a>
+    <a href="admin.html" class="tb-btn">+ إضافة</a>
+    <button class="tb-btn" onclick="openConfig()">🔑 API</button>
   </div>
 </header>
 
-<!-- ═══ NAV ═══ -->
-<nav class="nav">
-  <div class="nav-tab active" onclick="showSection('stats')">📊 إحصائيات</div>
-  <div class="nav-tab" onclick="showSection('articles')">📰 الأخبار</div>
-  <div class="nav-tab" onclick="showSection('timeline')">🕐 Timeline</div>
-  <div class="nav-tab" onclick="showSection('sources')">📡 المصادر</div>
-</nav>
+<!-- FILTERS -->
+<div class="filters">
+  <button class="f-chip on" onclick="setFilter('all',this)">الكل</button>
+  <button class="f-chip red" onclick="setFilter('critical',this)">🔴 حرجة</button>
+  <button class="f-chip" onclick="setFilter('security',this)">أمن</button>
+  <button class="f-chip" onclick="setFilter('politics',this)">سياسة</button>
+  <button class="f-chip" onclick="setFilter('diplomacy',this)">دبلوماسية</button>
+  <button class="f-chip gold" onclick="setFilter('economy',this)">اقتصاد</button>
+  <button class="f-chip" onclick="setFilter('military',this)">عسكري</button>
+  <button class="f-chip teal" onclick="setFilter('energy',this)">طاقة</button>
+  <button class="f-chip" onclick="setFilter('kurdistan',this)">كردستان</button>
+  <div class="f-divider"></div>
+  <button class="f-chip" onclick="setFilter('24h',this)">آخر 24س</button>
+  <button class="f-chip" onclick="setFilter('48h',this)">آخر 48س</button>
+  <button class="f-chip" onclick="setFilter('week',this)">هذا الأسبوع</button>
+</div>
 
-<!-- ═══ MAIN ═══ -->
-<main class="main">
+<!-- NEW ITEMS BADGE -->
+<div class="new-badge" id="new-badge" onclick="loadNewItems()">
+  ↑ أخبار جديدة — اضغط للتحديث
+</div>
 
-  <!-- ── STATS SECTION ── -->
-  <section class="section active" id="section-stats">
+<!-- LAYOUT -->
+<div class="layout">
 
-    <div class="stats-grid" id="stats-grid">
-      <div class="stat-card blue">
-        <div class="stat-label">إجمالي الأخبار</div>
-        <div class="stat-value" id="stat-total">—</div>
-        <div class="stat-sub">في قاعدة البيانات</div>
-      </div>
-      <div class="stat-card gold">
-        <div class="stat-label">تذكر العراق</div>
-        <div class="stat-value" id="stat-iraq">—</div>
-        <div class="stat-sub">مقال يتناول الشأن العراقي</div>
-      </div>
-      <div class="stat-card red">
-        <div class="stat-label">أحداث حرجة</div>
-        <div class="stat-value" id="stat-critical">—</div>
-        <div class="stat-sub">آخر 72 ساعة</div>
-      </div>
-      <div class="stat-card green">
-        <div class="stat-label">مصادر نشطة</div>
-        <div class="stat-value" id="stat-sources">—</div>
-        <div class="stat-sub">مصدر دولي وإقليمي</div>
-      </div>
-      <div class="stat-card teal">
-        <div class="stat-label">محللة بالذكاء</div>
-        <div class="stat-value" id="stat-analyzed">—</div>
-        <div class="stat-sub">تحليل تلقائي بـ Claude</div>
+  <!-- LEFT: SOURCES -->
+  <aside class="sidebar-left" id="sidebar-left">
+    <div class="sl-section">
+      <div class="sl-title">المصادر النشطة</div>
+      <div id="sources-list">
+        <div style="color:var(--t3);font-size:12px;padding:8px">جاري التحميل...</div>
       </div>
     </div>
+  </aside>
 
-    <div class="charts-row">
-      <div class="card">
-        <div class="card-header">
-          <div class="card-title">الأخبار حسب التصنيف</div>
-          <div class="card-badge">آخر 7 أيام</div>
-        </div>
-        <div class="chart-wrap">
-          <canvas id="chart-categories"></canvas>
-        </div>
+  <!-- FEED -->
+  <main class="feed">
+    <div class="feed-header">
+      <div>
+        <div class="feed-title">تدفق الأخبار — العراق</div>
+        <div class="feed-count" id="feed-count">جاري التحميل...</div>
       </div>
-      <div class="card">
-        <div class="card-header">
-          <div class="card-title">توزيع المصادر حسب المنطقة</div>
-          <div class="card-badge">كل المصادر</div>
-        </div>
-        <div class="chart-wrap">
-          <canvas id="chart-regions"></canvas>
-        </div>
-      </div>
-      <div class="card">
-        <div class="card-header">
-          <div class="card-title">مستوى الأهمية</div>
-          <div class="card-badge">المقالات العراقية</div>
-        </div>
-        <div class="chart-wrap">
-          <canvas id="chart-significance"></canvas>
-        </div>
-      </div>
+      <button class="refresh-btn" id="refresh-btn" onclick="refresh()">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.66 0 3-4.03 3-9s-1.34-9-3-9m0 18c-1.66 0-3-4.03-3-9s1.34-9 3-9"/></svg>
+        تحديث
+      </button>
     </div>
 
-    <!-- Top articles today -->
-    <div class="card">
-      <div class="card-header">
-        <div class="card-title">أبرز أخبار اليوم</div>
-        <div class="card-badge" id="today-count">جاري التحميل...</div>
-      </div>
-      <table class="articles-table" id="today-table">
-        <thead>
-          <tr>
-            <th>العنوان</th>
-            <th>التصنيف</th>
-            <th>الأهمية</th>
-            <th>المصدر</th>
-            <th>التاريخ</th>
-          </tr>
-        </thead>
-        <tbody id="today-tbody">
-          <tr class="loading-row"><td colspan="5">جاري التحميل <span class="spinner"></span></td></tr>
-        </tbody>
-      </table>
+    <div class="search-wrap">
+      <input class="search-input" id="search" placeholder="ابحث في الأخبار..." oninput="debounce()">
     </div>
-  </section>
 
-  <!-- ── ARTICLES SECTION ── -->
-  <section class="section" id="section-articles">
-    <div class="card">
-      <div class="card-header">
-        <div class="card-title">جدول الأخبار</div>
-        <div class="card-badge" id="articles-count">—</div>
-      </div>
-
-      <div class="filters-row">
-        <input class="filter-input" type="search" id="search-input"
-               placeholder="بحث في العنوان..." oninput="debounceSearch()">
-        <select class="filter-select" id="filter-cat" onchange="loadArticles()">
-          <option value="">كل التصنيفات</option>
-          <option value="security">أمن</option>
-          <option value="politics">سياسة</option>
-          <option value="diplomacy">دبلوماسية</option>
-          <option value="economy">اقتصاد</option>
-          <option value="military">عسكري</option>
-          <option value="energy">طاقة</option>
-          <option value="kurdistan">كردستان</option>
-        </select>
-        <select class="filter-select" id="filter-sig" onchange="loadArticles()">
-          <option value="">كل المستويات</option>
-          <option value="critical">حرجة</option>
-          <option value="high">عالية</option>
-          <option value="medium">متوسطة</option>
-          <option value="low">منخفضة</option>
-        </select>
-        <select class="filter-select" id="filter-hours" onchange="loadArticles()">
-          <option value="24">آخر 24 ساعة</option>
-          <option value="48">آخر 48 ساعة</option>
-          <option value="168">آخر أسبوع</option>
-          <option value="720">آخر شهر</option>
-          <option value="">كل الوقت</option>
-        </select>
-        <button class="filter-btn active" id="btn-iraq-only" onclick="toggleIraqOnly()">
-          🇮🇶 العراق فقط
-        </button>
-      </div>
-
-      <div style="overflow-x:auto;">
-        <table class="articles-table">
-          <thead>
-            <tr>
-              <th>العنوان</th>
-              <th>التصنيف</th>
-              <th>الأهمية</th>
-              <th>المصدر</th>
-              <th>التاريخ</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody id="articles-tbody">
-            <tr class="loading-row"><td colspan="6">جاري التحميل <span class="spinner"></span></td></tr>
-          </tbody>
-        </table>
-      </div>
-
-      <div class="pagination">
-        <div class="page-info" id="page-info">—</div>
-        <div class="page-btns">
-          <button class="page-btn" id="btn-prev" onclick="changePage(-1)" disabled>السابق</button>
-          <button class="page-btn" id="btn-next" onclick="changePage(1)">التالي</button>
-        </div>
+    <div id="feed-items">
+      <div class="loading">
+        <div class="loading-spinner"></div>
+        جاري جلب الأخبار...
       </div>
     </div>
-  </section>
+  </main>
 
-  <!-- ── TIMELINE SECTION ── -->
-  <section class="section" id="section-timeline">
-    <div class="card">
-      <div class="card-header">
-        <div class="card-title">Timeline الأحداث العراقية</div>
-        <div class="card-badge" id="timeline-count">—</div>
-      </div>
-
-      <div class="timeline-filters">
-        <button class="filter-btn active" id="tl-btn-all" onclick="setTlFilter('all',this)">الكل</button>
-        <button class="filter-btn" onclick="setTlFilter('critical',this)">🔴 حرجة</button>
-        <button class="filter-btn" onclick="setTlFilter('high',this)">🟠 عالية</button>
-        <button class="filter-btn" onclick="setTlFilter('medium',this)">🟡 متوسطة</button>
-        <select class="filter-select" id="tl-cat" onchange="loadTimeline()">
-          <option value="">كل التصنيفات</option>
-          <option value="security">أمن</option>
-          <option value="politics">سياسة</option>
-          <option value="diplomacy">دبلوماسية</option>
-          <option value="economy">اقتصاد</option>
-          <option value="military">عسكري</option>
-        </select>
-      </div>
-
-      <div class="timeline" id="timeline-list">
-        <div class="empty-state">
-          <div class="empty-state-icon">⏳</div>
-          <div class="empty-state-text">جاري التحميل...</div>
-        </div>
+  <!-- RIGHT: TRENDING + CRITICAL -->
+  <aside class="sidebar-right">
+    <div class="sr-section">
+      <div class="sr-title">🔴 الأحداث الحرجة</div>
+      <div id="critical-list">
+        <div style="color:var(--t3);font-size:12px">لا توجد أحداث حرجة</div>
       </div>
     </div>
-  </section>
-
-  <!-- ── SOURCES SECTION ── -->
-  <section class="section" id="section-sources">
-    <div class="card" style="margin-bottom:20px;">
-      <div class="card-header">
-        <div class="card-title">مقارنة المصادر</div>
-        <div class="card-badge" id="sources-total">—</div>
-      </div>
-
-      <div class="filters-row">
-        <select class="filter-select" id="src-filter-region" onchange="renderSources()">
-          <option value="">كل المناطق</option>
-          <option value="western">غربية</option>
-          <option value="arab">عربية</option>
-          <option value="iraqi">عراقية</option>
-          <option value="iranian">إيرانية</option>
-          <option value="turkish">تركية</option>
-          <option value="international">دولية</option>
-          <option value="kurdish">كردية</option>
-        </select>
-        <select class="filter-select" id="src-filter-type" onchange="renderSources()">
-          <option value="">كل الأنواع</option>
-          <option value="think_tank">مراكز بحثية</option>
-          <option value="agency">وكالات أنباء</option>
-          <option value="newspaper">صحافة</option>
-          <option value="ngo">منظمات</option>
-          <option value="government">حكومية</option>
-        </select>
-      </div>
-
-      <div class="sources-grid" id="sources-grid">
-        <div class="empty-state">
-          <div class="empty-state-icon">📡</div>
-          <div class="empty-state-text">جاري التحميل...</div>
-        </div>
+    <div class="sr-section">
+      <div class="sr-title">📈 الأكثر ذكراً</div>
+      <div id="trending-list">
+        <div style="color:var(--t3);font-size:12px">جاري التحليل...</div>
       </div>
     </div>
-  </section>
+  </aside>
 
-</main>
-
-<!-- ═══ CONFIG MODAL ═══ -->
-<div class="modal-overlay" id="config-modal">
-  <div class="modal">
-    <div class="modal-title">⚙ إعداد الاتصال بـ Supabase</div>
-    <div class="form-group">
-      <label class="form-label">SUPABASE_URL</label>
-      <input class="form-input" id="cfg-url" placeholder="https://xxxxxx.supabase.co">
-    </div>
-    <div class="form-group">
-      <label class="form-label">SUPABASE_ANON_KEY</label>
-      <input class="form-input" id="cfg-key" type="password" placeholder="eyJhbGciOi...">
-    </div>
-    <div class="modal-btns">
-      <button class="btn-ghost" onclick="closeConfig()">إلغاء</button>
-      <button class="btn-primary" onclick="saveConfig()">حفظ والاتصال</button>
-    </div>
-  </div>
 </div>
 
 <script>
-/* ═══════════════════════════════════════════
-   CONFIG & SUPABASE CLIENT
-═══════════════════════════════════════════ */
+/* ═══════════════════════════════
+   CONFIG
+═══════════════════════════════ */
 let SB_URL = localStorage.getItem('sb_url') || '';
 let SB_KEY = localStorage.getItem('sb_key') || '';
 
-// Demo mode: fallback data when no Supabase configured
-const DEMO_MODE = !SB_URL || !SB_KEY;
+const SOURCE_COLORS = {
+  western:'#2563eb', arab:'#c8913a', iraqi:'#16a34a',
+  iranian:'#dc2626', turkish:'#7c3aed', international:'#0d7c6e', kurdish:'#b45309'
+};
 
-function sbFetch(table, params = '') {
-  if (!SB_URL || !SB_KEY) return Promise.resolve({ data: [], count: 0 });
-  return fetch(`${SB_URL}/rest/v1/${table}${params}`, {
-    headers: {
-      'apikey': SB_KEY,
-      'Authorization': `Bearer ${SB_KEY}`,
-      'Content-Type': 'application/json',
-      'Prefer': 'count=exact',
-    }
-  }).then(r => {
-    const count = parseInt(r.headers.get('Content-Range')?.split('/')[1] || '0');
-    return r.json().then(data => ({ data: Array.isArray(data) ? data : [], count }));
-  }).catch(() => ({ data: [], count: 0 }));
-}
-
-/* ═══════════════════════════════════════════
-   CLOCK
-═══════════════════════════════════════════ */
-function updateClock() {
-  const now = new Date();
-  document.getElementById('clock').textContent =
-    now.toLocaleTimeString('ar-IQ', { hour12: false, timeZone: 'Asia/Baghdad' })
-    + ' (بغداد)';
-}
-setInterval(updateClock, 1000);
-updateClock();
-
-/* ═══════════════════════════════════════════
-   NAV
-═══════════════════════════════════════════ */
-function showSection(name) {
-  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-  document.getElementById('section-' + name).classList.add('active');
-  event.target.classList.add('active');
-
-  if (name === 'articles' && !articlesLoaded) loadArticles();
-  if (name === 'timeline' && !timelineLoaded) loadTimeline();
-  if (name === 'sources'  && !sourcesLoaded)  loadSources();
-}
-
-let articlesLoaded = false;
-let timelineLoaded = false;
-let sourcesLoaded  = false;
-
-/* ═══════════════════════════════════════════
-   HELPERS
-═══════════════════════════════════════════ */
-const CAT_LABELS = {
+const CAT_AR = {
   security:'أمن', politics:'سياسة', diplomacy:'دبلوماسية',
   economy:'اقتصاد', military:'عسكري', energy:'طاقة',
   kurdistan:'كردستان', other:'أخرى'
 };
 
-const SIG_LABELS = { critical:'حرجة', high:'عالية', medium:'متوسطة', low:'منخفضة' };
+const SIG_AR = { critical:'حرجة', high:'عالية', medium:'متوسطة', low:'منخفضة' };
 
-const REGION_LABELS = {
-  western:'غربية', arab:'عربية', iraqi:'عراقية',
-  iranian:'إيرانية', turkish:'تركية',
-  international:'دولية', kurdish:'كردية'
-};
-
-const TYPE_LABELS = {
-  think_tank:'مركز بحثي', agency:'وكالة', newspaper:'صحيفة',
-  ngo:'منظمة', government:'حكومية', blog:'مدونة', youtube:'يوتيوب'
-};
-
-const SOURCE_COLORS = {
-  western:'#2a7fff', arab:'#c8963c', iraqi:'#27864a',
-  iranian:'#c0392b', turkish:'#8050c8',
-  international:'#1a8a7a', kurdish:'#c8a028'
-};
-
-function catBadge(cat) {
-  return `<span class="badge badge-cat-${cat||'other'}">${CAT_LABELS[cat]||'أخرى'}</span>`;
-}
-
-function sigBadge(sig) {
-  const icons = { critical:'🔴', high:'🟠', medium:'🟡', low:'⚪' };
-  return `<span class="sig-${sig||'low'}">${icons[sig]||''} ${SIG_LABELS[sig]||'—'}</span>`;
-}
-
-function fmtDate(iso) {
-  if (!iso) return '—';
-  const d = new Date(iso);
-  return d.toLocaleDateString('ar-IQ', { month:'short', day:'numeric' })
-    + ' ' + d.toLocaleTimeString('ar-IQ', { hour:'2-digit', minute:'2-digit', hour12:false });
-}
-
-function hoursAgo(hours) {
-  if (!hours) return '';
-  const d = new Date(Date.now() - hours * 3600000);
-  return `&gte=${d.toISOString()}`;
-}
-
-/* ═══════════════════════════════════════════
-   STATS SECTION
-═══════════════════════════════════════════ */
-async function loadStats() {
-  if (DEMO_MODE) { loadDemoStats(); return; }
-
-  // Counts
-  const [total, iraq, sources, analyzed] = await Promise.all([
-    sbFetch('articles', '?select=id&limit=1'),
-    sbFetch('articles', '?select=id&mentions_iraq=eq.true&limit=1'),
-    sbFetch('sources',  '?select=id&is_active=eq.true&limit=1'),
-    sbFetch('analyses', '?select=id&limit=1'),
-  ]);
-
-  const criticalSince = new Date(Date.now() - 72*3600000).toISOString();
-  const critical = await sbFetch('analyses',
-    `?select=id&significance=eq.critical&analyzed_at=gte.${criticalSince}&limit=1`);
-
-  document.getElementById('stat-total').textContent    = total.count.toLocaleString('ar');
-  document.getElementById('stat-iraq').textContent     = iraq.count.toLocaleString('ar');
-  document.getElementById('stat-critical').textContent = critical.count.toLocaleString('ar');
-  document.getElementById('stat-sources').textContent  = sources.count.toLocaleString('ar');
-  document.getElementById('stat-analyzed').textContent = analyzed.count.toLocaleString('ar');
-
-  loadCharts();
-  loadTodayArticles();
-}
-
-function loadDemoStats() {
-  document.getElementById('stat-total').textContent    = '٤٬٢١٨';
-  document.getElementById('stat-iraq').textContent     = '١٬٣٤٧';
-  document.getElementById('stat-critical').textContent = '١٢';
-  document.getElementById('stat-sources').textContent  = '٢٦';
-  document.getElementById('stat-analyzed').textContent = '٨٩٣';
-  loadDemoCharts();
-  loadDemoTodayArticles();
-}
-
-/* ═══════════════════════════════════════════
-   CHARTS
-═══════════════════════════════════════════ */
-const CHART_DEFAULTS = {
-  plugins: { legend: { display: false } },
-  scales: { x: { display: false }, y: { display: false } },
-  animation: { duration: 600 }
-};
-
-function loadDemoCharts() {
-  // Categories
-  new Chart(document.getElementById('chart-categories'), {
-    type: 'bar',
-    data: {
-      labels: ['سياسة','أمن','دبلوماسية','اقتصاد','عسكري','طاقة','كردستان'],
-      datasets: [{
-        data: [420, 318, 210, 175, 145, 98, 72],
-        backgroundColor: ['#2a7fff','#c0392b','#c8963c','#27864a','#d4702a','#1a8a7a','#8050c8'],
-        borderRadius: 4,
-        borderWidth: 0,
-      }]
-    },
-    options: {
-      ...CHART_DEFAULTS,
-      scales: {
-        x: { display: true, ticks: { color: '#4a5a6e', font: { size: 11, family: 'IBM Plex Sans Arabic' } }, grid: { display: false } },
-        y: { display: true, ticks: { color: '#4a5a6e', font: { size: 11 } }, grid: { color: 'rgba(255,255,255,.04)' } }
-      }
-    }
-  });
-
-  // Regions donut
-  new Chart(document.getElementById('chart-regions'), {
-    type: 'doughnut',
-    data: {
-      labels: ['غربية','دولية','عربية','إيرانية','تركية','عراقية','كردية'],
-      datasets: [{
-        data: [38, 22, 16, 10, 7, 4, 3],
-        backgroundColor: ['#2a7fff','#1a8a7a','#c8963c','#c0392b','#8050c8','#27864a','#c8a028'],
-        borderWidth: 0,
-        hoverOffset: 6,
-      }]
-    },
-    options: {
-      plugins: {
-        legend: {
-          display: true,
-          position: 'bottom',
-          labels: { color: '#8a9bb0', font: { size: 11, family: 'IBM Plex Sans Arabic' }, padding: 10, boxWidth: 10 }
-        }
-      },
-      animation: { duration: 600 },
-      cutout: '65%',
-    }
-  });
-
-  // Significance
-  new Chart(document.getElementById('chart-significance'), {
-    type: 'bar',
-    data: {
-      labels: ['حرجة','عالية','متوسطة','منخفضة'],
-      datasets: [{
-        data: [12, 87, 342, 502],
-        backgroundColor: ['#c0392b','#d4702a','#c8963c','#4a5a6e'],
-        borderRadius: 4,
-        borderWidth: 0,
-      }]
-    },
-    options: {
-      ...CHART_DEFAULTS,
-      indexAxis: 'y',
-      scales: {
-        x: { display: true, ticks: { color: '#4a5a6e', font: { size: 11 } }, grid: { color: 'rgba(255,255,255,.04)' } },
-        y: { display: true, ticks: { color: '#8a9bb0', font: { size: 12, family: 'IBM Plex Sans Arabic' } }, grid: { display: false } }
-      }
-    }
-  });
-}
-
-async function loadCharts() {
-  // يمكن توسيع هذا لجلب بيانات حقيقية من Supabase
-  loadDemoCharts();
-}
-
-/* ═══════════════════════════════════════════
-   TODAY'S TOP ARTICLES
-═══════════════════════════════════════════ */
-const DEMO_ARTICLES = [
-  { title_ar: 'البرلمان العراقي يصادق على قانون الموازنة الاتحادية للعام 2025', category: 'politics', significance: 'high', source_name: 'Reuters', published_at: new Date(Date.now()-3600000).toISOString(), original_url: '#', summary_ar: 'صادق مجلس النواب العراقي على مشروع قانون الموازنة الاتحادية للعام 2025 بأغلبية واسعة، وسط خلافات حول حصة إقليم كردستان من الواردات النفطية.', actors: 'البرلمان العراقي، رئاسة الوزراء، الحكومة الكردستانية' },
-  { title_ar: 'الحشد الشعبي يعلن وقف عملياته ضد القوات الأمريكية في العراق', category: 'military', significance: 'critical', source_name: 'Al-Monitor', published_at: new Date(Date.now()-7200000).toISOString(), original_url: '#', summary_ar: 'أعلنت فصائل من الحشد الشعبي تعليق عملياتها ضد القوات الأمريكية في العراق وسوريا، في خطوة وصفها المحللون بأنها تحول استراتيجي في ضوء المستجدات الإقليمية.', actors: 'الحشد الشعبي، كتائب حزب الله، القوات الأمريكية' },
-  { title_ar: 'ICG: مخاطر التصعيد في شمال العراق مع تصاعد العمليات التركية', category: 'security', significance: 'high', source_name: 'Crisis Group', published_at: new Date(Date.now()-10800000).toISOString(), original_url: '#', summary_ar: 'حذّر تقرير جديد لمجموعة الأزمات الدولية من تصاعد المخاطر في شمال العراق، مشيراً إلى أن العمليات العسكرية التركية في المناطق الكردية تهدد باستنزاف الاستقرار الهش في الإقليم.', actors: 'تركيا، إقليم كردستان، حزب العمال الكردستاني' },
-  { title_ar: 'انخفاض صادرات النفط العراقي خلال الربع الأول رغم ارتفاع الأسعار', category: 'energy', significance: 'medium', source_name: 'Iraq Oil Report', published_at: new Date(Date.now()-14400000).toISOString(), original_url: '#', summary_ar: 'كشفت بيانات وزارة النفط العراقية عن انخفاض طفيف في حجم الصادرات النفطية خلال الربع الأول من العام الجاري، يُعزى جزئياً إلى أعمال الصيانة في حقل البصرة الكبير.', actors: 'وزارة النفط، أوبك+، شركة البصرة للنفط' },
-  { title_ar: 'اتفاقية تجارية عراقية-إيرانية جديدة: إلغاء الدولار من تبادلات الطاقة', category: 'diplomacy', significance: 'high', source_name: 'Financial Times', published_at: new Date(Date.now()-18000000).toISOString(), original_url: '#', summary_ar: 'وقّع العراق وإيران اتفاقية لإجراء تبادلاتهما التجارية في قطاع الطاقة بالدينار العراقي بدلاً من الدولار، وهو ما يراه المحللون خطوة لتجاوز العقوبات الأمريكية على طهران.', actors: 'الحكومة العراقية، الحكومة الإيرانية، وزارة الخزانة الأمريكية' },
-];
-
-function loadDemoTodayArticles() {
-  renderTodayTable(DEMO_ARTICLES);
-  document.getElementById('today-count').textContent = `${DEMO_ARTICLES.length} خبر`;
-}
-
-async function loadTodayArticles() {
-  if (DEMO_MODE) { loadDemoTodayArticles(); return; }
-  const since = new Date(Date.now() - 24*3600000).toISOString();
-  const res = await sbFetch('articles',
-    `?select=*,sources(name),analyses(summary_ar,actors,significance)&mentions_iraq=eq.true&published_at=gte.${since}&order=importance_score.desc&limit=10`);
-  const articles = res.data.map(a => ({
-    ...a,
-    source_name: a.sources?.name || '',
-    summary_ar:  a.analyses?.[0]?.summary_ar || '',
-    actors:      a.analyses?.[0]?.actors || '',
-    significance:a.analyses?.[0]?.significance || 'medium',
-  }));
-  renderTodayTable(articles);
-  document.getElementById('today-count').textContent = `${articles.length} خبر`;
-}
-
-function renderTodayTable(articles) {
-  const tbody = document.getElementById('today-tbody');
-  if (!articles.length) {
-    tbody.innerHTML = `<tr class="loading-row"><td colspan="5">لا توجد أخبار حديثة</td></tr>`;
-    return;
-  }
-  tbody.innerHTML = articles.map(a => `
-    <tr>
-      <td>
-        <div class="art-title"><a href="${a.original_url||'#'}" target="_blank">${a.title_ar||a.title_original||'—'}</a></div>
-        ${a.summary_ar ? `<div class="art-source">${a.summary_ar.slice(0,80)}...</div>` : ''}
-      </td>
-      <td>${catBadge(a.category)}</td>
-      <td>${sigBadge(a.significance)}</td>
-      <td><span class="art-source">${a.source_name||'—'}</span></td>
-      <td><span class="art-date">${fmtDate(a.published_at)}</span></td>
-    </tr>
-  `).join('');
-}
-
-/* ═══════════════════════════════════════════
-   ARTICLES TABLE (full)
-═══════════════════════════════════════════ */
-let currentPage  = 0;
-let iraqOnly     = true;
-let totalArticles= 0;
-const PAGE_SIZE  = 15;
+/* ═══════════════════════════════
+   STATE
+═══════════════════════════════ */
+let articles     = [];
+let activeFilter = 'all';
+let activeSource = '';
+let searchTerm   = '';
+let page         = 0;
+let loading      = false;
+let lastFetch    = new Date();
 let searchTimer  = null;
 
-function debounceSearch() {
-  clearTimeout(searchTimer);
-  searchTimer = setTimeout(loadArticles, 400);
+/* ═══════════════════════════════
+   SUPABASE
+═══════════════════════════════ */
+async function sbFetch(table, params='') {
+  if (!SB_URL || !SB_KEY) return { data: demoData(), count: demoData().length };
+  try {
+    const r = await fetch(`${SB_URL}/rest/v1/${table}${params}`, {
+      headers: {
+        'apikey': SB_KEY,
+        'Authorization': `Bearer ${SB_KEY}`,
+        'Prefer': 'count=exact',
+      }
+    });
+    const count = parseInt(r.headers.get('Content-Range')?.split('/')[1] || '0');
+    const data  = await r.json();
+    return { data: Array.isArray(data) ? data : [], count };
+  } catch { return { data: [], count: 0 }; }
 }
 
-function toggleIraqOnly() {
-  iraqOnly = !iraqOnly;
-  document.getElementById('btn-iraq-only').classList.toggle('active', iraqOnly);
-  currentPage = 0;
-  loadArticles();
-}
+/* ═══════════════════════════════
+   LOAD ARTICLES
+═══════════════════════════════ */
+async function loadArticles(append=false) {
+  if (loading) return;
+  loading = true;
 
-async function loadArticles() {
-  articlesLoaded = true;
-  const tbody = document.getElementById('articles-tbody');
-  tbody.innerHTML = `<tr class="loading-row"><td colspan="6">جاري التحميل <span class="spinner"></span></td></tr>`;
+  if (!append) {
+    page = 0;
+    document.getElementById('feed-items').innerHTML =
+      `<div class="loading"><div class="loading-spinner"></div>جاري جلب الأخبار...</div>`;
+  }
 
-  if (DEMO_MODE) { loadDemoArticles(); return; }
+  let params = `?select=id,title_ar,title_original,body_ar,body_original,original_url,category,importance_score,published_at,iraq_keywords,sources(name,region,type),analyses(summary_ar,actors,significance,stance)`;
+  params += `&mentions_iraq=eq.true&order=published_at.desc&limit=20&offset=${page*20}`;
 
-  const search = document.getElementById('search-input').value.trim();
-  const cat    = document.getElementById('filter-cat').value;
-  const sig    = document.getElementById('filter-sig').value;
-  const hours  = document.getElementById('filter-hours').value;
+  // Filters
+  if (activeFilter === 'critical') params += `&importance_score=gte.75`;
+  else if (['security','politics','diplomacy','economy','military','energy','kurdistan'].includes(activeFilter))
+    params += `&category=eq.${activeFilter}`;
+  else if (activeFilter === '24h') params += `&published_at=gte.${new Date(Date.now()-86400000).toISOString()}`;
+  else if (activeFilter === '48h') params += `&published_at=gte.${new Date(Date.now()-172800000).toISOString()}`;
+  else if (activeFilter === 'week') params += `&published_at=gte.${new Date(Date.now()-604800000).toISOString()}`;
 
-  let params = `?select=*,sources(name),analyses(summary_ar,actors,significance,stance)`;
-  params += `&order=importance_score.desc,published_at.desc`;
-  params += `&limit=${PAGE_SIZE}&offset=${currentPage * PAGE_SIZE}`;
-
-  if (iraqOnly) params += `&mentions_iraq=eq.true`;
-  if (cat)      params += `&category=eq.${cat}`;
-  if (hours)    params += `&published_at=gte.${new Date(Date.now()-hours*3600000).toISOString()}`;
-  if (search)   params += `&title_ar=ilike.*${encodeURIComponent(search)}*`;
+  if (activeSource) params += `&source_id=eq.${activeSource}`;
+  if (searchTerm)   params += `&title_ar=ilike.*${encodeURIComponent(searchTerm)}*`;
 
   const res = await sbFetch('articles', params);
-  totalArticles = res.count;
-
-  const articles = res.data.map(a => ({
+  const newArticles = res.data.map(a => ({
     ...a,
-    source_name: a.sources?.name || '',
-    summary_ar:  a.analyses?.[0]?.summary_ar || '',
-    actors:      a.analyses?.[0]?.actors || '',
-    significance:a.analyses?.[0]?.significance || 'medium',
-    stance:      a.analyses?.[0]?.stance || 'neutral',
+    source_name:  a.sources?.name || '',
+    source_region:a.sources?.region || 'international',
+    summary_ar:   Array.isArray(a.analyses) ? a.analyses[0]?.summary_ar : '',
+    actors:       Array.isArray(a.analyses) ? a.analyses[0]?.actors : '',
+    significance: Array.isArray(a.analyses) ? a.analyses[0]?.significance : 'medium',
+    stance:       Array.isArray(a.analyses) ? a.analyses[0]?.stance : 'neutral',
   }));
 
-  // Filter by significance client-side if needed
-  const filtered = sig ? articles.filter(a => a.significance === sig) : articles;
+  if (!append) articles = newArticles;
+  else         articles = [...articles, ...newArticles];
 
-  renderArticlesTable(filtered);
-  updatePagination();
+  document.getElementById('feed-count').textContent =
+    `${res.count.toLocaleString('ar')} خبر`;
+
+  renderFeed(append);
+  loading = false;
+  lastFetch = new Date();
 }
 
-function loadDemoArticles() {
-  const articles = [...DEMO_ARTICLES, ...DEMO_ARTICLES.slice(0,3)].map((a,i) => ({
-    ...a, id: i
-  }));
-  totalArticles = articles.length;
-  renderArticlesTable(articles);
-  updatePagination();
-}
-
-function renderArticlesTable(articles) {
-  const tbody = document.getElementById('articles-tbody');
-  document.getElementById('articles-count').textContent =
-    `${totalArticles.toLocaleString('ar')} مقال`;
+/* ═══════════════════════════════
+   RENDER FEED
+═══════════════════════════════ */
+function renderFeed(append=false) {
+  const container = document.getElementById('feed-items');
 
   if (!articles.length) {
-    tbody.innerHTML = `<tr class="loading-row"><td colspan="6">لا توجد نتائج</td></tr>`;
+    container.innerHTML = `<div class="empty"><div class="empty-icon">📭</div><div class="empty-text">لا توجد أخبار مطابقة</div></div>`;
     return;
   }
 
-  tbody.innerHTML = articles.map((a,i) => `
-    <tr id="row-${i}">
-      <td>
-        <div class="art-title">
-          <a href="${a.original_url||'#'}" target="_blank">${a.title_ar||a.title_original||'—'}</a>
-        </div>
-        <div class="art-source">${a.source_name||''}</div>
-      </td>
-      <td>${catBadge(a.category)}</td>
-      <td>${sigBadge(a.significance)}</td>
-      <td><span class="art-source" style="font-size:12px">${a.source_name||'—'}</span></td>
-      <td><span class="art-date">${fmtDate(a.published_at)}</span></td>
-      <td>
-        ${a.summary_ar ? `<button class="expand-btn" onclick="toggleSummary(${i})">تفاصيل</button>` : ''}
-      </td>
-    </tr>
-    ${a.summary_ar ? `
-    <tr class="art-summary-row" id="summary-${i}" style="display:none">
-      <td colspan="6">
-        <div class="art-summary-box">
-          ${a.summary_ar}
-          ${a.actors ? `<div class="actors">الأطراف: ${a.actors.split('،').map(s=>`<span>${s.trim()}</span>`).join('')}</div>` : ''}
-        </div>
-      </td>
-    </tr>` : ''}
-  `).join('');
-}
+  const html = articles.map((a,i) => buildCard(a,i)).join('');
 
-function toggleSummary(i) {
-  const row = document.getElementById(`summary-${i}`);
-  const btn = document.querySelector(`#row-${i} .expand-btn`);
-  if (row.style.display === 'none') {
-    row.style.display = '';
-    btn.textContent = 'إغلاق';
+  if (!append) {
+    container.innerHTML = html;
+    // Infinite scroll sentinel
+    container.insertAdjacentHTML('beforeend','<div id="scroll-sentinel" style="height:1px"></div>');
+    setupInfiniteScroll();
   } else {
-    row.style.display = 'none';
-    btn.textContent = 'تفاصيل';
+    document.getElementById('scroll-sentinel')?.remove();
+    container.insertAdjacentHTML('beforeend', html);
+    container.insertAdjacentHTML('beforeend','<div id="scroll-sentinel" style="height:1px"></div>');
   }
 }
 
-function updatePagination() {
-  const start = currentPage * PAGE_SIZE + 1;
-  const end   = Math.min((currentPage + 1) * PAGE_SIZE, totalArticles);
-  document.getElementById('page-info').textContent = `${start}–${end} من ${totalArticles.toLocaleString('ar')}`;
-  document.getElementById('btn-prev').disabled = currentPage === 0;
-  document.getElementById('btn-next').disabled = end >= totalArticles;
+function buildCard(a, i) {
+  const color   = SOURCE_COLORS[a.source_region] || '#2563eb';
+  const init    = a.source_name.split(' ').slice(0,2).map(w=>w[0]||'').join('').toUpperCase().slice(0,2);
+  const timeAgo = formatTime(a.published_at);
+  const sig     = a.significance || 'medium';
+  const cat     = a.category     || 'other';
+  const title   = a.title_ar || a.title_original || '—';
+  const hasTranslation = a.body_ar && a.body_ar.length > 20;
+  const hasOriginal    = a.body_original && a.body_original.length > 20;
+  const hasAnalysis    = a.summary_ar && a.summary_ar.length > 10;
+  const keywords       = (a.iraq_keywords||[]).slice(0,3);
+
+  return `
+<div class="card" style="animation-delay:${i*0.04}s">
+  <div class="card-meta">
+    <div class="card-source">
+      <div class="src-avatar" style="background:${color}22;color:${color}">${init}</div>
+      ${a.source_name}
+    </div>
+    <span class="card-time">${timeAgo}</span>
+    <span class="sig-badge sig-${sig}">${sig==='critical'?'🔴':sig==='high'?'🟠':sig==='medium'?'🟡':'⚪'} ${SIG_AR[sig]||'—'}</span>
+    <span class="card-cat cat-${cat}">${CAT_AR[cat]||'أخرى'}</span>
+  </div>
+
+  <div class="card-title">${title}</div>
+
+  ${hasOriginal||hasTranslation||hasAnalysis ? `
+  <div class="content-tabs">
+    <div class="ctabs">
+      ${hasTranslation ? `<div class="ctab on" onclick="switchTab(this,'tr-${i}')">الترجمة</div>` : ''}
+      ${hasOriginal    ? `<div class="ctab ${!hasTranslation?'on':''}" onclick="switchTab(this,'or-${i}')">النص الأصلي</div>` : ''}
+      ${hasAnalysis    ? `<div class="ctab" onclick="switchTab(this,'an-${i}')">التحليل</div>` : ''}
+    </div>
+    ${hasTranslation ? `
+    <div class="ctab-content on" id="tr-${i}">
+      <div class="translation-text">${a.body_ar.slice(0,400)}${a.body_ar.length>400?'...':''}</div>
+    </div>` : ''}
+    ${hasOriginal ? `
+    <div class="ctab-content ${!hasTranslation?'on':''}" id="or-${i}">
+      <div class="original-text">${a.body_original.slice(0,400)}${a.body_original.length>400?'...':''}</div>
+    </div>` : ''}
+    ${hasAnalysis ? `
+    <div class="ctab-content" id="an-${i}">
+      <div class="analysis-box">
+        <div class="analysis-label">✦ تحليل</div>
+        <div class="analysis-text">${a.summary_ar}</div>
+        ${a.actors ? `<div class="actors-row">الأطراف: ${a.actors.split(/[،,]/).slice(0,4).map(s=>`<span class="actor-tag">${s.trim()}</span>`).join('')}</div>` : ''}
+      </div>
+    </div>` : ''}
+  </div>` : ''}
+
+  <div class="card-footer">
+    ${a.original_url ? `<a href="${a.original_url}" target="_blank" class="card-link">↗ المصدر الأصلي</a>` : ''}
+    <div class="kw-tags">
+      ${keywords.map(k=>`<span class="kw-tag">${k}</span>`).join('')}
+    </div>
+  </div>
+</div>`;
 }
 
-function changePage(dir) {
-  currentPage += dir;
-  loadArticles();
-  window.scrollTo(0, 0);
+function switchTab(el, targetId) {
+  const card = el.closest('.content-tabs');
+  card.querySelectorAll('.ctab').forEach(t=>t.classList.remove('on'));
+  card.querySelectorAll('.ctab-content').forEach(t=>t.classList.remove('on'));
+  el.classList.add('on');
+  document.getElementById(targetId)?.classList.add('on');
 }
 
-/* ═══════════════════════════════════════════
-   TIMELINE
-═══════════════════════════════════════════ */
-let tlFilter = 'all';
+/* ═══════════════════════════════
+   SOURCES SIDEBAR
+═══════════════════════════════ */
+async function loadSources() {
+  const res = await sbFetch('sources', '?select=id,name,region,type&is_active=eq.true&order=trust_score.desc');
+  const list = document.getElementById('sources-list');
 
-function setTlFilter(f, btn) {
-  tlFilter = f;
-  document.querySelectorAll('.timeline-filters .filter-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  loadTimeline();
-}
-
-async function loadTimeline() {
-  timelineLoaded = true;
-  const list = document.getElementById('timeline-list');
-  list.innerHTML = `<div class="empty-state"><div class="empty-state-text">جاري التحميل <span class="spinner"></span></div></div>`;
-
-  if (DEMO_MODE) { loadDemoTimeline(); return; }
-
-  const cat = document.getElementById('tl-cat').value;
-  let params = `?select=*,sources(name),analyses(summary_ar,actors,significance,stance)&mentions_iraq=eq.true&order=published_at.desc&limit=30`;
-  if (cat) params += `&category=eq.${cat}`;
-  if (tlFilter !== 'all') {
-    // filter happens client side after fetch
-  }
-
-  const res = await sbFetch('articles', params);
-  let articles = res.data.map(a => ({
-    ...a,
-    source_name: a.sources?.name || '',
-    summary_ar:  a.analyses?.[0]?.summary_ar || '',
-    actors:      a.analyses?.[0]?.actors || '',
-    significance:a.analyses?.[0]?.significance || 'medium',
-  }));
-
-  if (tlFilter !== 'all') articles = articles.filter(a => a.significance === tlFilter);
-  renderTimeline(articles);
-}
-
-function loadDemoTimeline() {
-  const items = DEMO_ARTICLES.map(a => ({ ...a }));
-  renderTimeline(items);
-}
-
-function renderTimeline(articles) {
-  const list = document.getElementById('timeline-list');
-  document.getElementById('timeline-count').textContent = `${articles.length} حدث`;
-
-  if (!articles.length) {
-    list.innerHTML = `<div class="empty-state"><div class="empty-state-icon">🔍</div><div class="empty-state-text">لا توجد نتائج</div></div>`;
+  if (!res.data.length) {
+    list.innerHTML = '<div style="color:var(--t3);font-size:12px">لا توجد مصادر</div>';
     return;
   }
 
-  list.innerHTML = articles.map((a,i) => `
-    <div class="tl-item" style="animation-delay:${i*0.04}s">
-      <div class="tl-dot ${a.significance||'medium'}"></div>
-      <div class="tl-content">
-        <div class="tl-header">
-          <div class="tl-title">${a.title_ar||a.title_original||'—'}</div>
-          <div class="tl-meta">
-            ${catBadge(a.category)}
-            ${sigBadge(a.significance)}
-            <span class="tl-date">${fmtDate(a.published_at)}</span>
-          </div>
-        </div>
-        ${a.summary_ar ? `<div class="tl-summary">${a.summary_ar}</div>` : ''}
-        <div class="tl-sources">
-          <span class="tl-source-tag">${a.source_name||'—'}</span>
-          ${a.actors ? a.actors.split('،').slice(0,2).map(s => `<span class="tl-source-tag" style="color:var(--gold)">${s.trim()}</span>`).join('') : ''}
-        </div>
+  list.innerHTML = `
+    <div class="src-item ${activeSource===''?'active':''}" onclick="filterSource('')">
+      <div class="src-dot" style="background:var(--accent)"></div>
+      <div class="src-name">كل المصادر</div>
+    </div>
+  ` + res.data.map(s => `
+    <div class="src-item ${activeSource===s.id?'active':''}" onclick="filterSource('${s.id}')">
+      <div class="src-dot" style="background:${SOURCE_COLORS[s.region]||'#666'}"></div>
+      <div class="src-name">${s.name}</div>
+    </div>
+  `).join('');
+}
+
+function filterSource(id) {
+  activeSource = id;
+  loadSources();
+  loadArticles();
+}
+
+/* ═══════════════════════════════
+   CRITICAL + TRENDING
+═══════════════════════════════ */
+async function loadCritical() {
+  const since = new Date(Date.now()-72*3600000).toISOString();
+  const res = await sbFetch('articles',
+    `?select=title_ar,title_original,published_at,sources(name)&mentions_iraq=eq.true&importance_score=gte.75&published_at=gte.${since}&order=importance_score.desc&limit=5`);
+
+  const el = document.getElementById('critical-list');
+  if (!res.data.length) { el.innerHTML = '<div style="color:var(--t3);font-size:12px;padding:8px 0">لا أحداث حرجة حالياً ✓</div>'; return; }
+
+  el.innerHTML = res.data.map(a => `
+    <div class="critical-item">
+      <div class="critical-title">${a.title_ar||a.title_original||'—'}</div>
+      <div class="critical-meta">${a.sources?.name||''} • ${formatTime(a.published_at)}</div>
+    </div>
+  `).join('');
+}
+
+async function loadTrending() {
+  // جلب الكلمات المفتاحية الأكثر ظهوراً
+  const res = await sbFetch('articles',
+    `?select=iraq_keywords&mentions_iraq=eq.true&published_at=gte.${new Date(Date.now()-86400000).toISOString()}&limit=100`);
+
+  const freq = {};
+  res.data.forEach(a => {
+    (a.iraq_keywords||[]).forEach(kw => {
+      freq[kw] = (freq[kw]||0) + 1;
+    });
+  });
+
+  const sorted = Object.entries(freq).sort((a,b)=>b[1]-a[1]).slice(0,8);
+  const el = document.getElementById('trending-list');
+
+  if (!sorted.length) { el.innerHTML = '<div style="color:var(--t3);font-size:12px">لا توجد بيانات كافية</div>'; return; }
+
+  el.innerHTML = sorted.map(([word,count],i) => `
+    <div class="trending-item" onclick="document.getElementById('search').value='${word}';searchTerm='${word}';loadArticles()">
+      <div class="trend-num">${i+1}</div>
+      <div style="flex:1">
+        <div class="trend-word">${word}</div>
+        <div class="trend-count">${count} خبر</div>
       </div>
     </div>
   `).join('');
 }
 
-/* ═══════════════════════════════════════════
-   SOURCES
-═══════════════════════════════════════════ */
-let allSources = [];
-
-async function loadSources() {
-  sourcesLoaded = true;
-  if (DEMO_MODE) { loadDemoSources(); return; }
-
-  const res = await sbFetch('sources',
-    `?select=*&is_active=eq.true&order=trust_score.desc`);
-  allSources = res.data;
-  document.getElementById('sources-total').textContent = `${allSources.length} مصدر`;
-  renderSources();
+/* ═══════════════════════════════
+   FILTERS
+═══════════════════════════════ */
+function setFilter(f, el) {
+  activeFilter = f;
+  document.querySelectorAll('.f-chip').forEach(c=>c.classList.remove('on'));
+  el.classList.add('on');
+  loadArticles();
 }
 
-function loadDemoSources() {
-  allSources = [
-    { name:'International Crisis Group', slug:'icg', type:'think_tank', region:'international', trust_score:95, rss_url:'https://crisisgroup.org', total_articles:312, iraq_articles:87 },
-    { name:'Carnegie Endowment', slug:'carnegie', type:'think_tank', region:'western', trust_score:90, rss_url:'https://carnegieendowment.org', total_articles:245, iraq_articles:62 },
-    { name:'RAND Corporation', slug:'rand', type:'think_tank', region:'western', trust_score:90, rss_url:'https://rand.org', total_articles:198, iraq_articles:54 },
-    { name:'Reuters', slug:'reuters', type:'agency', region:'western', trust_score:92, rss_url:'https://reuters.com', total_articles:1840, iraq_articles:203 },
-    { name:'Al-Monitor', slug:'al-monitor', type:'newspaper', region:'international', trust_score:88, rss_url:'https://al-monitor.com', total_articles:420, iraq_articles:118 },
-    { name:'Middle East Institute', slug:'mei', type:'think_tank', region:'western', trust_score:88, rss_url:'https://mei.edu', total_articles:280, iraq_articles:71 },
-    { name:'Rudaw', slug:'rudaw', type:'newspaper', region:'kurdish', trust_score:78, rss_url:'https://rudaw.net', total_articles:560, iraq_articles:210 },
-    { name:'Chatham House', slug:'chatham', type:'think_tank', region:'western', trust_score:88, rss_url:'https://chathamhouse.org', total_articles:195, iraq_articles:48 },
-    { name:'Tasnim News', slug:'tasnim', type:'agency', region:'iranian', trust_score:55, rss_url:'https://tn.ir', total_articles:390, iraq_articles:145 },
-    { name:'ACLED', slug:'acled', type:'ngo', region:'international', trust_score:92, rss_url:'https://acleddata.com', total_articles:120, iraq_articles:98 },
-    { name:'Iran International', slug:'iran-intl', type:'newspaper', region:'iranian', trust_score:72, rss_url:'https://iranintl.com', total_articles:310, iraq_articles:87 },
-    { name:'Financial Times', slug:'ft', type:'newspaper', region:'western', trust_score:88, rss_url:'https://ft.com', total_articles:215, iraq_articles:38 },
-  ];
-  document.getElementById('sources-total').textContent = `${allSources.length} مصدر`;
-  renderSources();
+/* ═══════════════════════════════
+   SEARCH
+═══════════════════════════════ */
+function debounce() {
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(() => {
+    searchTerm = document.getElementById('search').value.trim();
+    loadArticles();
+  }, 400);
 }
 
-function renderSources() {
-  const regionFilter = document.getElementById('src-filter-region').value;
-  const typeFilter   = document.getElementById('src-filter-type').value;
+/* ═══════════════════════════════
+   INFINITE SCROLL
+═══════════════════════════════ */
+function setupInfiniteScroll() {
+  const sentinel = document.getElementById('scroll-sentinel');
+  if (!sentinel) return;
+  const observer = new IntersectionObserver(entries => {
+    if (entries[0].isIntersecting && !loading) {
+      page++;
+      loadArticles(true);
+    }
+  }, { rootMargin: '200px' });
+  observer.observe(sentinel);
+}
 
-  let filtered = allSources;
-  if (regionFilter) filtered = filtered.filter(s => s.region === regionFilter);
-  if (typeFilter)   filtered = filtered.filter(s => s.type === typeFilter);
+/* ═══════════════════════════════
+   AUTO REFRESH
+═══════════════════════════════ */
+function refresh() {
+  const btn = document.getElementById('refresh-btn');
+  btn.classList.add('spinning');
+  Promise.all([loadArticles(), loadCritical(), loadTrending()])
+    .finally(() => btn.classList.remove('spinning'));
+}
 
-  const grid = document.getElementById('sources-grid');
-
-  if (!filtered.length) {
-    grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><div class="empty-state-icon">🔍</div><div class="empty-state-text">لا توجد مصادر</div></div>`;
-    return;
+// Auto-check for new items every 60 seconds
+setInterval(async () => {
+  if (!SB_URL || !SB_KEY) return;
+  const since = lastFetch.toISOString();
+  const res = await sbFetch('articles',
+    `?select=id&mentions_iraq=eq.true&fetched_at=gte.${since}&limit=1`);
+  if (res.count > 0) {
+    const badge = document.getElementById('new-badge');
+    badge.style.display = 'block';
+    badge.textContent = `↑ ${res.count} خبر جديد — اضغط للتحديث`;
   }
+}, 60000);
 
-  grid.innerHTML = filtered.map(s => {
-    const color  = SOURCE_COLORS[s.region] || '#4a5a6e';
-    const initials = s.name.split(' ').slice(0,2).map(w=>w[0]).join('').toUpperCase();
-    const total  = s.total_articles || 0;
-    const iraq   = s.iraq_articles  || 0;
-    const pct    = total ? Math.round(iraq/total*100) : 0;
-
-    return `
-    <div class="source-card">
-      <div class="source-header">
-        <div class="source-avatar" style="background:${color}22;color:${color};border:1px solid ${color}44">
-          ${initials}
-        </div>
-        <div>
-          <div class="source-name">${s.name}</div>
-          <div class="source-type">${TYPE_LABELS[s.type]||s.type} • <span class="region-badge region-${s.region}">${REGION_LABELS[s.region]||s.region}</span></div>
-        </div>
-      </div>
-
-      <div class="source-stats">
-        <div class="source-stat-item">
-          <div class="source-stat-num" style="color:${color}">${iraq.toLocaleString('ar')}</div>
-          <div class="source-stat-lbl">أخبار العراق</div>
-        </div>
-        <div class="source-stat-item">
-          <div class="source-stat-num">${total.toLocaleString('ar')}</div>
-          <div class="source-stat-lbl">إجمالي الأخبار</div>
-        </div>
-      </div>
-
-      <div class="trust-bar">
-        <div class="trust-fill" style="width:${s.trust_score}%;background:linear-gradient(to left,${color},${color}88)"></div>
-      </div>
-      <div class="trust-label">موثوقية: ${s.trust_score}%  •  تغطية العراق: ${pct}%</div>
-    </div>
-  `}).join('');
+function loadNewItems() {
+  document.getElementById('new-badge').style.display = 'none';
+  refresh();
 }
 
-/* ═══════════════════════════════════════════
-   CONFIG MODAL
-═══════════════════════════════════════════ */
+/* ═══════════════════════════════
+   HELPERS
+═══════════════════════════════ */
+function formatTime(iso) {
+  if (!iso) return '—';
+  const diff = Date.now() - new Date(iso).getTime();
+  const m = Math.floor(diff/60000);
+  const h = Math.floor(diff/3600000);
+  const d = Math.floor(diff/86400000);
+  if (m < 1)  return 'الآن';
+  if (m < 60) return `منذ ${m} د`;
+  if (h < 24) return `منذ ${h} س`;
+  return `منذ ${d} يوم`;
+}
+
+function updateClock() {
+  document.getElementById('clock').textContent =
+    new Date().toLocaleTimeString('ar-IQ',{hour12:false,timeZone:'Asia/Baghdad'}) + ' بغداد';
+}
+
+/* ═══════════════════════════════
+   DEMO DATA
+═══════════════════════════════ */
+function demoData() {
+  return [
+    {id:'1',title_ar:'البرلمان العراقي يصادق على قانون الموازنة الاتحادية للعام 2025',title_original:'Iraqi Parliament approves federal budget',body_ar:'صادق مجلس النواب العراقي على مشروع قانون الموازنة الاتحادية للعام 2025 بأغلبية واسعة، وسط خلافات حول حصة إقليم كردستان من الواردات النفطية وتوزيع الرواتب.',body_original:'The Iraqi parliament approved the 2025 federal budget law with a large majority.',category:'politics',importance_score:80,published_at:new Date(Date.now()-3600000).toISOString(),original_url:'#',iraq_keywords:['العراق','البرلمان','الموازنة'],source_name:'Reuters',source_region:'western',summary_ar:'صادق البرلمان على الموازنة وسط خلافات مع الإقليم حول النفط.',actors:'البرلمان العراقي، إقليم كردستان',significance:'high',stance:'neutral'},
+    {id:'2',title_ar:'الحشد الشعبي يعلن وقف عملياته ضد القوات الأمريكية في العراق',title_original:'PMF announces halt to operations against US forces in Iraq',body_ar:'أعلنت فصائل من الحشد الشعبي تعليق عملياتها ضد القوات الأمريكية في العراق وسوريا، في خطوة وصفها المحللون بأنها تحول استراتيجي في ضوء المستجدات الإقليمية.',body_original:'Factions of the Popular Mobilization Forces announced a halt to their operations against US forces in Iraq and Syria.',category:'military',importance_score:95,published_at:new Date(Date.now()-7200000).toISOString(),original_url:'#',iraq_keywords:['الحشد الشعبي','فصائل','العراق'],source_name:'Al-Monitor',source_region:'international',summary_ar:'تعليق عمليات الفصائل يعكس تحولاً استراتيجياً إيرانياً في ظل الضغوط الأمريكية.',actors:'الحشد الشعبي، القوات الأمريكية، إيران',significance:'critical',stance:'neutral'},
+    {id:'3',title_ar:'ICG: مخاطر التصعيد في شمال العراق مع تصاعد العمليات التركية',title_original:'ICG: Escalation risks in northern Iraq as Turkish operations intensify',body_ar:'حذّر تقرير جديد لمجموعة الأزمات الدولية من تصاعد المخاطر في شمال العراق، مشيراً إلى أن العمليات العسكرية التركية في المناطق الكردية تهدد باستنزاف الاستقرار الهش في الإقليم.',body_original:'A new International Crisis Group report warned of escalating risks in northern Iraq.',category:'security',importance_score:85,published_at:new Date(Date.now()-10800000).toISOString(),original_url:'#',iraq_keywords:['كردستان','تركيا','العمليات'],source_name:'Crisis Group',source_region:'international',summary_ar:'التقرير يحذر من أن العمليات التركية تزعزع استقرار كردستان وتعقد المشهد الأمني.',actors:'تركيا، إقليم كردستان، PKK',significance:'high',stance:'neutral'},
+  ];
+}
+
+/* ═══════════════════════════════
+   CONFIG
+═══════════════════════════════ */
 function openConfig() {
-  document.getElementById('cfg-url').value = SB_URL;
-  document.getElementById('cfg-key').value = SB_KEY;
-  document.getElementById('config-modal').classList.add('open');
-}
-
-function closeConfig() {
-  document.getElementById('config-modal').classList.remove('open');
-}
-
-function saveConfig() {
-  SB_URL = document.getElementById('cfg-url').value.trim();
-  SB_KEY = document.getElementById('cfg-key').value.trim();
+  const url = prompt('SUPABASE_URL:', SB_URL);
+  if (url === null) return;
+  const key = prompt('SUPABASE_ANON_KEY:', SB_KEY);
+  if (key === null) return;
+  SB_URL = url.trim(); SB_KEY = key.trim();
   localStorage.setItem('sb_url', SB_URL);
   localStorage.setItem('sb_key', SB_KEY);
-  closeConfig();
   location.reload();
 }
 
-document.getElementById('config-modal').addEventListener('click', e => {
-  if (e.target === e.currentTarget) closeConfig();
-});
-
-/* ═══════════════════════════════════════════
+/* ═══════════════════════════════
    INIT
-═══════════════════════════════════════════ */
+═══════════════════════════════ */
 window.addEventListener('DOMContentLoaded', () => {
-  loadStats();
-  if (!SB_URL || !SB_KEY) {
-    // auto-open config on first visit
-    setTimeout(() => {
-      // openConfig(); // uncomment to auto-open
-    }, 500);
-  }
+  updateClock();
+  setInterval(updateClock, 1000);
+  loadArticles();
+  loadSources();
+  loadCritical();
+  loadTrending();
 });
 </script>
 </body>
