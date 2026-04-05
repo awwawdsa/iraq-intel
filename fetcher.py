@@ -8,8 +8,8 @@ Iraq Intel Platform — RSS Fetcher & Iraq Filter
     pip install feedparser httpx supabase python-dotenv
     python fetcher.py
 
-أو عبر cron كل 30 دقيقة:
-    */30 * * * * /usr/bin/python3 /path/to/fetcher.py
+أو عبر cron كل 5 دقيقة:
+    */5 * * * * /usr/bin/python3 /path/to/fetcher.py
 """
 
 import os
