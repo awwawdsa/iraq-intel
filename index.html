@@ -497,23 +497,39 @@ function demo(){return[
 async function translateCard(btn, idx) {
   const a = arts[idx];
   if (!a) return;
-  const text = (a.body_original || a.title_original || '').slice(0,2000);
+  const text = (a.body_original || a.title_original || '').slice(0,1000);
   if (!text) return;
-  btn.classList.add('loading');
-  btn.textContent = '⏳ جاري الترجمة...';
+  btn.textContent = '⏳...';
   const card = btn.closest('.card');
   const resultDiv = card ? card.querySelector('.tr-result') : null;
   try {
-    const url = 'https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=ar&dt=t&q=' + encodeURIComponent(text);
-    const res = await fetch(url);
+    // Use Google Translate redirect link - opens translation in new tab
+    const googleUrl = 'https://translate.google.com/translate?sl=auto&tl=ar&u=' + encodeURIComponent(a.original_url || '');
+    
+    // Try MyMemory API - free, no CORS issues
+    const apiUrl = 'https://api.mymemory.translated.net/get?q=' + encodeURIComponent(text.slice(0,500)) + '&langpair=en|ar';
+    const res = await fetch(apiUrl);
     const data = await res.json();
-    const translated = data[0].map(t=>t[0]||'').join('');
-    if (resultDiv) { resultDiv.textContent = translated; resultDiv.classList.add('show'); }
-    btn.textContent = '✓ مترجم';
-    btn.style.color = 'var(--green)';
+    
+    if (data.responseStatus === 200 && data.responseData?.translatedText) {
+      const translated = data.responseData.translatedText;
+      if (resultDiv) { 
+        resultDiv.innerHTML = '<div style="line-height:1.8;font-size:13px">' + translated + '</div>';
+        resultDiv.classList.add('show'); 
+      }
+      btn.textContent = '✓ مترجم';
+      btn.style.color = 'var(--green)';
+    } else {
+      throw new Error('translation failed');
+    }
   } catch(e) {
-    btn.textContent = '✗ فشل';
-    btn.classList.remove('loading');
+    // Fallback: open in Google Translate
+    if (resultDiv) {
+      resultDiv.innerHTML = '<a href="https://translate.google.com/translate?sl=auto&tl=ar&u=' + encodeURIComponent(a.original_url||'') + '" target="_blank" style="color:var(--accent);font-size:12px">↗ فتح في Google Translate</a>';
+      resultDiv.classList.add('show');
+    }
+    btn.textContent = '↗ ترجمة';
+    btn.style.color = 'var(--accent)';
   }
 }
 
