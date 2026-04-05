@@ -382,7 +382,7 @@ function card(a,i){
   </div>`:''}
   <div class="c-foot">
     ${a.original_url?`<a href="${a.original_url}" target="_blank" class="c-link">↗ المصدر</a>`:''}
-    ${!hasTr?`<button class="tr-btn" onclick="translateCard(this,'${(a.body_original||a.title_original||'').slice(0,500).replace(/'/g,'\\'')}')">🌐 ترجمة</button>`:''}
+    ${!hasTr?'<button class="tr-btn" onclick="translateCard(this,'+i+')">🌐 ترجمة</button>':''}
     <div class="mkws">${matched.map(k=>`<span class="mkw">${k}</span>`).join('')}</div>
   </div>
   <div class="tr-result" id="tr-result-${i}"></div>
@@ -494,38 +494,33 @@ function demo(){return[
 ];}
 
 // TRANSLATE FUNCTION
-async function translateCard(btn, text) {
+async function translateCard(btn, idx) {
+  const a = arts[idx];
+  if (!a) return;
+  const text = (a.body_original || a.title_original || '').slice(0,2000);
   if (!text) return;
   btn.classList.add('loading');
   btn.textContent = '⏳ جاري الترجمة...';
-  
-  // Find result div - it is next sibling of parent card
   const card = btn.closest('.card');
   const resultDiv = card ? card.querySelector('.tr-result') : null;
-  
   try {
-    const url = 'https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=ar&dt=t&q=' + encodeURIComponent(text.slice(0,2000));
+    const url = 'https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=ar&dt=t&q=' + encodeURIComponent(text);
     const res = await fetch(url);
     const data = await res.json();
-    const translated = data[0].map(t=>t[0]).join('');
-    
-    if (resultDiv) {
-      resultDiv.textContent = translated;
-      resultDiv.classList.add('show');
-    }
+    const translated = data[0].map(t=>t[0]||'').join('');
+    if (resultDiv) { resultDiv.textContent = translated; resultDiv.classList.add('show'); }
     btn.textContent = '✓ مترجم';
     btn.style.color = 'var(--green)';
   } catch(e) {
-    btn.textContent = '✗ فشلت الترجمة';
+    btn.textContent = '✗ فشل';
     btn.classList.remove('loading');
   }
 }
 
-// AUTH CHECK
-const _sess = JSON.parse(localStorage.getItem('iq_session')||'null');
-if (!_sess || new Date(_sess.expires) < new Date()) { window.location.href='login.html'; }
-const _user = _sess || {name:'زائر',role:'viewer'};
-function logout(){ localStorage.removeItem('iq_session'); window.location.href='login.html'; }
+const _sess=JSON.parse(localStorage.getItem('iq_session')||'null');
+if(!_sess||new Date(_sess.expires)<new Date()){window.location.href='login.html';}
+const _user=_sess||{name:'زائر',role:'viewer'};
+function logout(){localStorage.removeItem('iq_session');window.location.href='login.html';}
 
 window.addEventListener('DOMContentLoaded',()=>{
   updateClock();setInterval(updateClock,1000);
