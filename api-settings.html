@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>إعداد API — الراصد</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%232461d4'/><text y='.9em' font-size='65' x='15' fill='white' font-weight='bold'>IQ</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#07090d;--bg2:#111520;--bg3:#161d2a;--bg4:#1c2535;
+  --line:#1e2d3e;--line2:#263548;
+  --t1:#dde4ed;--t2:#7b92a8;--t3:#3d5268;
+  --accent:#2461d4;--accent2:#1a4db8;
+  --green:#1a8a42;--green2:rgba(26,138,66,.12);
+  --red:#c42b2b;--red2:rgba(196,43,43,.12);
+  --gold:#c49232;--gold2:rgba(196,146,50,.12);
+  --teal:#0d7a6a;--teal2:rgba(13,122,106,.12);
+  --purple:#6b3fc8;--purple2:rgba(107,63,200,.12);
+  --font:'IBM Plex Sans Arabic',sans-serif;
+  --mono:'JetBrains Mono',monospace;
+  --r:8px;--r2:14px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font);background:var(--bg);color:var(--t1);min-height:100vh;font-size:14px;line-height:1.6}
+
+/* TOPBAR */
+.topbar{display:flex;align-items:center;gap:14px;padding:0 24px;height:52px;background:rgba(7,9,13,.97);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:100}
+.tb-logo{width:30px;height:30px;border-radius:7px;overflow:hidden;flex-shrink:0}
+.tb-logo img{width:100%;height:100%;object-fit:cover}
+.tb-logo-fallback{width:30px;height:30px;background:var(--accent);border-radius:7px;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-weight:600;color:#fff;font-size:13px}
+.tb-name{font-size:14px;font-weight:600}
+.tb-sub{font-size:11px;color:var(--t3);font-family:var(--mono)}
+.sep{flex:1}
+.tb-btn{background:var(--bg3);border:1px solid var(--line);color:var(--t2);padding:5px 12px;border-radius:6px;cursor:pointer;font-family:var(--font);font-size:12px;text-decoration:none;transition:all .2s;display:inline-flex;align-items:center;gap:5px}
+.tb-btn:hover{background:var(--bg4);color:var(--t1)}
+
+/* LAYOUT */
+.content{max-width:860px;margin:0 auto;padding:32px 24px}
+
+/* PAGE HEADER */
+.page-hd{margin-bottom:32px}
+.page-title{font-size:22px;font-weight:600;margin-bottom:6px;display:flex;align-items:center;gap:10px}
+.page-desc{font-size:13px;color:var(--t2);line-height:1.7;max-width:600px}
+.security-note{display:flex;align-items:flex-start;gap:10px;background:var(--gold2);border:1px solid rgba(196,146,50,.2);border-radius:var(--r);padding:12px 14px;margin-top:16px;font-size:12px;color:var(--gold)}
+.security-icon{font-size:16px;flex-shrink:0;margin-top:1px}
+
+/* API CARDS */
+.api-cards{display:flex;flex-direction:column;gap:16px}
+
+.api-card{background:var(--bg2);border:1px solid var(--line);border-radius:var(--r2);overflow:hidden;transition:border-color .2s}
+.api-card:hover{border-color:var(--line2)}
+.api-card.connected{border-color:rgba(26,138,66,.3)}
+
+.api-card-header{display:flex;align-items:center;gap:16px;padding:20px 22px;border-bottom:1px solid var(--line);cursor:pointer;user-select:none}
+.api-card-header:hover .expand-icon{opacity:1}
+
+.service-icon{width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.icon-supabase{background:rgba(62,207,142,.1);border:1px solid rgba(62,207,142,.2)}
+.icon-anthropic{background:rgba(210,106,60,.1);border:1px solid rgba(210,106,60,.2)}
+.icon-deepl{background:rgba(13,122,106,.1);border:1px solid rgba(13,122,106,.2)}
+.icon-google{background:rgba(36,97,212,.1);border:1px solid rgba(36,97,212,.2)}
+
+.service-info{flex:1}
+.service-name{font-size:15px;font-weight:600;margin-bottom:2px}
+.service-desc{font-size:12px;color:var(--t2)}
+
+.status-wrap{display:flex;align-items:center;gap:10px}
+.status{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-family:var(--mono);padding:4px 10px;border-radius:20px}
+.status.ok{background:var(--green2);color:#4ade80;border:1px solid rgba(26,138,66,.2)}
+.status.missing{background:var(--red2);color:#f87171;border:1px solid rgba(196,43,43,.2)}
+.status.optional{background:var(--bg3);color:var(--t3);border:1px solid var(--line)}
+.status-dot{width:5px;height:5px;border-radius:50%}
+.status.ok .status-dot{background:#4ade80}
+.status.missing .status-dot{background:#f87171;animation:blink 1.5s infinite}
+.status.optional .status-dot{background:var(--t3)}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+
+.expand-icon{color:var(--t3);font-size:12px;transition:all .2s;opacity:.6}
+.api-card.open .expand-icon{transform:rotate(180deg);opacity:1}
+
+.api-card-body{display:none;padding:20px 22px}
+.api-card.open .api-card-body{display:block}
+
+/* FIELDS */
+.field-group{margin-bottom:18px}
+.field-group:last-child{margin-bottom:0}
+.field-label{font-size:11px;color:var(--t2);font-family:var(--mono);letter-spacing:.3px;margin-bottom:7px;display:flex;align-items:center;justify-content:space-between}
+.field-required{color:var(--red);margin-right:3px}
+.field-link{font-size:10px;color:var(--accent);text-decoration:none;opacity:.7;transition:opacity .15s}
+.field-link:hover{opacity:1}
+
+.key-wrap{display:flex;gap:8px;align-items:center}
+.key-input{flex:1;background:var(--bg3);border:1px solid var(--line);color:var(--t1);padding:10px 13px;border-radius:var(--r);font-family:var(--mono);font-size:12px;outline:none;transition:border-color .2s;letter-spacing:.3px}
+.key-input:focus{border-color:var(--accent)}
+.key-input::placeholder{color:var(--t3);letter-spacing:0;font-family:var(--font);font-size:13px}
+.key-input.saved{border-color:rgba(26,138,66,.4);background:rgba(26,138,66,.03)}
+
+.btn-show{background:var(--bg4);border:1px solid var(--line);color:var(--t2);padding:10px 12px;border-radius:var(--r);cursor:pointer;font-size:13px;transition:all .2s;flex-shrink:0}
+.btn-show:hover{border-color:var(--line2);color:var(--t1)}
+
+.field-hint{font-size:11px;color:var(--t3);margin-top:6px;line-height:1.5}
+.field-hint a{color:var(--accent);text-decoration:none;opacity:.8}
+.field-hint a:hover{opacity:1}
+
+/* TEST + SAVE BUTTONS */
+.card-actions{display:flex;gap:10px;margin-top:20px;padding-top:18px;border-top:1px solid var(--line)}
+.btn-test{background:none;border:1px solid var(--line2);color:var(--t2);padding:9px 18px;border-radius:var(--r);cursor:pointer;font-family:var(--font);font-size:13px;transition:all .2s;display:flex;align-items:center;gap:6px}
+.btn-test:hover{border-color:var(--accent);color:var(--accent)}
+.btn-save{background:var(--accent);border:none;color:#fff;padding:9px 22px;border-radius:var(--r);cursor:pointer;font-family:var(--font);font-size:13px;font-weight:500;transition:background .2s;display:flex;align-items:center;gap:6px}
+.btn-save:hover{background:var(--accent2)}
+.test-result{flex:1;font-size:12px;font-family:var(--mono);display:flex;align-items:center;gap:6px}
+.test-ok{color:#4ade80}.test-err{color:#f87171}.test-load{color:var(--t3)}
+
+/* SUMMARY BAR */
+.summary{background:var(--bg2);border:1px solid var(--line);border-radius:var(--r2);padding:18px 22px;margin-bottom:24px;display:flex;align-items:center;gap:20px;flex-wrap:wrap}
+.sum-item{display:flex;align-items:center;gap:8px}
+.sum-dot{width:8px;height:8px;border-radius:50%}
+.sum-label{font-size:12px;color:var(--t2)}
+.sum-val{font-size:12px;font-weight:600;color:var(--t1);font-family:var(--mono)}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(10px);background:var(--bg2);border:1px solid var(--line2);border-radius:10px;padding:10px 20px;font-size:13px;opacity:0;transition:all .25s;z-index:999;pointer-events:none;display:flex;align-items:center;gap:8px}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast.ok{border-color:var(--green);color:#4ade80}
+.toast.err{border-color:var(--red);color:#f87171}
+
+/* FOOTER */
+footer{text-align:center;padding:28px;font-size:11px;color:var(--t3);font-family:var(--mono);border-top:1px solid var(--line);margin-top:20px}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="tb-logo">
+    <img src="logo.png" alt="الراصد" onerror="this.parentElement.innerHTML='<div class=tb-logo-fallback>IQ</div>'">
+  </div>
+  <div>
+    <div class="tb-name">الراصد</div>
+    <div class="tb-sub">إعداد مفاتيح API</div>
+  </div>
+  <div class="sep"></div>
+  <a href="index.html" class="tb-btn">← الرئيسية</a>
+  <button class="tb-btn" onclick="logout()" style="color:#f87171">خروج</button>
+</header>
+
+<div class="content">
+
+  <!-- PAGE HEADER -->
+  <div class="page-hd">
+    <div class="page-title">🔑 مفاتيح API</div>
+    <div class="page-desc">ربط المنصة بالخدمات الخارجية — قاعدة البيانات والترجمة والتحليل الذكي. المفاتيح مشفّرة ومحفوظة محلياً في متصفحك فقط.</div>
+    <div class="security-note">
+      <span class="security-icon">🔒</span>
+      <span>المفاتيح لا تُرسل لأي خادم خارجي — تُحفظ فقط في <code style="font-family:var(--mono);background:rgba(196,146,50,.15);padding:1px 5px;border-radius:3px">localStorage</code> في متصفحك. لا تشارك مفاتيح الـ service_role مع أحد.</span>
+    </div>
+  </div>
+
+  <!-- SUMMARY -->
+  <div class="summary" id="summary-bar">
+    <div class="sum-item">
+      <div class="sum-dot" id="dot-sb" style="background:var(--t3)"></div>
+      <div class="sum-label">Supabase</div>
+      <div class="sum-val" id="val-sb">—</div>
+    </div>
+    <div class="sum-item">
+      <div class="sum-dot" id="dot-an" style="background:var(--t3)"></div>
+      <div class="sum-label">Claude API</div>
+      <div class="sum-val" id="val-an">—</div>
+    </div>
+    <div class="sum-item">
+      <div class="sum-dot" id="dot-dl" style="background:var(--t3)"></div>
+      <div class="sum-label">DeepL</div>
+      <div class="sum-val" id="val-dl">—</div>
+    </div>
+    <div class="sum-item">
+      <div class="sum-dot" id="dot-gt" style="background:var(--green)"></div>
+      <div class="sum-label">Google Translate</div>
+      <div class="sum-val" style="color:#4ade80">مجاني ✓</div>
+    </div>
+  </div>
+
+  <!-- API CARDS -->
+  <div class="api-cards">
+
+    <!-- SUPABASE -->
+    <div class="api-card" id="card-sb">
+      <div class="api-card-header" onclick="toggleCard('card-sb')">
+        <div class="service-icon icon-supabase">🗄</div>
+        <div class="service-info">
+          <div class="service-name">Supabase</div>
+          <div class="service-desc">قاعدة البيانات الرئيسية — تخزين الأخبار والمصادر والتحليلات</div>
+        </div>
+        <div class="status-wrap">
+          <div class="status missing" id="status-sb"><div class="status-dot"></div><span>غير مضبوط</span></div>
+          <div class="expand-icon">▼</div>
+        </div>
+      </div>
+      <div class="api-card-body">
+        <div class="field-group">
+          <div class="field-label">
+            <span><span class="field-required">*</span> Project URL</span>
+            <a href="https://supabase.com/dashboard" target="_blank" class="field-link">فتح Supabase ↗</a>
+          </div>
+          <div class="key-wrap">
+            <input class="key-input" id="sb-url" type="text" placeholder="https://xxxx.supabase.co">
+          </div>
+          <div class="field-hint">من: Project Settings → API → Project URL</div>
+        </div>
+        <div class="field-group">
+          <div class="field-label">
+            <span><span class="field-required">*</span> Anon Key (للداشبورد)</span>
+          </div>
+          <div class="key-wrap">
+            <input class="key-input" id="sb-anon" type="password" placeholder="eyJhbGci... (anon public key)">
+            <button class="btn-show" onclick="toggleVis('sb-anon')">👁</button>
+          </div>
+          <div class="field-hint">من: API Keys → Legacy → anon public — آمن للاستخدام في المتصفح</div>
+        </div>
+        <div class="field-group">
+          <div class="field-label">
+            <span>Service Role Key (للـ fetcher)</span>
+          </div>
+          <div class="key-wrap">
+            <input class="key-input" id="sb-service" type="password" placeholder="eyJhbGci... (service_role secret)">
+            <button class="btn-show" onclick="toggleVis('sb-service')">👁</button>
+          </div>
+          <div class="field-hint">⚠️ لا تضعه في GitHub — فقط في GitHub Secrets</div>
+        </div>
+        <div class="card-actions">
+          <button class="btn-test" onclick="testSupabase()">⚡ اختبار الاتصال</button>
+          <div class="test-result" id="test-sb"></div>
+          <button class="btn-save" onclick="saveSb()">حفظ ←</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ANTHROPIC -->
+    <div class="api-card" id="card-an">
+      <div class="api-card-header" onclick="toggleCard('card-an')">
+        <div class="service-icon icon-anthropic">🤖</div>
+        <div class="service-info">
+          <div class="service-name">Anthropic — Claude API</div>
+          <div class="service-desc">التحليل الذكي للأخبار — ملخص، تصنيف، استخراج الأطراف</div>
+        </div>
+        <div class="status-wrap">
+          <div class="status missing" id="status-an"><div class="status-dot"></div><span>غير مضبوط</span></div>
+          <div class="expand-icon">▼</div>
+        </div>
+      </div>
+      <div class="api-card-body">
+        <div class="field-group">
+          <div class="field-label">
+            <span><span class="field-required">*</span> API Key</span>
+            <a href="https://console.anthropic.com/keys" target="_blank" class="field-link">فتح Console ↗</a>
+          </div>
+          <div class="key-wrap">
+            <input class="key-input" id="an-key" type="password" placeholder="sk-ant-api03-...">
+            <button class="btn-show" onclick="toggleVis('an-key')">👁</button>
+          </div>
+          <div class="field-hint">من: console.anthropic.com → API Keys → Create Key</div>
+        </div>
+        <div class="field-group" style="background:var(--bg3);border-radius:var(--r);padding:12px 14px">
+          <div style="font-size:12px;color:var(--t2);margin-bottom:8px;font-weight:500">التكلفة التقديرية</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+            <div style="font-size:11px;color:var(--t3)">تحليل 30 خبر/يوم</div>
+            <div style="font-size:11px;color:var(--t1);font-family:var(--mono)">~$0.50/يوم</div>
+            <div style="font-size:11px;color:var(--t3)">تحليل 100 خبر/يوم</div>
+            <div style="font-size:11px;color:var(--t1);font-family:var(--mono)">~$1.50/يوم</div>
+          </div>
+        </div>
+        <div class="card-actions">
+          <button class="btn-test" onclick="testAnthropic()">⚡ اختبار</button>
+          <div class="test-result" id="test-an"></div>
+          <button class="btn-save" onclick="saveAn()">حفظ ←</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- DEEPL -->
+    <div class="api-card" id="card-dl">
+      <div class="api-card-header" onclick="toggleCard('card-dl')">
+        <div class="service-icon icon-deepl">🌍</div>
+        <div class="service-info">
+          <div class="service-name">DeepL API</div>
+          <div class="service-desc">ترجمة احترافية — أدق من Google للنصوص الرسمية والتقارير البحثية</div>
+        </div>
+        <div class="status-wrap">
+          <div class="status optional" id="status-dl"><div class="status-dot"></div><span>اختياري</span></div>
+          <div class="expand-icon">▼</div>
+        </div>
+      </div>
+      <div class="api-card-body">
+        <div class="field-group">
+          <div class="field-label">
+            <span>API Key</span>
+            <a href="https://www.deepl.com/pro-api" target="_blank" class="field-link">فتح DeepL ↗</a>
+          </div>
+          <div class="key-wrap">
+            <input class="key-input" id="dl-key" type="password" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx:fx">
+            <button class="btn-show" onclick="toggleVis('dl-key')">👁</button>
+          </div>
+          <div class="field-hint">
+            الخطة المجانية: 500,000 حرف/شهر — كافية لـ ~1000 خبر<br>
+            إذا تركته فارغاً ستُستخدم Google Translate مجاناً
+          </div>
+        </div>
+        <div class="card-actions">
+          <button class="btn-test" onclick="testDeepL()">⚡ اختبار</button>
+          <div class="test-result" id="test-dl"></div>
+          <button class="btn-save" onclick="saveDl()">حفظ ←</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- GOOGLE TRANSLATE -->
+    <div class="api-card" id="card-gt">
+      <div class="api-card-header" onclick="toggleCard('card-gt')">
+        <div class="service-icon icon-google">🔤</div>
+        <div class="service-info">
+          <div class="service-name">Google Translate</div>
+          <div class="service-desc">ترجمة تلقائية مجانية — تعمل بدون مفتاح API</div>
+        </div>
+        <div class="status-wrap">
+          <div class="status ok"><div class="status-dot"></div><span>يعمل تلقائياً</span></div>
+          <div class="expand-icon">▼</div>
+        </div>
+      </div>
+      <div class="api-card-body">
+        <div style="background:var(--green2);border:1px solid rgba(26,138,66,.2);border-radius:var(--r);padding:14px 16px">
+          <div style="font-size:13px;color:#4ade80;font-weight:500;margin-bottom:6px">✓ لا يحتاج إعداد</div>
+          <div style="font-size:12px;color:var(--t2);line-height:1.7">
+            Google Translate غير الرسمي يعمل مجاناً مباشرة من المتصفح.
+            يُستخدم تلقائياً لترجمة الأخبار عند الضغط على زر الترجمة،
+            وكبديل إذا لم يكن DeepL مضبوطاً.
+          </div>
+        </div>
+        <div style="margin-top:14px;font-size:12px;color:var(--t3)">
+          <strong style="color:var(--t2)">حدوده:</strong> ليس مضموناً للنصوص الرسمية الطويلة — استخدم DeepL للدقة العالية.
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- GITHUB SECRETS NOTE -->
+  <div style="background:var(--bg2);border:1px solid var(--line);border-radius:var(--r2);padding:20px 22px;margin-top:24px">
+    <div style="font-size:13px;font-weight:600;margin-bottom:10px;display:flex;align-items:center;gap:8px">
+      <span>⚙️</span> GitHub Actions Secrets
+    </div>
+    <div style="font-size:12px;color:var(--t2);line-height:1.8;margin-bottom:14px">
+      للـ fetcher.py على GitHub يجب إضافة هذه المفاتيح كـ Secrets في الـ repository:
+    </div>
+    <div style="background:var(--bg3);border-radius:var(--r);padding:14px;font-family:var(--mono);font-size:12px">
+      <div style="display:grid;grid-template-columns:180px 1fr;gap:8px">
+        <span style="color:var(--gold)">SUPABASE_URL</span><span style="color:var(--t2)">رابط مشروع Supabase</span>
+        <span style="color:var(--gold)">SUPABASE_KEY</span><span style="color:var(--t2)">service_role key (ليس anon)</span>
+        <span style="color:var(--gold)">ANTHROPIC_API_KEY</span><span style="color:var(--t2)">مفتاح Claude للتحليل</span>
+      </div>
+    </div>
+    <a href="https://github.com/awwawdsa/iraq-intel/settings/secrets/actions" target="_blank"
+       style="display:inline-flex;align-items:center;gap:5px;margin-top:12px;font-size:12px;color:var(--accent);text-decoration:none;border:1px solid rgba(36,97,212,.3);padding:6px 14px;border-radius:6px;transition:background .2s"
+       onmouseover="this.style.background='rgba(36,97,212,.1)'"
+       onmouseout="this.style.background='none'">
+      فتح GitHub Secrets ↗
+    </a>
+  </div>
+
+</div>
+
+<footer>منصة الراصد — إعداد: <span style="color:var(--t2)">Momen Alzrzoor</span> | IRAQ INTEL PLATFORM</footer>
+<div class="toast" id="toast"></div>
+
+<script>
+// Auth check
+const session = JSON.parse(localStorage.getItem('iq_session')||'null');
+if (!session || new Date(session.expires) < new Date()) window.location.href='login.html';
+if (session.role !== 'admin') { alert('هذه الصفحة للمدير فقط'); history.back(); }
+
+function logout(){ localStorage.removeItem('iq_session'); window.location.href='login.html'; }
+
+/* ── LOAD SAVED KEYS ── */
+function loadKeys() {
+  const sbUrl  = localStorage.getItem('sb_url')||'';
+  const sbAnon = localStorage.getItem('sb_key')||'';
+  const sbSvc  = localStorage.getItem('sb_service')||'';
+  const anKey  = localStorage.getItem('anthropic_key')||'';
+  const dlKey  = localStorage.getItem('deepl_key')||'';
+
+  if(sbUrl)  { document.getElementById('sb-url').value=sbUrl; document.getElementById('sb-url').classList.add('saved'); }
+  if(sbAnon) { document.getElementById('sb-anon').value=sbAnon; document.getElementById('sb-anon').classList.add('saved'); }
+  if(sbSvc)  { document.getElementById('sb-service').value=sbSvc; document.getElementById('sb-service').classList.add('saved'); }
+  if(anKey)  { document.getElementById('an-key').value=anKey; document.getElementById('an-key').classList.add('saved'); }
+  if(dlKey)  { document.getElementById('dl-key').value=dlKey; document.getElementById('dl-key').classList.add('saved'); }
+
+  updateSummary(sbUrl&&sbAnon, anKey, dlKey);
+}
+
+function updateSummary(sbOk, anOk, dlOk) {
+  const set = (dot, val, color, txt) => {
+    document.getElementById(dot).style.background = color;
+    document.getElementById(val).textContent = txt;
+    document.getElementById(val).style.color = color;
+  };
+  set('dot-sb','val-sb', sbOk?'#4ade80':'#f87171', sbOk?'متصل ✓':'غير مضبوط');
+  set('dot-an','val-an', anOk?'#4ade80':'#f87171', anOk?'متصل ✓':'غير مضبوط');
+  set('dot-dl','val-dl', dlOk?'#4ade80':'var(--t3)', dlOk?'متصل ✓':'اختياري');
+
+  // Update card statuses
+  const setSt = (id, cls, txt) => {
+    const el = document.getElementById(id);
+    el.className = `status ${cls}`;
+    el.innerHTML = `<div class="status-dot"></div><span>${txt}</span>`;
+  };
+  setSt('status-sb', sbOk?'ok':'missing', sbOk?'متصل':'غير مضبوط');
+  setSt('status-an', anOk?'ok':'missing', anOk?'متصل':'غير مضبوط');
+  setSt('status-dl', dlOk?'ok':'optional', dlOk?'متصل':'اختياري');
+
+  if(sbOk) document.getElementById('card-sb').classList.add('connected');
+  if(anOk) document.getElementById('card-an').classList.add('connected');
+}
+
+/* ── TOGGLE CARD ── */
+function toggleCard(id) {
+  const card = document.getElementById(id);
+  card.classList.toggle('open');
+}
+
+/* ── TOGGLE VISIBILITY ── */
+function toggleVis(id) {
+  const el = document.getElementById(id);
+  el.type = el.type==='password' ? 'text' : 'password';
+}
+
+/* ── SAVE FUNCTIONS ── */
+function saveSb() {
+  const url  = document.getElementById('sb-url').value.trim();
+  const anon = document.getElementById('sb-anon').value.trim();
+  const svc  = document.getElementById('sb-service').value.trim();
+  if (!url||!anon) { showToast('URL و Anon Key مطلوبان','err'); return; }
+  localStorage.setItem('sb_url', url);
+  localStorage.setItem('sb_key', anon);
+  if(svc) localStorage.setItem('sb_service', svc);
+  ['sb-url','sb-anon','sb-service'].forEach(id=>document.getElementById(id).classList.add('saved'));
+  showToast('✓ تم حفظ Supabase');
+  updateSummary(true, !!localStorage.getItem('anthropic_key'), !!localStorage.getItem('deepl_key'));
+}
+
+function saveAn() {
+  const key = document.getElementById('an-key').value.trim();
+  if (!key) { showToast('المفتاح مطلوب','err'); return; }
+  localStorage.setItem('anthropic_key', key);
+  document.getElementById('an-key').classList.add('saved');
+  showToast('✓ تم حفظ Claude API');
+  updateSummary(!!localStorage.getItem('sb_url'), true, !!localStorage.getItem('deepl_key'));
+}
+
+function saveDl() {
+  const key = document.getElementById('dl-key').value.trim();
+  if(key) { localStorage.setItem('deepl_key', key); document.getElementById('dl-key').classList.add('saved'); }
+  else localStorage.removeItem('deepl_key');
+  showToast('✓ تم الحفظ');
+  updateSummary(!!localStorage.getItem('sb_url'), !!localStorage.getItem('anthropic_key'), !!key);
+}
+
+/* ── TEST FUNCTIONS ── */
+async function testSupabase() {
+  const url  = document.getElementById('sb-url').value.trim();
+  const anon = document.getElementById('sb-anon').value.trim();
+  const el   = document.getElementById('test-sb');
+  if (!url||!anon) { el.innerHTML='<span class="test-err">أدخل URL و Anon Key أولاً</span>'; return; }
+  el.innerHTML='<span class="test-load"><span id="ts-spin">⏳</span> جاري الاختبار...</span>';
+  try {
+    const r = await fetch(`${url}/rest/v1/sources?select=id&limit=1`,{headers:{'apikey':anon,'Authorization':`Bearer ${anon}`}});
+    if(r.ok) {
+      const d = await r.json();
+      el.innerHTML=`<span class="test-ok">✓ متصل — ${Array.isArray(d)?d.length:'?'} مصدر</span>`;
+    } else {
+      el.innerHTML=`<span class="test-err">✗ خطأ ${r.status}</span>`;
+    }
+  } catch(e) {
+    el.innerHTML=`<span class="test-err">✗ فشل الاتصال</span>`;
+  }
+}
+
+async function testAnthropic() {
+  const key = document.getElementById('an-key').value.trim();
+  const el  = document.getElementById('test-an');
+  if(!key) { el.innerHTML='<span class="test-err">أدخل المفتاح أولاً</span>'; return; }
+  el.innerHTML='<span class="test-load">⏳ جاري الاختبار...</span>';
+  try {
+    const r = await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'x-api-key':key,'anthropic-version':'2023-06-01','content-type':'application/json','anthropic-dangerous-direct-browser-access':'true'},
+      body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:10,messages:[{role:'user',content:'hi'}]})
+    });
+    if(r.ok) el.innerHTML='<span class="test-ok">✓ مفتاح صالح</span>';
+    else {
+      const d=await r.json();
+      el.innerHTML=`<span class="test-err">✗ ${d.error?.message||r.status}</span>`;
+    }
+  } catch(e){
+    el.innerHTML='<span class="test-err">✗ فشل الاتصال</span>';
+  }
+}
+
+async function testDeepL() {
+  const key = document.getElementById('dl-key').value.trim();
+  const el  = document.getElementById('test-dl');
+  if(!key) { el.innerHTML='<span class="test-err">أدخل المفتاح أولاً</span>'; return; }
+  el.innerHTML='<span class="test-load">⏳ جاري الاختبار...</span>';
+  try {
+    const host = key.endsWith(':fx') ? 'api-free.deepl.com' : 'api.deepl.com';
+    const r = await fetch(`https://${host}/v2/usage`,{headers:{'Authorization':`DeepL-Auth-Key ${key}`}});
+    if(r.ok) {
+      const d=await r.json();
+      const pct = Math.round(d.character_count/d.character_limit*100);
+      el.innerHTML=`<span class="test-ok">✓ ${d.character_count.toLocaleString()}/${d.character_limit.toLocaleString()} حرف (${pct}%)</span>`;
+    } else {
+      el.innerHTML=`<span class="test-err">✗ مفتاح غير صالح</span>`;
+    }
+  } catch(e){
+    el.innerHTML='<span class="test-err">✗ فشل الاتصال</span>';
+  }
+}
+
+/* ── TOAST ── */
+let tt;
+function showToast(msg,type='ok'){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.className=`toast ${type} show`;
+  clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('show'),2800);
+}
+
+// Init
+loadKeys();
+
+// Auto-open first unconfigured card
+window.addEventListener('DOMContentLoaded',()=>{
+  if(!localStorage.getItem('sb_url')) document.getElementById('card-sb').classList.add('open');
+  else if(!localStorage.getItem('anthropic_key')) document.getElementById('card-an').classList.add('open');
+});
+</script>
+</body>
+</html>
