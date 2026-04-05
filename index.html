@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>الراصد — منصة رصد العراق</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%232461d4'/><text y='.9em' font-size='65' x='15' fill='white' font-weight='bold'>IQ</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
@@ -189,8 +190,10 @@ body{font-family:var(--font);background:var(--bg);color:var(--t1);min-height:100
   <div class="tb-sep"></div>
   <div class="tb-time" id="clock"></div>
   <a href="settings.html" class="tb-btn">⚙ المصادر</a>
-  <a href="admin.html" class="tb-btn">+ إضافة</a>
+  <a href="add.html" class="tb-btn">+ إضافة</a>
   <button class="tb-btn accent" onclick="openCfg()">🔑 API</button>
+  <span id="user-badge" style="font-size:11px;color:var(--t2);font-family:var(--mono);background:var(--bg3);padding:4px 10px;border-radius:6px;border:1px solid var(--line)"></span>
+  <button class="tb-btn" onclick="logout()" style="color:#f87171">خروج</button>
 </header>
 
 <div class="searchbar">
@@ -483,8 +486,25 @@ function demo(){return[
   {id:'3',title_ar:'تقرير ICG: مخاطر متصاعدة في شمال العراق جراء العمليات التركية',title_original:'ICG: Escalating risks in northern Iraq',body_ar:'حذّر تقرير جديد لمجموعة الأزمات الدولية من تصاعد المخاطر الأمنية في المناطق الكردية شمال العراق، مشيراً إلى أن العمليات العسكرية التركية المتواصلة تؤدي إلى نزوح المدنيين.',body_original:'A new International Crisis Group report warned of escalating security risks in northern Iraq Kurdish regions.',category:'security',importance_score:85,published_at:new Date(Date.now()-10800000).toISOString(),original_url:'#',iraq_keywords:['كردستان','تركيا'],sn:'Crisis Group',sr2:'international',sum:'التقرير يرصد تحولاً خطيراً: العمليات التركية امتدت لمناطق مأهولة. يوصي بضغط دولي على أنقرة.',act:'تركيا، إقليم كردستان، PKK',sig:'high',sta:'neutral'},
 ];}
 
+// AUTH CHECK
+const _sess = JSON.parse(localStorage.getItem('iq_session')||'null');
+if (!_sess || new Date(_sess.expires) < new Date()) { window.location.href='login.html'; }
+const _user = _sess || {name:'زائر',role:'viewer'};
+function logout(){ localStorage.removeItem('iq_session'); window.location.href='login.html'; }
+
 window.addEventListener('DOMContentLoaded',()=>{
   updateClock();setInterval(updateClock,1000);
+  // Show user info
+  const ub = document.getElementById('user-badge');
+  if(ub && _user) ub.textContent = _user.name + ' (' + (_user.role==='admin'?'مدير':_user.role==='editor'?'محرر':'مشاهد') + ')';
+  // Hide add button for viewers
+  if(_user.role==='viewer'){ document.querySelectorAll('a[href="add.html"]').forEach(e=>e.style.display='none'); }
+  // Show users mgmt for admin
+  if(_user.role==='admin'){ 
+    const usersLink = document.createElement('a');
+    usersLink.href='users.html'; usersLink.className='tb-btn'; usersLink.textContent='👥 المستخدمون';
+    document.querySelector('.tb-sep').after(usersLink);
+  }
   renderKgs();loadFeed();loadCritical();loadSrcs();buildBrief();startCD();
 });
 </script>

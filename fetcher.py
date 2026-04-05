@@ -8,8 +8,8 @@ Iraq Intel Platform — RSS Fetcher & Iraq Filter
     pip install feedparser httpx supabase python-dotenv
     python fetcher.py
 
-أو عبر cron كل 5 دقيقة:
-    */5 * * * * /usr/bin/python3 /path/to/fetcher.py
+أو عبر cron كل 30 دقيقة:
+    */30 * * * * /usr/bin/python3 /path/to/fetcher.py
 """
 
 import os
@@ -41,6 +41,35 @@ SUPABASE_URL = os.environ["SUPABASE_URL"]
 SUPABASE_KEY = os.environ["SUPABASE_KEY"]  # service_role key
 
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
+
+# ─────────────────────────────────────────────
+# ترجمة تلقائية بـ Google Translate (مجاني)
+# ─────────────────────────────────────────────
+def translate_to_arabic(text: str, src_lang: str = 'auto') -> str:
+    """ترجمة النص للعربية باستخدام Google Translate غير الرسمي"""
+    if not text or src_lang == 'ar':
+        return text
+    try:
+        url = 'https://translate.googleapis.com/translate_a/single'
+        params = {
+            'client': 'gtx',
+            'sl': src_lang if src_lang != 'multi' else 'auto',
+            'tl': 'ar',
+            'dt': 't',
+            'q': text[:2000]  # حد الترجمة
+        }
+        with httpx.Client(timeout=15) as client:
+            resp = client.get(url, params=params)
+            resp.raise_for_status()
+            data = resp.json()
+            if data and data[0]:
+                translated = ''.join([t[0] for t in data[0] if t[0]])
+                return translated
+    except Exception as e:
+        log.debug(f"ترجمة فاشلة: {e}")
+    return text
+
+
 
 
 # ─────────────────────────────────────────────
@@ -284,10 +313,16 @@ def process_source(source: dict) -> int:
             importance = score_importance(entry, iraq_keywords)
             category   = detect_category(full_text)
 
+        # ترجمة العنوان والنص إذا لم يكن عربياً
+        title_ar = title if lang == 'ar' else translate_to_arabic(title, lang)
+        body_ar  = body[:2000] if lang == 'ar' else translate_to_arabic(body[:2000], lang)
+
         row = {
             "source_id":          source["id"],
             "title_original":     title,
-            "body_original":      body[:10000],  # حد أقصى
+            "title_ar":           title_ar,
+            "body_original":      body[:10000],
+            "body_ar":            body_ar,
             "language":           lang,
             "original_url":       url,
             "mentions_iraq":      mentions_iraq,

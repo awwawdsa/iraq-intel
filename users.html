@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>إدارة المستخدمين — الراصد</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%232461d4'/><text y='.9em' font-size='65' x='15' fill='white' font-weight='bold'>IQ</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#07090d;--bg2:#111520;--bg3:#161d2a;--bg4:#1c2535;--line:#1e2d3e;--line2:#263548;--t1:#dde4ed;--t2:#7b92a8;--t3:#3d5268;--accent:#2461d4;--accent2:#1a4db8;--red:#c42b2b;--green:#1a8a42;--gold:#c49232;--font:'IBM Plex Sans Arabic',sans-serif;--mono:'JetBrains Mono',monospace;--r:8px}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font);background:var(--bg);color:var(--t1);min-height:100vh;font-size:14px}
+.topbar{display:flex;align-items:center;gap:14px;padding:0 24px;height:52px;background:rgba(7,9,13,.97);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:100}
+.tb-logo{width:30px;height:30px;background:var(--accent);border-radius:7px;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-weight:600;color:#fff;font-size:13px}
+.tb-name{font-size:14px;font-weight:600}
+.sep{flex:1}
+.tb-btn{background:var(--bg3);border:1px solid var(--line);color:var(--t2);padding:5px 12px;border-radius:6px;cursor:pointer;font-family:var(--font);font-size:12px;text-decoration:none;transition:all .2s;display:inline-flex;align-items:center;gap:5px}
+.tb-btn:hover{background:var(--bg4);color:var(--t1)}
+.content{max-width:900px;margin:0 auto;padding:28px 24px}
+.page-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px}
+.page-title{font-size:18px;font-weight:600}
+.btn-add{background:var(--accent);color:#fff;border:none;padding:9px 18px;border-radius:var(--r);font-family:var(--font);font-size:13px;font-weight:500;cursor:pointer;transition:background .2s}
+.btn-add:hover{background:var(--accent2)}
+
+.users-table{width:100%;border-collapse:collapse;background:var(--bg2);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.users-table th{font-size:11px;color:var(--t3);font-family:var(--mono);text-transform:uppercase;letter-spacing:.5px;padding:11px 16px;border-bottom:1px solid var(--line);text-align:right;background:var(--bg3)}
+.users-table td{padding:12px 16px;border-bottom:1px solid rgba(30,45,62,.5);font-size:13px;vertical-align:middle}
+.users-table tr:last-child td{border-bottom:none}
+.users-table tr:hover td{background:rgba(255,255,255,.01)}
+
+.role-badge{display:inline-block;padding:3px 9px;border-radius:4px;font-size:11px;font-family:var(--mono);font-weight:500}
+.role-admin {background:rgba(196,146,50,.12);color:#fbbf24;border:1px solid rgba(196,146,50,.2)}
+.role-editor{background:rgba(36,97,212,.12); color:#60a5fa;border:1px solid rgba(36,97,212,.2)}
+.role-viewer{background:var(--bg3);color:var(--t2);border:1px solid var(--line)}
+
+.status-badge{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-family:var(--mono)}
+.status-badge.on{color:var(--green)}.status-badge.off{color:var(--t3)}
+.status-dot{width:6px;height:6px;border-radius:50%}
+.status-badge.on .status-dot{background:var(--green)}.status-badge.off .status-dot{background:var(--t3)}
+
+.actions{display:flex;gap:6px}
+.act-btn{background:none;border:1px solid var(--line);color:var(--t2);padding:4px 10px;border-radius:5px;cursor:pointer;font-size:11px;font-family:var(--font);transition:all .2s}
+.act-btn:hover{border-color:var(--accent);color:var(--accent)}
+.act-btn.del:hover{border-color:var(--red);color:#f87171}
+
+/* Modal */
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:500;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s}
+.ov.open{opacity:1;pointer-events:all}
+.mod{background:var(--bg2);border:1px solid var(--line2);border-radius:14px;padding:24px;width:420px;max-width:95vw;transform:translateY(-12px);transition:transform .2s}
+.ov.open .mod{transform:translateY(0)}
+.mod-t{font-size:15px;font-weight:600;margin-bottom:18px}
+.field{margin-bottom:14px}
+.lbl{font-size:11px;color:var(--t2);font-family:var(--mono);margin-bottom:5px;display:block}
+.inp{width:100%;background:var(--bg3);border:1px solid var(--line);color:var(--t1);padding:9px 12px;border-radius:7px;font-family:var(--font);font-size:13px;outline:none;transition:border-color .2s}
+.inp:focus{border-color:var(--accent)}
+.sel{width:100%;background:var(--bg3);border:1px solid var(--line);color:var(--t1);padding:9px 12px;border-radius:7px;font-family:var(--font);font-size:13px;outline:none;cursor:pointer}
+.mod-btns{display:flex;gap:8px;justify-content:flex-end;margin-top:18px}
+.btn-c{background:none;border:1px solid var(--line);color:var(--t2);padding:8px 14px;border-radius:7px;cursor:pointer;font-family:var(--font);font-size:13px}
+.btn-s{background:var(--accent);border:none;color:#fff;padding:8px 18px;border-radius:7px;cursor:pointer;font-family:var(--font);font-size:13px;font-weight:500}
+.btn-s:hover{background:var(--accent2)}
+
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(10px);background:var(--bg2);border:1px solid var(--line2);border-radius:10px;padding:10px 20px;font-size:13px;opacity:0;transition:all .25s;z-index:999;pointer-events:none}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast.ok{border-color:var(--green);color:#4ade80}
+.toast.err{border-color:var(--red);color:#f87171}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="tb-logo">IQ</div>
+  <div class="tb-name">إدارة المستخدمين</div>
+  <div class="sep"></div>
+  <a href="index.html" class="tb-btn">← الرئيسية</a>
+  <button class="tb-btn" onclick="logout()" style="color:#f87171">خروج</button>
+</header>
+
+<div class="content">
+  <div class="page-hd">
+    <div class="page-title">المستخدمون</div>
+    <button class="btn-add" onclick="openAdd()">+ مستخدم جديد</button>
+  </div>
+
+  <table class="users-table">
+    <thead>
+      <tr>
+        <th>الاسم</th>
+        <th>اسم المستخدم</th>
+        <th>الدور</th>
+        <th>الحالة</th>
+        <th>آخر دخول</th>
+        <th>إجراءات</th>
+      </tr>
+    </thead>
+    <tbody id="users-tbody"></tbody>
+  </table>
+</div>
+
+<!-- ADD/EDIT MODAL -->
+<div class="ov" id="ov-user">
+  <div class="mod">
+    <div class="mod-t" id="mod-title">مستخدم جديد</div>
+    <input type="hidden" id="edit-id">
+    <div class="field">
+      <label class="lbl">الاسم الكامل</label>
+      <input class="inp" id="u-name" placeholder="مثال: أحمد محمد">
+    </div>
+    <div class="field">
+      <label class="lbl">اسم المستخدم</label>
+      <input class="inp" id="u-username" placeholder="مثال: ahmed123">
+    </div>
+    <div class="field">
+      <label class="lbl">كلمة المرور</label>
+      <input class="inp" id="u-password" type="password" placeholder="اتركها فارغة للإبقاء على القديمة عند التعديل">
+    </div>
+    <div class="field">
+      <label class="lbl">الدور</label>
+      <select class="sel" id="u-role">
+        <option value="admin">مدير — كل الصلاحيات</option>
+        <option value="editor">محرر — إضافة وتعديل</option>
+        <option value="viewer">مشاهد — قراءة فقط</option>
+      </select>
+    </div>
+    <div class="field">
+      <label class="lbl">الحالة</label>
+      <select class="sel" id="u-active">
+        <option value="true">نشط</option>
+        <option value="false">معطّل</option>
+      </select>
+    </div>
+    <div class="mod-btns">
+      <button class="btn-c" onclick="closeOv()">إلغاء</button>
+      <button class="btn-s" onclick="saveUser()">حفظ</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// تحقق من الصلاحية
+const session = JSON.parse(localStorage.getItem('iq_session')||'null');
+if (!session || session.role !== 'admin') {
+  window.location.href = 'login.html';
+}
+
+function getUsers() {
+  const s = localStorage.getItem('iq_users');
+  if (s) return JSON.parse(s);
+  const d = [
+    {id:'1',username:'admin',  password:'admin2025', role:'admin',  name:'المدير العام', active:true, lastLogin:new Date().toISOString()},
+    {id:'2',username:'editor1',password:'editor123', role:'editor', name:'المحرر الأول', active:true, lastLogin:null},
+    {id:'3',username:'viewer1',password:'viewer123', role:'viewer', name:'مستخدم مشاهد', active:true, lastLogin:null},
+  ];
+  localStorage.setItem('iq_users',JSON.stringify(d));
+  return d;
+}
+
+function saveUsers(u) { localStorage.setItem('iq_users',JSON.stringify(u)); }
+
+function renderUsers() {
+  const users = getUsers();
+  const ROLE = {admin:'مدير',editor:'محرر',viewer:'مشاهد'};
+  document.getElementById('users-tbody').innerHTML = users.map(u=>`
+    <tr>
+      <td>${u.name}</td>
+      <td style="font-family:var(--mono);font-size:12px;color:var(--t2)">${u.username}</td>
+      <td><span class="role-badge role-${u.role}">${ROLE[u.role]||u.role}</span></td>
+      <td>
+        <span class="status-badge ${u.active?'on':'off'}">
+          <div class="status-dot"></div>${u.active?'نشط':'معطّل'}
+        </span>
+      </td>
+      <td style="font-family:var(--mono);font-size:11px;color:var(--t3)">${u.lastLogin?new Date(u.lastLogin).toLocaleDateString('ar-IQ'):'—'}</td>
+      <td>
+        <div class="actions">
+          <button class="act-btn" onclick="openEdit('${u.id}')">تعديل</button>
+          ${u.id!==session.id?`<button class="act-btn del" onclick="deleteUser('${u.id}')">حذف</button>`:''}
+          <button class="act-btn" onclick="toggleActive('${u.id}')">${u.active?'تعطيل':'تفعيل'}</button>
+        </div>
+      </td>
+    </tr>`).join('');
+}
+
+function openAdd() {
+  document.getElementById('mod-title').textContent='مستخدم جديد';
+  document.getElementById('edit-id').value='';
+  ['u-name','u-username','u-password'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('u-role').value='viewer';
+  document.getElementById('u-active').value='true';
+  document.getElementById('ov-user').classList.add('open');
+}
+
+function openEdit(id) {
+  const u = getUsers().find(x=>x.id===id);
+  if (!u) return;
+  document.getElementById('mod-title').textContent='تعديل المستخدم';
+  document.getElementById('edit-id').value=id;
+  document.getElementById('u-name').value=u.name;
+  document.getElementById('u-username').value=u.username;
+  document.getElementById('u-password').value='';
+  document.getElementById('u-role').value=u.role;
+  document.getElementById('u-active').value=String(u.active);
+  document.getElementById('ov-user').classList.add('open');
+}
+
+function closeOv() { document.getElementById('ov-user').classList.remove('open'); }
+
+function saveUser() {
+  const id     = document.getElementById('edit-id').value;
+  const name   = document.getElementById('u-name').value.trim();
+  const uname  = document.getElementById('u-username').value.trim();
+  const pass   = document.getElementById('u-password').value;
+  const role   = document.getElementById('u-role').value;
+  const active = document.getElementById('u-active').value==='true';
+
+  if (!name||!uname) { showToast('الاسم واسم المستخدم مطلوبان','err'); return; }
+
+  let users = getUsers();
+
+  if (id) {
+    // تعديل
+    users = users.map(u=>u.id===id?{...u,name,username:uname,role,active,...(pass?{password:pass}:{})}:u);
+    showToast('✓ تم التعديل');
+  } else {
+    // إضافة جديد
+    if (!pass) { showToast('كلمة المرور مطلوبة للمستخدم الجديد','err'); return; }
+    if (users.find(u=>u.username===uname)) { showToast('اسم المستخدم موجود مسبقاً','err'); return; }
+    users.push({id:Date.now().toString(),username:uname,password:pass,name,role,active,lastLogin:null});
+    showToast('✓ تمت الإضافة');
+  }
+
+  saveUsers(users);
+  renderUsers();
+  closeOv();
+}
+
+function deleteUser(id) {
+  if (!confirm('حذف هذا المستخدم؟')) return;
+  const users = getUsers().filter(u=>u.id!==id);
+  saveUsers(users);
+  renderUsers();
+  showToast('تم الحذف');
+}
+
+function toggleActive(id) {
+  const users = getUsers().map(u=>u.id===id?{...u,active:!u.active}:u);
+  saveUsers(users);
+  renderUsers();
+}
+
+function logout() {
+  localStorage.removeItem('iq_session');
+  window.location.href='login.html';
+}
+
+let toastTimer;
+function showToast(msg,type='ok') {
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.className=`toast ${type} show`;
+  clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove('show'),2500);
+}
+
+document.getElementById('ov-user').addEventListener('click',e=>{if(e.target===e.currentTarget)closeOv();});
+renderUsers();
+</script>
+</body>
+</html>

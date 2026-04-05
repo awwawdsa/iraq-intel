@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>الراصد — تسجيل الدخول</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%232461d4'/><text y='.9em' font-size='65' x='15' fill='white' font-weight='bold'>IQ</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#07090d;--bg2:#111520;--bg3:#161d2a;--bg4:#1c2535;
+  --line:#1e2d3e;--line2:#263548;
+  --t1:#dde4ed;--t2:#7b92a8;--t3:#3d5268;
+  --accent:#2461d4;--accent2:#1a4db8;
+  --red:#c42b2b;--green:#1a8a42;
+  --font:'IBM Plex Sans Arabic',sans-serif;--mono:'JetBrains Mono',monospace;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font);background:var(--bg);color:var(--t1);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
+
+/* Background grid */
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(36,97,212,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(36,97,212,.04) 1px,transparent 1px);background-size:40px 40px;pointer-events:none}
+
+.box{width:400px;max-width:100%}
+
+.logo-wrap{text-align:center;margin-bottom:32px}
+.logo{width:56px;height:56px;background:var(--accent);border-radius:14px;display:inline-flex;align-items:center;justify-content:center;font-family:var(--mono);font-weight:600;color:#fff;font-size:22px;margin-bottom:12px}
+.logo-name{font-size:22px;font-weight:600;color:var(--t1)}
+.logo-sub{font-size:12px;color:var(--t3);font-family:var(--mono);margin-top:3px}
+
+.card{background:var(--bg2);border:1px solid var(--line);border-radius:16px;padding:28px}
+.card-title{font-size:16px;font-weight:600;margin-bottom:6px}
+.card-sub{font-size:13px;color:var(--t2);margin-bottom:24px}
+
+.field{margin-bottom:16px}
+.label{font-size:11px;color:var(--t2);font-family:var(--mono);margin-bottom:6px;display:block;letter-spacing:.3px}
+.inp{width:100%;background:var(--bg3);border:1px solid var(--line);color:var(--t1);padding:10px 13px;border-radius:8px;font-family:var(--font);font-size:14px;outline:none;transition:border-color .2s}
+.inp:focus{border-color:var(--accent)}
+.inp::placeholder{color:var(--t3)}
+
+.btn-login{width:100%;background:var(--accent);color:#fff;border:none;padding:11px;border-radius:8px;font-family:var(--font);font-size:14px;font-weight:600;cursor:pointer;transition:background .2s;margin-top:4px}
+.btn-login:hover{background:var(--accent2)}
+.btn-login:disabled{opacity:.5;cursor:not-allowed}
+
+.err{background:rgba(196,43,43,.1);border:1px solid rgba(196,43,43,.2);color:#f87171;padding:10px 13px;border-radius:8px;font-size:13px;margin-top:12px;display:none}
+.err.show{display:block}
+
+.footer-note{text-align:center;margin-top:20px;font-size:12px;color:var(--t3)}
+
+/* Role badges */
+.roles{display:flex;gap:8px;margin-top:20px;padding-top:20px;border-top:1px solid var(--line)}
+.role-badge{flex:1;text-align:center;padding:8px;border-radius:8px;font-size:11px;font-family:var(--mono)}
+.role-admin{background:rgba(196,146,50,.1);color:#fbbf24;border:1px solid rgba(196,146,50,.15)}
+.role-editor{background:rgba(36,97,212,.1);color:#60a5fa;border:1px solid rgba(36,97,212,.15)}
+.role-viewer{background:var(--bg3);color:var(--t2);border:1px solid var(--line)}
+.role-badge b{display:block;font-size:13px;margin-bottom:2px}
+</style>
+</head>
+<body>
+<div class="box">
+  <div class="logo-wrap">
+    <div class="logo">IQ</div>
+    <div class="logo-name">الراصد</div>
+    <div class="logo-sub">IRAQ INTEL PLATFORM</div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">تسجيل الدخول</div>
+    <div class="card-sub">أدخل بياناتك للوصول للمنصة</div>
+
+    <div class="field">
+      <label class="label">اسم المستخدم</label>
+      <input class="inp" id="username" type="text" placeholder="username" autocomplete="username" onkeydown="if(event.key==='Enter')login()">
+    </div>
+    <div class="field">
+      <label class="label">كلمة المرور</label>
+      <input class="inp" id="password" type="password" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')login()">
+    </div>
+
+    <button class="btn-login" id="login-btn" onclick="login()">دخول →</button>
+    <div class="err" id="err">اسم المستخدم أو كلمة المرور غير صحيحة</div>
+
+    <div class="roles">
+      <div class="role-badge role-admin"><b>مدير</b>كل الصلاحيات</div>
+      <div class="role-badge role-editor"><b>محرر</b>إضافة وتعديل</div>
+      <div class="role-badge role-viewer"><b>مشاهد</b>قراءة فقط</div>
+    </div>
+  </div>
+
+  <div class="footer-note">منصة رصد العراق الإعلامية — نسخة مؤمّنة</div>
+</div>
+
+<script>
+// نظام المستخدمين — مُخزّن في localStorage
+// في الإنتاج يجب ربطه بـ Supabase Auth
+function getUsers() {
+  const stored = localStorage.getItem('iq_users');
+  if (stored) return JSON.parse(stored);
+  // المستخدمون الافتراضيون
+  const defaults = [
+    { id:'1', username:'admin',   password:'admin2025',  role:'admin',  name:'المدير العام',    active:true },
+    { id:'2', username:'editor1', password:'editor123',  role:'editor', name:'المحرر الأول',    active:true },
+    { id:'3', username:'viewer1', password:'viewer123',  role:'viewer', name:'مستخدم مشاهد',    active:true },
+  ];
+  localStorage.setItem('iq_users', JSON.stringify(defaults));
+  return defaults;
+}
+
+function login() {
+  const username = document.getElementById('username').value.trim();
+  const password = document.getElementById('password').value;
+  const err      = document.getElementById('err');
+  const btn      = document.getElementById('login-btn');
+
+  if (!username || !password) { err.textContent='الرجاء إدخال اسم المستخدم وكلمة المرور'; err.classList.add('show'); return; }
+
+  btn.disabled = true;
+  btn.textContent = 'جاري التحقق...';
+
+  setTimeout(() => {
+    const users = getUsers();
+    const user  = users.find(u => u.username === username && u.password === password && u.active);
+
+    if (user) {
+      // حفظ جلسة المستخدم
+      const session = {
+        id: user.id,
+        username: user.username,
+        name: user.name,
+        role: user.role,
+        loginAt: new Date().toISOString(),
+        expires: new Date(Date.now() + 7 * 24 * 3600000).toISOString() // 7 أيام
+      };
+      localStorage.setItem('iq_session', JSON.stringify(session));
+      window.location.href = 'index.html';
+    } else {
+      err.textContent = 'اسم المستخدم أو كلمة المرور غير صحيحة';
+      err.classList.add('show');
+      btn.disabled = false;
+      btn.textContent = 'دخول →';
+    }
+  }, 600);
+}
+
+// إذا كان مسجّل دخوله مسبقاً
+const session = JSON.parse(localStorage.getItem('iq_session') || 'null');
+if (session && new Date(session.expires) > new Date()) {
+  window.location.href = 'index.html';
+}
+</script>
+</body>
+</html>
