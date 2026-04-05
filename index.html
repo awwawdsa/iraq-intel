@@ -3,850 +3,489 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>الراصد — رصد العراق</title>
+<title>الراصد — منصة رصد العراق</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-:root {
-  --bg:     #0a0e13;
-  --bg1:    #0f1520;
-  --bg2:    #141d2b;
-  --bg3:    #1a2438;
-  --line:   #1e2d42;
-  --line2:  #263548;
-  --t1:     #e2e8f0;
-  --t2:     #7a90a8;
-  --t3:     #3d5068;
-  --accent: #2563eb;
-  --gold:   #c8913a;
-  --red:    #dc2626;
-  --orange: #c2622a;
-  --green:  #16a34a;
-  --teal:   #0d7c6e;
-  --font:   'IBM Plex Sans Arabic', sans-serif;
-  --mono:   'JetBrains Mono', monospace;
+:root{
+  --bg:#07090d;--bg1:#0c1018;--bg2:#111520;--bg3:#161d2a;--bg4:#1c2535;
+  --line:#1e2d3e;--line2:#263548;--line3:#2e3f54;
+  --t1:#dde4ed;--t2:#7b92a8;--t3:#3d5268;
+  --accent:#2461d4;--accent2:#1a4db8;--a3:rgba(36,97,212,.12);
+  --gold:#c49232;--g2:rgba(196,146,50,.12);
+  --red:#c42b2b;--r2:rgba(196,43,43,.12);
+  --orange:#c26028;--green:#1a8a42;--teal:#0d7a6a;--purple:#6b3fc8;
+  --font:'IBM Plex Sans Arabic',sans-serif;--mono:'JetBrains Mono',monospace;
+  --r:6px;--r2:10px;
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html{scroll-behavior:smooth}
-body{
-  font-family:var(--font);
-  background:var(--bg);
-  color:var(--t1);
-  min-height:100vh;
-  font-size:14px;
-  line-height:1.6;
-}
+body{font-family:var(--font);background:var(--bg);color:var(--t1);min-height:100vh;font-size:14px;line-height:1.65;overflow-x:hidden}
 
-/* ── TOPBAR ── */
-.topbar{
-  position:fixed;top:0;left:0;right:0;z-index:200;
-  background:rgba(10,14,19,.95);
-  backdrop-filter:blur(12px);
-  border-bottom:1px solid var(--line);
-  padding:0 20px;
-  height:56px;
-  display:flex;align-items:center;justify-content:space-between;gap:16px;
-}
-.tb-brand{display:flex;align-items:center;gap:10px}
-.tb-logo{
-  width:32px;height:32px;
-  background:var(--accent);
-  border-radius:8px;
-  display:flex;align-items:center;justify-content:center;
-  font-family:var(--mono);font-weight:600;color:#fff;font-size:13px;
-}
-.tb-name{font-size:15px;font-weight:600;letter-spacing:.2px}
+.topbar{position:fixed;top:0;left:0;right:0;z-index:300;height:52px;background:rgba(7,9,13,.97);backdrop-filter:blur(16px);border-bottom:1px solid var(--line);display:flex;align-items:center;padding:0 20px;gap:14px}
+.tb-logo{width:30px;height:30px;background:var(--accent);border-radius:7px;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-weight:600;color:#fff;font-size:13px;flex-shrink:0}
+.tb-name{font-size:14px;font-weight:600}
+.tb-sep{flex:1}
 .tb-live{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--green);font-family:var(--mono)}
-.tb-dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
-@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(1.4)}}
-.tb-right{display:flex;align-items:center;gap:10px}
-.tb-btn{
-  background:var(--bg3);border:1px solid var(--line);
-  color:var(--t2);padding:6px 14px;border-radius:6px;
-  cursor:pointer;font-family:var(--font);font-size:12px;
-  transition:all .2s;text-decoration:none;display:inline-flex;align-items:center;gap:5px;
-}
-.tb-btn:hover{background:var(--line);color:var(--t1)}
+.tb-dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:blink 2s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
 .tb-time{font-family:var(--mono);font-size:11px;color:var(--t3)}
+.tb-btn{background:var(--bg3);border:1px solid var(--line);color:var(--t2);padding:5px 12px;border-radius:var(--r);cursor:pointer;font-family:var(--font);font-size:12px;transition:all .2s;text-decoration:none;display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
+.tb-btn:hover{background:var(--bg4);color:var(--t1);border-color:var(--line2)}
+.tb-btn.accent{background:var(--accent);border-color:var(--accent);color:#fff}
+.tb-btn.accent:hover{background:var(--accent2)}
 
-/* ── FILTERS BAR ── */
-.filters{
-  position:fixed;top:56px;left:0;right:0;z-index:190;
-  background:rgba(10,14,19,.92);
-  backdrop-filter:blur(8px);
-  border-bottom:1px solid var(--line);
-  padding:0 20px;
-  height:48px;
-  display:flex;align-items:center;gap:8px;
-  overflow-x:auto;
-}
-.filters::-webkit-scrollbar{display:none}
-.f-chip{
-  padding:5px 14px;border-radius:20px;
-  font-size:12px;font-weight:500;
-  border:1px solid var(--line);
-  color:var(--t2);background:none;
-  cursor:pointer;transition:all .2s;
-  white-space:nowrap;user-select:none;
-  flex-shrink:0;
-}
-.f-chip:hover{border-color:var(--line2);color:var(--t1)}
-.f-chip.on{background:var(--accent);border-color:var(--accent);color:#fff}
-.f-chip.red.on  {background:var(--red);border-color:var(--red)}
-.f-chip.gold.on {background:var(--gold);border-color:var(--gold)}
-.f-chip.green.on{background:var(--green);border-color:var(--green)}
-.f-chip.teal.on {background:var(--teal);border-color:var(--teal)}
-.f-divider{width:1px;height:20px;background:var(--line);flex-shrink:0}
-
-/* ── LAYOUT ── */
-.layout{
-  display:grid;
-  grid-template-columns:260px 1fr 280px;
-  gap:0;
-  padding-top:104px;
-  min-height:100vh;
-  max-width:1400px;
-  margin:0 auto;
-}
-@media(max-width:1100px){.layout{grid-template-columns:0 1fr 0}}
-@media(max-width:700px){.layout{grid-template-columns:1fr}}
-
-/* ── LEFT SIDEBAR ── */
-.sidebar-left{
-  padding:20px 16px;
-  border-left:1px solid var(--line);
-  position:sticky;top:104px;height:calc(100vh - 104px);
-  overflow-y:auto;
-}
-.sidebar-left::-webkit-scrollbar{width:3px}
-.sidebar-left::-webkit-scrollbar-thumb{background:var(--line2);border-radius:2px}
-
-.sl-section{margin-bottom:24px}
-.sl-title{font-size:10px;color:var(--t3);font-family:var(--mono);letter-spacing:.8px;text-transform:uppercase;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--line)}
-
-.src-item{
-  display:flex;align-items:center;gap:8px;
-  padding:6px 8px;border-radius:6px;
-  cursor:pointer;transition:background .15s;
-  margin-bottom:2px;
-}
-.src-item:hover{background:var(--bg2)}
-.src-item.active{background:rgba(37,99,235,.1)}
-.src-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
-.src-name{font-size:12px;color:var(--t2);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.src-item.active .src-name{color:var(--accent)}
-.src-count{font-family:var(--mono);font-size:10px;color:var(--t3)}
-
-/* ── FEED ── */
-.feed{padding:0 0 60px;border-right:1px solid var(--line);border-left:1px solid var(--line)}
-
-.feed-header{
-  padding:16px 20px;
-  border-bottom:1px solid var(--line);
-  display:flex;align-items:center;justify-content:space-between;
-  position:sticky;top:104px;z-index:100;
-  background:rgba(10,14,19,.95);
-  backdrop-filter:blur(8px);
-}
-.feed-title{font-size:13px;font-weight:600;color:var(--t1)}
-.feed-count{font-size:11px;color:var(--t3);font-family:var(--mono)}
-.refresh-btn{
-  display:flex;align-items:center;gap:5px;
-  background:none;border:1px solid var(--line);
-  color:var(--t2);padding:5px 12px;border-radius:6px;
-  cursor:pointer;font-size:12px;font-family:var(--font);
-  transition:all .2s;
-}
-.refresh-btn:hover{border-color:var(--accent);color:var(--accent)}
-.refresh-btn.spinning svg{animation:spin .7s linear infinite}
+.searchbar{position:fixed;top:52px;left:0;right:0;z-index:290;background:rgba(7,9,13,.97);backdrop-filter:blur(12px);border-bottom:1px solid var(--line);padding:9px 20px;display:flex;gap:10px;align-items:center}
+.s-wrap{flex:1;max-width:560px;position:relative}
+.s-ico{position:absolute;right:11px;top:50%;transform:translateY(-50%);color:var(--t3);pointer-events:none;font-size:13px}
+.s-input{width:100%;background:var(--bg2);border:1px solid var(--line);color:var(--t1);padding:7px 34px 7px 12px;border-radius:var(--r);font-family:var(--font);font-size:13px;outline:none;transition:border-color .2s}
+.s-input:focus{border-color:var(--accent)}
+.s-input::placeholder{color:var(--t3)}
+.chips{display:flex;gap:5px;overflow-x:auto;flex-shrink:0}
+.chips::-webkit-scrollbar{display:none}
+.chip{padding:5px 11px;border-radius:20px;font-size:11px;font-weight:500;border:1px solid var(--line);color:var(--t3);background:none;cursor:pointer;transition:all .18s;white-space:nowrap;user-select:none}
+.chip:hover{color:var(--t2);border-color:var(--line2)}
+.chip.on{color:#fff;border-color:transparent;background:var(--accent)}
+.chip.on.cr{background:var(--red)}
+.chip.on.sc{background:var(--orange)}
+.chip.on.po{background:var(--accent)}
+.chip.on.di{background:var(--purple)}
+.chip.on.ec{background:var(--green)}
+.chip.on.mi{background:#7a3020}
+.chip.on.en{background:var(--teal)}
+.chip.on.ku{background:#8a6020}
+.ref-wrap{display:flex;align-items:center;gap:7px;flex-shrink:0}
+.auto-lbl{font-size:10px;color:var(--green);font-family:var(--mono);background:var(--bg3);padding:2px 7px;border-radius:3px;border:1px solid rgba(26,138,66,.2)}
+.ref-btn{display:flex;align-items:center;gap:5px;background:none;border:1px solid var(--line);color:var(--t3);padding:5px 11px;border-radius:var(--r);cursor:pointer;font-size:12px;font-family:var(--font);transition:all .2s}
+.ref-btn:hover{border-color:var(--accent);color:var(--accent)}
 @keyframes spin{to{transform:rotate(360deg)}}
+.spinning{animation:spin .7s linear infinite}
 
-/* ── NEWS CARD ── */
-.card{
-  border-bottom:1px solid var(--line);
-  padding:18px 20px;
-  transition:background .15s;
-  cursor:default;
-  animation:fadeIn .3s ease both;
-}
-.card:hover{background:rgba(255,255,255,.015)}
-@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.layout{display:grid;grid-template-columns:230px 1fr 250px;padding-top:102px;min-height:100vh;max-width:1440px;margin:0 auto}
+@media(max-width:1200px){.layout{grid-template-columns:0 1fr 0}}
 
-.card-meta{
-  display:flex;align-items:center;gap:8px;
-  margin-bottom:10px;flex-wrap:wrap;
-}
-.card-source{
-  display:flex;align-items:center;gap:5px;
-  font-size:12px;font-weight:600;color:var(--t2);
-}
-.src-avatar{
-  width:20px;height:20px;border-radius:4px;
-  display:flex;align-items:center;justify-content:center;
-  font-size:9px;font-weight:700;font-family:var(--mono);
-  flex-shrink:0;
-}
-.card-time{font-size:11px;color:var(--t3);font-family:var(--mono)}
-.card-region{font-size:10px;padding:2px 6px;border-radius:3px;font-family:var(--mono)}
+.sl{border-left:1px solid var(--line);padding:14px 10px;position:sticky;top:102px;height:calc(100vh - 102px);overflow-y:auto}
+.sl::-webkit-scrollbar{width:2px}
+.sl::-webkit-scrollbar-thumb{background:var(--line2)}
+.sl-hd{font-size:10px;color:var(--t3);font-family:var(--mono);letter-spacing:.7px;text-transform:uppercase;padding:0 4px 7px;margin-bottom:6px;border-bottom:1px solid var(--line)}
+.kg{margin-bottom:14px}
+.kg-n{font-size:11px;font-weight:600;color:var(--t2);padding:3px 6px;display:flex;align-items:center;gap:5px}
+.kg-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.kt{display:flex;flex-wrap:wrap;gap:3px;padding:3px 6px 7px}
+.kw{font-size:10px;padding:2px 6px;border-radius:3px;background:var(--bg3);color:var(--t3);font-family:var(--mono);cursor:pointer;transition:all .15s;border:1px solid transparent}
+.kw:hover{color:var(--t1);border-color:var(--line2)}
+.kw.on{background:var(--a3);color:var(--accent);border-color:rgba(36,97,212,.2)}
+.add-g{font-size:11px;color:var(--t3);padding:3px 6px;cursor:pointer;display:block;transition:color .15s}
+.add-g:hover{color:var(--accent)}
 
-.sig-badge{
-  display:inline-flex;align-items:center;gap:3px;
-  font-size:10px;font-family:var(--mono);padding:2px 7px;border-radius:3px;
-  margin-right:auto;
-}
-.sig-critical{background:rgba(220,38,38,.15);color:#f87171;border:1px solid rgba(220,38,38,.25)}
-.sig-high    {background:rgba(194,98,42,.15); color:#fb923c;border:1px solid rgba(194,98,42,.25)}
-.sig-medium  {background:rgba(200,145,58,.15);color:#fbbf24;border:1px solid rgba(200,145,58,.25)}
-.sig-low     {background:rgba(61,80,104,.15); color:var(--t3);border:1px solid var(--line)}
+.feed{border-right:1px solid var(--line);border-left:1px solid var(--line)}
+.brief{background:linear-gradient(135deg,rgba(36,97,212,.07),rgba(36,97,212,.02));border-bottom:1px solid rgba(36,97,212,.14);padding:14px 20px;cursor:pointer;transition:background .2s;user-select:none}
+.brief:hover{background:rgba(36,97,212,.09)}
+.brief-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:0}
+.brief-t{font-size:13px;font-weight:600;color:var(--accent);display:flex;align-items:center;gap:5px}
+.brief-d{font-size:11px;color:var(--t3);font-family:var(--mono)}
+.brief-body{font-size:13px;color:var(--t2);line-height:1.7;margin-top:8px;display:none}
+.brief.open .brief-body{display:block}
+.bstats{display:flex;gap:14px;margin-top:8px}
+.bst{font-size:11px;color:var(--t3);font-family:var(--mono)}
+.bst b{color:var(--t1)}
 
-.card-cat{font-size:10px;padding:2px 7px;border-radius:3px;font-family:var(--mono)}
-.cat-security  {background:rgba(220,38,38,.1); color:#f87171}
-.cat-politics  {background:rgba(37,99,235,.1); color:#60a5fa}
-.cat-diplomacy {background:rgba(200,145,58,.1);color:#fbbf24}
-.cat-economy   {background:rgba(22,163,74,.1); color:#4ade80}
-.cat-military  {background:rgba(194,98,42,.1); color:#fb923c}
-.cat-energy    {background:rgba(13,124,110,.1);color:#2dd4bf}
-.cat-kurdistan {background:rgba(124,58,237,.1);color:#a78bfa}
-.cat-other     {background:var(--bg3);color:var(--t3)}
+.feed-hd{padding:10px 20px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;background:rgba(7,9,13,.85);position:sticky;top:102px;z-index:100}
+.fhd-l{font-size:12px;color:var(--t3);font-family:var(--mono)}
+.fhd-l b{color:var(--t1)}
+.sort-sel{background:var(--bg3);border:1px solid var(--line);color:var(--t2);padding:3px 7px;border-radius:var(--r);font-size:11px;font-family:var(--mono);outline:none;cursor:pointer}
 
-/* ── CARD TITLE ── */
-.card-title{
-  font-size:15px;font-weight:600;
-  color:var(--t1);line-height:1.5;
-  margin-bottom:10px;
-}
+.card{border-bottom:1px solid var(--line);padding:15px 20px;transition:background .15s;animation:fup .28s ease both}
+.card:hover{background:rgba(255,255,255,.01)}
+@keyframes fup{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+.c-top{display:flex;align-items:center;gap:7px;margin-bottom:9px;flex-wrap:wrap}
+.s-pill{display:flex;align-items:center;gap:4px;font-size:11px;font-weight:600;color:var(--t2)}
+.s-ico{width:17px;height:17px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;font-family:var(--mono);flex-shrink:0}
+.c-time{font-size:11px;color:var(--t3);font-family:var(--mono)}
+.sig{display:inline-flex;align-items:center;gap:3px;font-size:10px;padding:2px 6px;border-radius:3px;margin-right:auto}
+.sig.cr{background:var(--r2);color:#f87171;border:1px solid rgba(196,43,43,.22)}
+.sig.hi{background:rgba(194,96,40,.12);color:#fb923c;border:1px solid rgba(194,96,40,.22)}
+.sig.me{background:var(--g2);color:#fbbf24;border:1px solid rgba(196,146,50,.22)}
+.sig.lo{background:var(--bg3);color:var(--t3);border:1px solid var(--line)}
+.cat{font-size:10px;padding:2px 6px;border-radius:3px;font-family:var(--mono)}
+.cat.sc{background:rgba(194,96,40,.1);color:#fb923c}
+.cat.po{background:var(--a3);color:#60a5fa}
+.cat.di{background:rgba(107,63,200,.1);color:#a78bfa}
+.cat.ec{background:rgba(26,138,66,.1);color:#4ade80}
+.cat.mi{background:rgba(122,48,32,.15);color:#fca5a5}
+.cat.en{background:rgba(13,122,106,.1);color:#2dd4bf}
+.cat.ku{background:rgba(138,96,32,.1);color:#fcd34d}
+.cat.ot{background:var(--bg3);color:var(--t3)}
 
-/* ── CONTENT TABS ── */
-.content-tabs{margin-bottom:10px}
-.ctabs{display:flex;gap:0;border-bottom:1px solid var(--line);margin-bottom:12px}
-.ctab{
-  padding:6px 14px;font-size:11px;color:var(--t3);
-  cursor:pointer;border-bottom:2px solid transparent;
-  transition:all .15s;font-family:var(--mono);
-  margin-bottom:-1px;
-}
-.ctab:hover{color:var(--t2)}
-.ctab.on{color:var(--accent);border-bottom-color:var(--accent)}
+.c-title{font-size:15px;font-weight:600;color:var(--t1);line-height:1.5;margin-bottom:11px}
+.c-title a{color:inherit;text-decoration:none;transition:color .15s}
+.c-title a:hover{color:var(--accent)}
 
-.ctab-content{display:none;font-size:13px;line-height:1.8;color:var(--t2)}
-.ctab-content.on{display:block}
+.tnav{display:flex;border-bottom:1px solid var(--line);margin-bottom:11px;gap:0}
+.tbtn{padding:5px 13px;font-size:11px;color:var(--t3);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .15s;user-select:none;font-family:var(--mono)}
+.tbtn:hover{color:var(--t2)}
+.tbtn.on{color:var(--accent);border-bottom-color:var(--accent)}
+.tpane{display:none}
+.tpane.on{display:block}
+.tr-txt{font-size:13px;color:var(--t1);line-height:1.85;border-right:2px solid var(--accent);padding-right:13px}
+.or-txt{font-size:12px;color:var(--t3);line-height:1.75;direction:ltr;text-align:left;font-family:Georgia,serif;border-left:2px solid var(--line2);padding-left:11px}
+.an-box{background:rgba(36,97,212,.05);border:1px solid rgba(36,97,212,.12);border-radius:var(--r2);padding:13px 15px}
+.an-lbl{font-size:10px;color:var(--accent);font-family:var(--mono);letter-spacing:.4px;margin-bottom:7px}
+.an-txt{font-size:13px;color:var(--t1);line-height:1.8}
+.actors{margin-top:9px;padding-top:7px;border-top:1px solid rgba(36,97,212,.1);font-size:11px;color:var(--t3);display:flex;flex-wrap:wrap;align-items:center;gap:4px}
+.atag{background:var(--g2);color:var(--gold);padding:2px 6px;border-radius:3px;font-size:10px;font-family:var(--mono)}
 
-.original-text{
-  font-size:12px;color:var(--t3);line-height:1.7;
-  border-right:2px solid var(--line2);
-  padding-right:12px;
-  font-family:Georgia,serif;
-  direction:ltr;text-align:left;
-}
+.c-foot{display:flex;align-items:center;gap:8px;margin-top:11px;padding-top:9px;border-top:1px solid var(--line);flex-wrap:wrap}
+.c-link{display:inline-flex;align-items:center;gap:4px;font-size:11px;color:var(--t3);text-decoration:none;font-family:var(--mono);transition:color .15s;border:1px solid var(--line);padding:3px 8px;border-radius:var(--r)}
+.c-link:hover{color:var(--accent);border-color:rgba(36,97,212,.3)}
+.mkws{display:flex;gap:3px;flex-wrap:wrap;flex:1}
+.mkw{font-size:10px;padding:2px 5px;background:var(--a3);color:var(--accent);border-radius:3px;font-family:var(--mono)}
 
-.translation-text{
-  color:var(--t1);line-height:1.8;
-  border-right:2px solid var(--accent);
-  padding-right:12px;
-}
+.skel{padding:14px 20px;border-bottom:1px solid var(--line)}
+.sk{height:13px;background:var(--bg3);border-radius:3px;margin-bottom:7px;animation:sh 1.4s infinite}
+.sk.s{width:38%}.sk.m{width:68%}
+@keyframes sh{0%,100%{opacity:.35}50%{opacity:.7}}
+.empty{text-align:center;padding:60px 20px;color:var(--t3)}
 
-.analysis-box{
-  background:rgba(37,99,235,.05);
-  border:1px solid rgba(37,99,235,.15);
-  border-radius:8px;padding:12px 14px;
-}
-.analysis-label{
-  font-size:10px;color:var(--accent);
-  font-family:var(--mono);letter-spacing:.5px;
-  margin-bottom:6px;display:flex;align-items:center;gap:5px;
-}
-.analysis-text{font-size:13px;color:var(--t1);line-height:1.7}
-.actors-row{
-  margin-top:10px;padding-top:8px;
-  border-top:1px solid rgba(37,99,235,.1);
-  font-size:11px;color:var(--t3);
-}
-.actor-tag{
-  display:inline-block;
-  background:rgba(200,145,58,.1);color:var(--gold);
-  padding:2px 7px;border-radius:3px;
-  font-size:11px;font-family:var(--mono);
-  margin:2px 3px 2px 0;
-}
+.ntost{position:fixed;top:112px;left:50%;transform:translateX(-50%) translateY(-8px);background:var(--accent);color:#fff;padding:7px 18px;border-radius:20px;font-size:12px;cursor:pointer;box-shadow:0 4px 20px rgba(36,97,212,.4);z-index:280;opacity:0;pointer-events:none;transition:all .25s}
+.ntost.show{opacity:1;transform:translateX(-50%) translateY(0);pointer-events:all}
 
-/* ── CARD FOOTER ── */
-.card-footer{
-  display:flex;align-items:center;gap:12px;
-  margin-top:12px;padding-top:10px;
-  border-top:1px solid var(--line);
-}
-.card-link{
-  display:inline-flex;align-items:center;gap:4px;
-  font-size:11px;color:var(--t3);text-decoration:none;
-  font-family:var(--mono);transition:color .15s;
-}
-.card-link:hover{color:var(--accent)}
-.kw-tags{display:flex;gap:4px;flex-wrap:wrap;flex:1}
-.kw-tag{
-  font-size:10px;padding:1px 6px;border-radius:3px;
-  background:var(--bg3);color:var(--t3);
-  font-family:var(--mono);
-}
+.sr{padding:14px 10px;position:sticky;top:102px;height:calc(100vh - 102px);overflow-y:auto}
+.sr::-webkit-scrollbar{width:2px}
+.sr::-webkit-scrollbar-thumb{background:var(--line2)}
+.sr-sec{margin-bottom:18px}
+.sr-hd{font-size:10px;color:var(--t3);font-family:var(--mono);letter-spacing:.7px;text-transform:uppercase;padding-bottom:7px;margin-bottom:7px;border-bottom:1px solid var(--line)}
+.crit-c{background:var(--r2);border:1px solid rgba(196,43,43,.18);border-radius:var(--r);padding:9px 11px;margin-bottom:5px;cursor:pointer;transition:background .15s}
+.crit-c:hover{background:rgba(196,43,43,.13)}
+.crit-t{font-size:12px;font-weight:500;color:var(--t1);line-height:1.4;margin-bottom:3px}
+.crit-m{font-size:10px;color:var(--t3);font-family:var(--mono)}
+.src-r{display:flex;align-items:center;gap:6px;padding:4px 5px;border-radius:var(--r);cursor:pointer;transition:background .15s;margin-bottom:2px}
+.src-r:hover{background:var(--bg2)}
+.src-r.on{background:var(--a3)}
+.src-r.on .src-n{color:var(--accent)}
+.src-d{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.src-n{font-size:11px;color:var(--t2);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
-/* ── RIGHT SIDEBAR ── */
-.sidebar-right{
-  padding:20px 16px;
-  position:sticky;top:104px;height:calc(100vh - 104px);
-  overflow-y:auto;
-}
-.sidebar-right::-webkit-scrollbar{width:3px}
-.sidebar-right::-webkit-scrollbar-thumb{background:var(--line2);border-radius:2px}
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:500;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s}
+.ov.open{opacity:1;pointer-events:all}
+.mod{background:var(--bg2);border:1px solid var(--line2);border-radius:14px;padding:22px;width:420px;max-width:95vw;transform:translateY(-12px);transition:transform .2s}
+.ov.open .mod{transform:translateY(0)}
+.mod-t{font-size:15px;font-weight:600;margin-bottom:14px}
+.m-inp{width:100%;background:var(--bg3);border:1px solid var(--line);color:var(--t1);padding:8px 11px;border-radius:var(--r);font-family:var(--font);font-size:13px;outline:none;transition:border-color .2s;margin-bottom:9px}
+.m-inp:focus{border-color:var(--accent)}
+.m-btns{display:flex;gap:8px;justify-content:flex-end}
+.btn-c{background:none;border:1px solid var(--line);color:var(--t2);padding:7px 14px;border-radius:var(--r);cursor:pointer;font-family:var(--font);font-size:13px}
+.btn-s{background:var(--accent);border:none;color:#fff;padding:7px 18px;border-radius:var(--r);cursor:pointer;font-family:var(--font);font-size:13px;font-weight:500}
+.btn-s:hover{background:var(--accent2)}
 
-.sr-section{margin-bottom:24px}
-.sr-title{font-size:10px;color:var(--t3);font-family:var(--mono);letter-spacing:.8px;text-transform:uppercase;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--line)}
-
-.trending-item{
-  display:flex;align-items:flex-start;gap:10px;
-  padding:8px 0;border-bottom:1px solid var(--line);
-  cursor:pointer;transition:opacity .15s;
-}
-.trending-item:hover{opacity:.75}
-.trend-num{font-family:var(--mono);font-size:16px;font-weight:600;color:var(--line2);min-width:20px}
-.trend-word{font-size:13px;color:var(--t1);font-weight:500}
-.trend-count{font-size:11px;color:var(--t3);font-family:var(--mono)}
-
-.critical-item{
-  background:rgba(220,38,38,.05);
-  border:1px solid rgba(220,38,38,.15);
-  border-radius:8px;padding:10px 12px;
-  margin-bottom:8px;cursor:pointer;
-  transition:background .15s;
-}
-.critical-item:hover{background:rgba(220,38,38,.08)}
-.critical-title{font-size:12px;font-weight:500;color:var(--t1);line-height:1.4;margin-bottom:4px}
-.critical-meta{font-size:10px;color:var(--t3);font-family:var(--mono)}
-
-/* ── SEARCH ── */
-.search-wrap{
-  padding:10px 20px;
-  border-bottom:1px solid var(--line);
-  background:rgba(10,14,19,.95);
-}
-.search-input{
-  width:100%;background:var(--bg2);
-  border:1px solid var(--line);color:var(--t1);
-  padding:8px 14px;border-radius:8px;
-  font-family:var(--font);font-size:13px;
-  outline:none;transition:border-color .2s;
-}
-.search-input:focus{border-color:var(--accent)}
-.search-input::placeholder{color:var(--t3)}
-
-/* ── LOADING / EMPTY ── */
-.loading{text-align:center;padding:60px 20px;color:var(--t3)}
-.loading-spinner{
-  width:24px;height:24px;border:2px solid var(--line);
-  border-top-color:var(--accent);border-radius:50%;
-  animation:spin .7s linear infinite;
-  margin:0 auto 12px;
-}
-.empty{text-align:center;padding:60px 20px}
-.empty-icon{font-size:40px;margin-bottom:12px}
-.empty-text{color:var(--t3);font-size:14px}
-
-/* ── NEW BADGE ── */
-.new-badge{
-  position:fixed;top:112px;left:50%;transform:translateX(-50%);
-  background:var(--accent);color:#fff;
-  padding:8px 20px;border-radius:20px;
-  font-size:13px;cursor:pointer;
-  box-shadow:0 4px 20px rgba(37,99,235,.4);
-  z-index:150;display:none;
-  transition:all .2s;
-}
-.new-badge:hover{background:#1d4ed8}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--line2);border-radius:2px}
 </style>
 </head>
 <body>
 
-<!-- TOPBAR -->
 <header class="topbar">
-  <div class="tb-brand">
-    <div class="tb-logo">IQ</div>
-    <div class="tb-name">الراصد</div>
-    <div class="tb-live"><div class="tb-dot"></div>مباشر</div>
-  </div>
-  <div class="tb-right">
-    <div class="tb-time" id="clock"></div>
-    <a href="settings.html" class="tb-btn">⚙ الإعدادات</a>
-    <a href="admin.html" class="tb-btn">+ إضافة</a>
-    <button class="tb-btn" onclick="openConfig()">🔑 API</button>
-  </div>
+  <div class="tb-logo">IQ</div>
+  <div class="tb-name">الراصد</div>
+  <div class="tb-live"><div class="tb-dot"></div>مباشر</div>
+  <div class="tb-sep"></div>
+  <div class="tb-time" id="clock"></div>
+  <a href="settings.html" class="tb-btn">⚙ المصادر</a>
+  <a href="admin.html" class="tb-btn">+ إضافة</a>
+  <button class="tb-btn accent" onclick="openCfg()">🔑 API</button>
 </header>
 
-<!-- FILTERS -->
-<div class="filters">
-  <button class="f-chip on" onclick="setFilter('all',this)">الكل</button>
-  <button class="f-chip red" onclick="setFilter('critical',this)">🔴 حرجة</button>
-  <button class="f-chip" onclick="setFilter('security',this)">أمن</button>
-  <button class="f-chip" onclick="setFilter('politics',this)">سياسة</button>
-  <button class="f-chip" onclick="setFilter('diplomacy',this)">دبلوماسية</button>
-  <button class="f-chip gold" onclick="setFilter('economy',this)">اقتصاد</button>
-  <button class="f-chip" onclick="setFilter('military',this)">عسكري</button>
-  <button class="f-chip teal" onclick="setFilter('energy',this)">طاقة</button>
-  <button class="f-chip" onclick="setFilter('kurdistan',this)">كردستان</button>
-  <div class="f-divider"></div>
-  <button class="f-chip" onclick="setFilter('24h',this)">آخر 24س</button>
-  <button class="f-chip" onclick="setFilter('48h',this)">آخر 48س</button>
-  <button class="f-chip" onclick="setFilter('week',this)">هذا الأسبوع</button>
+<div class="searchbar">
+  <div class="s-wrap">
+    <span class="s-ico">🔍</span>
+    <input class="s-input" id="search" placeholder="ابحث بكلمة مفتاحية، شخصية، حدث..." oninput="onSearch()">
+  </div>
+  <div class="chips">
+    <button class="chip on" onclick="setF('all',this)">الكل</button>
+    <button class="chip cr" onclick="setF('critical',this)">🔴 حرجة</button>
+    <button class="chip sc" onclick="setF('security',this)">أمن</button>
+    <button class="chip po" onclick="setF('politics',this)">سياسة</button>
+    <button class="chip di" onclick="setF('diplomacy',this)">دبلوماسية</button>
+    <button class="chip ec" onclick="setF('economy',this)">اقتصاد</button>
+    <button class="chip mi" onclick="setF('military',this)">عسكري</button>
+    <button class="chip en" onclick="setF('energy',this)">طاقة</button>
+    <button class="chip ku" onclick="setF('kurdistan',this)">كردستان</button>
+  </div>
+  <div class="ref-wrap">
+    <span class="auto-lbl" id="cd">⟳ 15:00</span>
+    <button class="ref-btn" onclick="refresh()">
+      <svg id="ri" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.66 0 3-4.03 3-9s-1.34-9-3-9m0 18c-1.66 0-3-4.03-3-9s1.34-9 3-9"/></svg>
+      تحديث
+    </button>
+  </div>
 </div>
 
-<!-- NEW ITEMS BADGE -->
-<div class="new-badge" id="new-badge" onclick="loadNewItems()">
-  ↑ أخبار جديدة — اضغط للتحديث
-</div>
+<div class="ntost" id="ntost" onclick="applyNew()">↑ أخبار جديدة — اضغط</div>
 
-<!-- LAYOUT -->
 <div class="layout">
-
-  <!-- LEFT: SOURCES -->
-  <aside class="sidebar-left" id="sidebar-left">
-    <div class="sl-section">
-      <div class="sl-title">المصادر النشطة</div>
-      <div id="sources-list">
-        <div style="color:var(--t3);font-size:12px;padding:8px">جاري التحميل...</div>
-      </div>
-    </div>
+  <aside class="sl">
+    <div class="sl-hd">مجموعات الرصد</div>
+    <div id="kg-list"><div style="color:var(--t3);font-size:12px;padding:6px">جاري...</div></div>
+    <span class="add-g" onclick="openAddG()">+ مجموعة جديدة</span>
   </aside>
 
-  <!-- FEED -->
   <main class="feed">
-    <div class="feed-header">
-      <div>
-        <div class="feed-title">تدفق الأخبار — العراق</div>
-        <div class="feed-count" id="feed-count">جاري التحميل...</div>
+    <div class="brief" id="brief" onclick="toggleBrief()">
+      <div class="brief-hd">
+        <div class="brief-t">☀️ الملخص الصباحي</div>
+        <div class="brief-d" id="bd"></div>
       </div>
-      <button class="refresh-btn" id="refresh-btn" onclick="refresh()">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.66 0 3-4.03 3-9s-1.34-9-3-9m0 18c-1.66 0-3-4.03-3-9s1.34-9 3-9"/></svg>
-        تحديث
-      </button>
+      <div class="brief-body" id="bb">جاري الإعداد...</div>
+      <div class="bstats" id="bs"></div>
     </div>
 
-    <div class="search-wrap">
-      <input class="search-input" id="search" placeholder="ابحث في الأخبار..." oninput="debounce()">
+    <div class="feed-hd">
+      <div class="fhd-l"><b id="fc">—</b> خبر مطابق</div>
+      <select class="sort-sel" id="ss" onchange="loadFeed()">
+        <option value="published_at">الأحدث أولاً</option>
+        <option value="importance_score">الأهم أولاً</option>
+      </select>
     </div>
 
-    <div id="feed-items">
-      <div class="loading">
-        <div class="loading-spinner"></div>
-        جاري جلب الأخبار...
-      </div>
+    <div id="fi">
+      <div class="skel"><div class="sk m"></div><div class="sk"></div><div class="sk s"></div></div>
+      <div class="skel"><div class="sk m"></div><div class="sk"></div><div class="sk s"></div></div>
+      <div class="skel"><div class="sk m"></div><div class="sk"></div><div class="sk s"></div></div>
     </div>
   </main>
 
-  <!-- RIGHT: TRENDING + CRITICAL -->
-  <aside class="sidebar-right">
-    <div class="sr-section">
-      <div class="sr-title">🔴 الأحداث الحرجة</div>
-      <div id="critical-list">
-        <div style="color:var(--t3);font-size:12px">لا توجد أحداث حرجة</div>
-      </div>
+  <aside class="sr">
+    <div class="sr-sec">
+      <div class="sr-hd">🔴 أحداث حرجة</div>
+      <div id="cl"><div style="color:var(--t3);font-size:12px">لا أحداث حرجة ✓</div></div>
     </div>
-    <div class="sr-section">
-      <div class="sr-title">📈 الأكثر ذكراً</div>
-      <div id="trending-list">
-        <div style="color:var(--t3);font-size:12px">جاري التحليل...</div>
-      </div>
+    <div class="sr-sec">
+      <div class="sr-hd">📡 المصادر</div>
+      <div id="sl2"><div style="color:var(--t3);font-size:12px">جاري...</div></div>
     </div>
   </aside>
+</div>
 
+<!-- ADD GROUP MODAL -->
+<div class="ov" id="ov-ag">
+  <div class="mod">
+    <div class="mod-t">+ مجموعة رصد جديدة</div>
+    <input class="m-inp" id="ag-n" placeholder="اسم المجموعة — مثال: الفصائل المسلحة">
+    <input class="m-inp" id="ag-k" placeholder="الكلمات مفصولة بفاصلة — مثال: الحشد، PMF، فصائل">
+    <div class="m-btns">
+      <button class="btn-c" onclick="closeOv('ov-ag')">إلغاء</button>
+      <button class="btn-s" onclick="saveG()">حفظ</button>
+    </div>
+  </div>
+</div>
+
+<!-- CONFIG MODAL -->
+<div class="ov" id="ov-cfg">
+  <div class="mod">
+    <div class="mod-t">🔑 إعداد Supabase</div>
+    <input class="m-inp" id="ci-u" placeholder="https://xxxx.supabase.co">
+    <input class="m-inp" id="ci-k" type="password" placeholder="eyJhbGci...">
+    <div class="m-btns">
+      <button class="btn-c" onclick="closeOv('ov-cfg')">إلغاء</button>
+      <button class="btn-s" onclick="saveCfg()">حفظ والاتصال</button>
+    </div>
+  </div>
 </div>
 
 <script>
-/* ═══════════════════════════════
-   CONFIG
-═══════════════════════════════ */
-let SB_URL = localStorage.getItem('sb_url') || '';
-let SB_KEY = localStorage.getItem('sb_key') || '';
+let SB_URL=localStorage.getItem('sb_url')||'';
+let SB_KEY=localStorage.getItem('sb_key')||'';
+let filt='all',srcF='',kwF='',srch='',sortF='published_at';
+let pg=0,loading=false,arts=[];
+let secs=900,timer=null;
+let kgs=JSON.parse(localStorage.getItem('iq_kgs')||'null')||defKgs();
 
-const SOURCE_COLORS = {
-  western:'#2563eb', arab:'#c8913a', iraqi:'#16a34a',
-  iranian:'#dc2626', turkish:'#7c3aed', international:'#0d7c6e', kurdish:'#b45309'
-};
+const RC={western:'#2461d4',arab:'#c49232',iraqi:'#1a8a42',iranian:'#c42b2b',turkish:'#6b3fc8',international:'#0d7a6a',kurdish:'#8a6020'};
+const CA={security:'أمن',politics:'سياسة',diplomacy:'دبلوماسية',economy:'اقتصاد',military:'عسكري',energy:'طاقة',kurdistan:'كردستان',other:'أخرى'};
+const SA={critical:'حرجة',high:'عالية',medium:'متوسطة',low:'منخفضة'};
 
-const CAT_AR = {
-  security:'أمن', politics:'سياسة', diplomacy:'دبلوماسية',
-  economy:'اقتصاد', military:'عسكري', energy:'طاقة',
-  kurdistan:'كردستان', other:'أخرى'
-};
+function defKgs(){return[
+  {id:'g1',name:'العراق — أساسي',color:'#2461d4',kws:['العراق','بغداد','iraq','baghdad','#العراق']},
+  {id:'g2',name:'الفصائل والحشد',color:'#c42b2b',kws:['الحشد الشعبي','فصائل','PMF','كتائب حزب الله']},
+  {id:'g3',name:'كردستان',color:'#8a6020',kws:['كردستان','البيشمركة','بارزاني','kurdistan']},
+  {id:'g4',name:'النفط والطاقة',color:'#0d7a6a',kws:['النفط','بصرة','أوبك','iraq oil']},
+  {id:'g5',name:'الدبلوماسية',color:'#6b3fc8',kws:['السوداني','إيران العراق','iran iraq']},
+];}
 
-const SIG_AR = { critical:'حرجة', high:'عالية', medium:'متوسطة', low:'منخفضة' };
-
-/* ═══════════════════════════════
-   STATE
-═══════════════════════════════ */
-let articles     = [];
-let activeFilter = 'all';
-let activeSource = '';
-let searchTerm   = '';
-let page         = 0;
-let loading      = false;
-let lastFetch    = new Date();
-let searchTimer  = null;
-
-/* ═══════════════════════════════
-   SUPABASE
-═══════════════════════════════ */
-async function sbFetch(table, params='') {
-  if (!SB_URL || !SB_KEY) return { data: demoData(), count: demoData().length };
-  try {
-    const r = await fetch(`${SB_URL}/rest/v1/${table}${params}`, {
-      headers: {
-        'apikey': SB_KEY,
-        'Authorization': `Bearer ${SB_KEY}`,
-        'Prefer': 'count=exact',
-      }
-    });
-    const count = parseInt(r.headers.get('Content-Range')?.split('/')[1] || '0');
-    const data  = await r.json();
-    return { data: Array.isArray(data) ? data : [], count };
-  } catch { return { data: [], count: 0 }; }
+async function sb(t,p=''){
+  if(!SB_URL||!SB_KEY)return{data:demo(),count:demo().length};
+  try{
+    const r=await fetch(`${SB_URL}/rest/v1/${t}${p}`,{headers:{'apikey':SB_KEY,'Authorization':`Bearer ${SB_KEY}`,'Prefer':'count=exact'}});
+    const c=parseInt(r.headers.get('Content-Range')?.split('/')[1]||'0');
+    const d=await r.json();
+    return{data:Array.isArray(d)?d:[],count:c};
+  }catch{return{data:[],count:0};}
 }
 
-/* ═══════════════════════════════
-   LOAD ARTICLES
-═══════════════════════════════ */
-async function loadArticles(append=false) {
-  if (loading) return;
-  loading = true;
-
-  if (!append) {
-    page = 0;
-    document.getElementById('feed-items').innerHTML =
-      `<div class="loading"><div class="loading-spinner"></div>جاري جلب الأخبار...</div>`;
-  }
-
-  let params = `?select=id,title_ar,title_original,body_ar,body_original,original_url,category,importance_score,published_at,iraq_keywords,sources(name,region,type),analyses(summary_ar,actors,significance,stance)`;
-  params += `&mentions_iraq=eq.true&order=published_at.desc&limit=20&offset=${page*20}`;
-
-  // Filters
-  if (activeFilter === 'critical') params += `&importance_score=gte.75`;
-  else if (['security','politics','diplomacy','economy','military','energy','kurdistan'].includes(activeFilter))
-    params += `&category=eq.${activeFilter}`;
-  else if (activeFilter === '24h') params += `&published_at=gte.${new Date(Date.now()-86400000).toISOString()}`;
-  else if (activeFilter === '48h') params += `&published_at=gte.${new Date(Date.now()-172800000).toISOString()}`;
-  else if (activeFilter === 'week') params += `&published_at=gte.${new Date(Date.now()-604800000).toISOString()}`;
-
-  if (activeSource) params += `&source_id=eq.${activeSource}`;
-  if (searchTerm)   params += `&title_ar=ilike.*${encodeURIComponent(searchTerm)}*`;
-
-  const res = await sbFetch('articles', params);
-  const newArticles = res.data.map(a => ({
-    ...a,
-    source_name:  a.sources?.name || '',
-    source_region:a.sources?.region || 'international',
-    summary_ar:   Array.isArray(a.analyses) ? a.analyses[0]?.summary_ar : '',
-    actors:       Array.isArray(a.analyses) ? a.analyses[0]?.actors : '',
-    significance: Array.isArray(a.analyses) ? a.analyses[0]?.significance : 'medium',
-    stance:       Array.isArray(a.analyses) ? a.analyses[0]?.stance : 'neutral',
-  }));
-
-  if (!append) articles = newArticles;
-  else         articles = [...articles, ...newArticles];
-
-  document.getElementById('feed-count').textContent =
-    `${res.count.toLocaleString('ar')} خبر`;
-
-  renderFeed(append);
-  loading = false;
-  lastFetch = new Date();
+async function loadFeed(app=false){
+  if(loading)return;loading=true;
+  sortF=document.getElementById('ss').value;
+  if(!app){pg=0;arts=[];document.getElementById('fi').innerHTML='<div class="skel"><div class="sk m"></div><div class="sk"></div><div class="sk s"></div></div>'.repeat(3);}
+  let p=`?select=id,title_ar,title_original,body_ar,body_original,original_url,category,importance_score,published_at,iraq_keywords,sources(name,region),analyses(summary_ar,actors,significance,stance)&mentions_iraq=eq.true&order=${sortF}.desc&limit=20&offset=${pg*20}`;
+  if(filt==='critical')p+=`&importance_score=gte.80`;
+  else if(['security','politics','diplomacy','economy','military','energy','kurdistan'].includes(filt))p+=`&category=eq.${filt}`;
+  if(srch)p+=`&title_ar=ilike.*${encodeURIComponent(srch)}*`;
+  const res=await sb('articles',p);
+  document.getElementById('fc').textContent=res.count.toLocaleString('ar');
+  const items=res.data.map(a=>({...a,sn:a.sources?.name||'',sr2:a.sources?.region||'international',sum:Array.isArray(a.analyses)?a.analyses[0]?.summary_ar||'':'',act:Array.isArray(a.analyses)?a.analyses[0]?.actors||'':'',sig:Array.isArray(a.analyses)?a.analyses[0]?.significance||'medium':'medium',sta:Array.isArray(a.analyses)?a.analyses[0]?.stance||'neutral':'neutral'}));
+  if(!app)arts=items;else arts=[...arts,...items];
+  renderFeed(app);loading=false;
 }
 
-/* ═══════════════════════════════
-   RENDER FEED
-═══════════════════════════════ */
-function renderFeed(append=false) {
-  const container = document.getElementById('feed-items');
-
-  if (!articles.length) {
-    container.innerHTML = `<div class="empty"><div class="empty-icon">📭</div><div class="empty-text">لا توجد أخبار مطابقة</div></div>`;
-    return;
-  }
-
-  const html = articles.map((a,i) => buildCard(a,i)).join('');
-
-  if (!append) {
-    container.innerHTML = html;
-    // Infinite scroll sentinel
-    container.insertAdjacentHTML('beforeend','<div id="scroll-sentinel" style="height:1px"></div>');
-    setupInfiniteScroll();
-  } else {
-    document.getElementById('scroll-sentinel')?.remove();
-    container.insertAdjacentHTML('beforeend', html);
-    container.insertAdjacentHTML('beforeend','<div id="scroll-sentinel" style="height:1px"></div>');
-  }
+function renderFeed(app=false){
+  const el=document.getElementById('fi');
+  if(!arts.length){el.innerHTML='<div class="empty"><div style="font-size:34px;margin-bottom:8px">📭</div><div>لا توجد أخبار مطابقة</div></div>';return;}
+  const html=arts.map((a,i)=>card(a,i)).join('');
+  if(!app){el.innerHTML=html+'<div id="sen" style="height:1px"></div>';setupIO();}
+  else{document.getElementById('sen')?.remove();el.insertAdjacentHTML('beforeend',html+'<div id="sen" style="height:1px"></div>');}
 }
 
-function buildCard(a, i) {
-  const color   = SOURCE_COLORS[a.source_region] || '#2563eb';
-  const init    = a.source_name.split(' ').slice(0,2).map(w=>w[0]||'').join('').toUpperCase().slice(0,2);
-  const timeAgo = formatTime(a.published_at);
-  const sig     = a.significance || 'medium';
-  const cat     = a.category     || 'other';
-  const title   = a.title_ar || a.title_original || '—';
-  const hasTranslation = a.body_ar && a.body_ar.length > 20;
-  const hasOriginal    = a.body_original && a.body_original.length > 20;
-  const hasAnalysis    = a.summary_ar && a.summary_ar.length > 10;
-  const keywords       = (a.iraq_keywords||[]).slice(0,3);
-
-  return `
-<div class="card" style="animation-delay:${i*0.04}s">
-  <div class="card-meta">
-    <div class="card-source">
-      <div class="src-avatar" style="background:${color}22;color:${color}">${init}</div>
-      ${a.source_name}
-    </div>
-    <span class="card-time">${timeAgo}</span>
-    <span class="sig-badge sig-${sig}">${sig==='critical'?'🔴':sig==='high'?'🟠':sig==='medium'?'🟡':'⚪'} ${SIG_AR[sig]||'—'}</span>
-    <span class="card-cat cat-${cat}">${CAT_AR[cat]||'أخرى'}</span>
+function card(a,i){
+  const clr=RC[a.sr2]||'#2461d4';
+  const ini=a.sn.split(' ').slice(0,2).map(w=>w[0]||'').join('').toUpperCase().slice(0,2);
+  const sig=a.sig||'medium';const cat=a.category||'other';
+  const tt=a.title_ar||a.title_original||'—';
+  const hasTr=a.body_ar&&a.body_ar.length>10;
+  const hasOr=a.body_original&&a.body_original.length>10;
+  const hasAn=a.sum&&a.sum.length>10;
+  const matched=kgs.flatMap(g=>g.kws).filter(k=>tt.includes(k)||(a.body_ar||'').includes(k)).slice(0,3);
+  const sigC=sig==='critical'?'cr':sig==='high'?'hi':sig==='medium'?'me':'lo';
+  const catC={'security':'sc','politics':'po','diplomacy':'di','economy':'ec','military':'mi','energy':'en','kurdistan':'ku'}[cat]||'ot';
+  return`<div class="card" style="animation-delay:${Math.min(i,8)*.04}s">
+  <div class="c-top">
+    <div class="s-pill"><div class="s-ico" style="background:${clr}22;color:${clr}">${ini}</div>${a.sn}</div>
+    <span class="c-time">${ago(a.published_at)}</span>
+    <span class="sig ${sigC}">${sig==='critical'?'🔴':sig==='high'?'🟠':sig==='medium'?'🟡':'⚪'} ${SA[sig]||'—'}</span>
+    <span class="cat ${catC}">${CA[cat]||'أخرى'}</span>
   </div>
-
-  <div class="card-title">${title}</div>
-
-  ${hasOriginal||hasTranslation||hasAnalysis ? `
-  <div class="content-tabs">
-    <div class="ctabs">
-      ${hasTranslation ? `<div class="ctab on" onclick="switchTab(this,'tr-${i}')">الترجمة</div>` : ''}
-      ${hasOriginal    ? `<div class="ctab ${!hasTranslation?'on':''}" onclick="switchTab(this,'or-${i}')">النص الأصلي</div>` : ''}
-      ${hasAnalysis    ? `<div class="ctab" onclick="switchTab(this,'an-${i}')">التحليل</div>` : ''}
+  <div class="c-title">${a.original_url?`<a href="${a.original_url}" target="_blank">${tt}</a>`:tt}</div>
+  ${hasTr||hasOr||hasAn?`<div>
+    <div class="tnav">
+      ${hasTr?`<div class="tbtn on" onclick="sw(this,'tr${i}')">الترجمة</div>`:''}
+      ${hasOr?`<div class="tbtn${!hasTr?' on':''}" onclick="sw(this,'or${i}')">النص الأصلي</div>`:''}
+      ${hasAn?`<div class="tbtn" onclick="sw(this,'an${i}')">التحليل</div>`:''}
     </div>
-    ${hasTranslation ? `
-    <div class="ctab-content on" id="tr-${i}">
-      <div class="translation-text">${a.body_ar.slice(0,400)}${a.body_ar.length>400?'...':''}</div>
-    </div>` : ''}
-    ${hasOriginal ? `
-    <div class="ctab-content ${!hasTranslation?'on':''}" id="or-${i}">
-      <div class="original-text">${a.body_original.slice(0,400)}${a.body_original.length>400?'...':''}</div>
-    </div>` : ''}
-    ${hasAnalysis ? `
-    <div class="ctab-content" id="an-${i}">
-      <div class="analysis-box">
-        <div class="analysis-label">✦ تحليل</div>
-        <div class="analysis-text">${a.summary_ar}</div>
-        ${a.actors ? `<div class="actors-row">الأطراف: ${a.actors.split(/[،,]/).slice(0,4).map(s=>`<span class="actor-tag">${s.trim()}</span>`).join('')}</div>` : ''}
-      </div>
-    </div>` : ''}
-  </div>` : ''}
-
-  <div class="card-footer">
-    ${a.original_url ? `<a href="${a.original_url}" target="_blank" class="card-link">↗ المصدر الأصلي</a>` : ''}
-    <div class="kw-tags">
-      ${keywords.map(k=>`<span class="kw-tag">${k}</span>`).join('')}
-    </div>
+    ${hasTr?`<div class="tpane on" id="tr${i}"><div class="tr-txt">${a.body_ar.slice(0,600)}${a.body_ar.length>600?'...':''}</div></div>`:''}
+    ${hasOr?`<div class="tpane${!hasTr?' on':''}" id="or${i}"><div class="or-txt">${a.body_original.slice(0,500)}${a.body_original.length>500?'...':''}</div></div>`:''}
+    ${hasAn?`<div class="tpane" id="an${i}"><div class="an-box"><div class="an-lbl">✦ تحليل</div><div class="an-txt">${a.sum}</div>${a.act?`<div class="actors">الأطراف: ${a.act.split(/[،,]/).slice(0,5).map(s=>`<span class="atag">${s.trim()}</span>`).join('')}</div>`:''}</div></div>`:''}
+  </div>`:''}
+  <div class="c-foot">
+    ${a.original_url?`<a href="${a.original_url}" target="_blank" class="c-link">↗ المصدر</a>`:''}
+    <div class="mkws">${matched.map(k=>`<span class="mkw">${k}</span>`).join('')}</div>
   </div>
 </div>`;
 }
 
-function switchTab(el, targetId) {
-  const card = el.closest('.content-tabs');
-  card.querySelectorAll('.ctab').forEach(t=>t.classList.remove('on'));
-  card.querySelectorAll('.ctab-content').forEach(t=>t.classList.remove('on'));
-  el.classList.add('on');
-  document.getElementById(targetId)?.classList.add('on');
+function sw(el,pid){
+  const nav=el.closest('.tnav');
+  nav.querySelectorAll('.tbtn').forEach(b=>b.classList.remove('on'));
+  const p=document.getElementById(pid);if(!p)return;
+  p.parentElement.querySelectorAll('.tpane').forEach(x=>x.classList.remove('on'));
+  el.classList.add('on');p.classList.add('on');
 }
 
-/* ═══════════════════════════════
-   SOURCES SIDEBAR
-═══════════════════════════════ */
-async function loadSources() {
-  const res = await sbFetch('sources', '?select=id,name,region,type&is_active=eq.true&order=trust_score.desc');
-  const list = document.getElementById('sources-list');
-
-  if (!res.data.length) {
-    list.innerHTML = '<div style="color:var(--t3);font-size:12px">لا توجد مصادر</div>';
-    return;
-  }
-
-  list.innerHTML = `
-    <div class="src-item ${activeSource===''?'active':''}" onclick="filterSource('')">
-      <div class="src-dot" style="background:var(--accent)"></div>
-      <div class="src-name">كل المصادر</div>
-    </div>
-  ` + res.data.map(s => `
-    <div class="src-item ${activeSource===s.id?'active':''}" onclick="filterSource('${s.id}')">
-      <div class="src-dot" style="background:${SOURCE_COLORS[s.region]||'#666'}"></div>
-      <div class="src-name">${s.name}</div>
-    </div>
-  `).join('');
+function setupIO(){
+  const s=document.getElementById('sen');if(!s)return;
+  new IntersectionObserver(e=>{if(e[0].isIntersecting&&!loading){pg++;loadFeed(true);}},{rootMargin:'300px'}).observe(s);
 }
 
-function filterSource(id) {
-  activeSource = id;
-  loadSources();
-  loadArticles();
+function startCD(){
+  clearInterval(timer);secs=900;
+  timer=setInterval(()=>{secs--;const m=Math.floor(secs/60),s=secs%60;document.getElementById('cd').textContent=`⟳ ${m}:${String(s).padStart(2,'0')}`;if(secs<=0){refresh();secs=900;}},1000);
 }
 
-/* ═══════════════════════════════
-   CRITICAL + TRENDING
-═══════════════════════════════ */
-async function loadCritical() {
-  const since = new Date(Date.now()-72*3600000).toISOString();
-  const res = await sbFetch('articles',
-    `?select=title_ar,title_original,published_at,sources(name)&mentions_iraq=eq.true&importance_score=gte.75&published_at=gte.${since}&order=importance_score.desc&limit=5`);
-
-  const el = document.getElementById('critical-list');
-  if (!res.data.length) { el.innerHTML = '<div style="color:var(--t3);font-size:12px;padding:8px 0">لا أحداث حرجة حالياً ✓</div>'; return; }
-
-  el.innerHTML = res.data.map(a => `
-    <div class="critical-item">
-      <div class="critical-title">${a.title_ar||a.title_original||'—'}</div>
-      <div class="critical-meta">${a.sources?.name||''} • ${formatTime(a.published_at)}</div>
-    </div>
-  `).join('');
+async function refresh(){
+  document.getElementById('ri').classList.add('spinning');
+  await Promise.all([loadFeed(),loadCritical(),loadSrcs(),buildBrief()]);
+  document.getElementById('ri').classList.remove('spinning');
+  startCD();
 }
 
-async function loadTrending() {
-  // جلب الكلمات المفتاحية الأكثر ظهوراً
-  const res = await sbFetch('articles',
-    `?select=iraq_keywords&mentions_iraq=eq.true&published_at=gte.${new Date(Date.now()-86400000).toISOString()}&limit=100`);
+setInterval(async()=>{
+  if(!SB_URL||!SB_KEY||!arts[0])return;
+  const res=await sb('articles',`?select=id&mentions_iraq=eq.true&published_at=gt.${arts[0].published_at}&limit=1`);
+  if(res.count>0){const t=document.getElementById('ntost');t.textContent=`↑ ${res.count} خبر جديد — اضغط`;t.classList.add('show');}
+},60000);
+function applyNew(){document.getElementById('ntost').classList.remove('show');loadFeed();}
 
-  const freq = {};
-  res.data.forEach(a => {
-    (a.iraq_keywords||[]).forEach(kw => {
-      freq[kw] = (freq[kw]||0) + 1;
-    });
-  });
+async function buildBrief(){
+  const today=new Date().toLocaleDateString('ar-IQ',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  document.getElementById('bd').textContent=today;
+  const s=new Date(Date.now()-86400000).toISOString();
+  const res=await sb('articles',`?select=category,importance_score&mentions_iraq=eq.true&published_at=gte.${s}&limit=200`);
+  const tot=res.count||res.data.length,cr=res.data.filter(a=>a.importance_score>=80).length;
+  const cats={};res.data.forEach(a=>{cats[a.category]=(cats[a.category]||0)+1;});
+  const top=Object.entries(cats).sort((a,b)=>b[1]-a[1])[0];
+  document.getElementById('bs').innerHTML=`<div class="bst">إجمالي: <b>${tot}</b></div><div class="bst">حرجة: <b style="color:#f87171">${cr}</b></div>${top?`<div class="bst">الأبرز: <b>${CA[top[0]]||top[0]}</b></div>`:''}`;
+  document.getElementById('bb').textContent=`رُصد ${tot} خبر خلال الـ 24 ساعة الماضية يخص الشأن العراقي، منها ${cr} حدث ذو أهمية عالية.${top?' أبرز التغطيات في ملف '+(CA[top[0]]||top[0])+'.':''}`;
+}
+function toggleBrief(){document.getElementById('brief').classList.toggle('open');}
 
-  const sorted = Object.entries(freq).sort((a,b)=>b[1]-a[1]).slice(0,8);
-  const el = document.getElementById('trending-list');
+async function loadCritical(){
+  const s=new Date(Date.now()-72*3600000).toISOString();
+  const res=await sb('articles',`?select=title_ar,title_original,published_at,sources(name)&mentions_iraq=eq.true&importance_score=gte.80&published_at=gte.${s}&order=importance_score.desc&limit=5`);
+  const el=document.getElementById('cl');
+  if(!res.data.length){el.innerHTML='<div style="color:var(--t3);font-size:12px;padding:4px 0">لا أحداث حرجة ✓</div>';return;}
+  el.innerHTML=res.data.map(a=>`<div class="crit-c"><div class="crit-t">${a.title_ar||a.title_original||'—'}</div><div class="crit-m">${a.sources?.name||''} • ${ago(a.published_at)}</div></div>`).join('');
+}
 
-  if (!sorted.length) { el.innerHTML = '<div style="color:var(--t3);font-size:12px">لا توجد بيانات كافية</div>'; return; }
+async function loadSrcs(){
+  const res=await sb('sources','?select=id,name,region&is_active=eq.true&order=trust_score.desc&limit=20');
+  document.getElementById('sl2').innerHTML=
+    `<div class="src-r ${srcF===''?'on':''}" onclick="fSrc('')"><div class="src-d" style="background:var(--accent)"></div><div class="src-n">كل المصادر</div></div>`+
+    res.data.map(s=>`<div class="src-r ${srcF===s.id?'on':''}" onclick="fSrc('${s.id}')"><div class="src-d" style="background:${RC[s.region]||'#666'}"></div><div class="src-n">${s.name}</div></div>`).join('');
+}
+function fSrc(id){srcF=id;loadSrcs();loadFeed();}
 
-  el.innerHTML = sorted.map(([word,count],i) => `
-    <div class="trending-item" onclick="document.getElementById('search').value='${word}';searchTerm='${word}';loadArticles()">
-      <div class="trend-num">${i+1}</div>
-      <div style="flex:1">
-        <div class="trend-word">${word}</div>
-        <div class="trend-count">${count} خبر</div>
+function renderKgs(){
+  localStorage.setItem('iq_kgs',JSON.stringify(kgs));
+  document.getElementById('kg-list').innerHTML=kgs.map((g,gi)=>`
+    <div class="kg">
+      <div class="kg-n"><div class="kg-dot" style="background:${g.color}"></div>${g.name}</div>
+      <div class="kt">
+        ${g.kws.map((k,ki)=>`<span class="kw${kwF===k?' on':''}" onclick="fKw('${k}')">${k}<span onclick="event.stopPropagation();rmKw(${gi},${ki})" style="margin-right:3px;opacity:.4;cursor:pointer">×</span></span>`).join('')}
+        <span class="kw" onclick="pAddKw(${gi})" style="border-style:dashed;opacity:.45">+</span>
       </div>
-    </div>
-  `).join('');
+    </div>`).join('');
 }
 
-/* ═══════════════════════════════
-   FILTERS
-═══════════════════════════════ */
-function setFilter(f, el) {
-  activeFilter = f;
-  document.querySelectorAll('.f-chip').forEach(c=>c.classList.remove('on'));
-  el.classList.add('on');
-  loadArticles();
+function fKw(k){kwF=kwF===k?'':'';if(kwF){document.getElementById('search').value=k;srch=k;}else{document.getElementById('search').value='';srch='';}kwF=kwF===k?k:'';renderKgs();loadFeed();}
+function rmKw(gi,ki){kgs[gi].kws.splice(ki,1);renderKgs();}
+function pAddKw(gi){const k=prompt(`أضف كلمة لـ "${kgs[gi].name}":`);if(k?.trim()){kgs[gi].kws.push(k.trim());renderKgs();}}
+function openAddG(){document.getElementById('ov-ag').classList.add('open');document.getElementById('ag-n').focus();}
+function saveG(){
+  const n=document.getElementById('ag-n').value.trim();
+  const ks=document.getElementById('ag-k').value.split(/[,،]/).map(k=>k.trim()).filter(Boolean);
+  if(!n)return;
+  const cols=['#2461d4','#c42b2b','#1a8a42','#c49232','#6b3fc8','#0d7a6a'];
+  kgs.push({id:'g'+Date.now(),name:n,color:cols[kgs.length%cols.length],kws:ks});
+  renderKgs();closeOv('ov-ag');
+  document.getElementById('ag-n').value='';document.getElementById('ag-k').value='';
 }
+function closeOv(id){document.getElementById(id).classList.remove('open');}
+document.querySelectorAll('.ov').forEach(o=>o.addEventListener('click',e=>{if(e.target===e.currentTarget)o.classList.remove('open');}));
 
-/* ═══════════════════════════════
-   SEARCH
-═══════════════════════════════ */
-function debounce() {
-  clearTimeout(searchTimer);
-  searchTimer = setTimeout(() => {
-    searchTerm = document.getElementById('search').value.trim();
-    loadArticles();
-  }, 400);
-}
+function setF(f,el){filt=f;document.querySelectorAll('.chip').forEach(c=>c.classList.remove('on'));el.classList.add('on');loadFeed();}
+let st=null;function onSearch(){clearTimeout(st);st=setTimeout(()=>{srch=document.getElementById('search').value.trim();loadFeed();},400);}
 
-/* ═══════════════════════════════
-   INFINITE SCROLL
-═══════════════════════════════ */
-function setupInfiniteScroll() {
-  const sentinel = document.getElementById('scroll-sentinel');
-  if (!sentinel) return;
-  const observer = new IntersectionObserver(entries => {
-    if (entries[0].isIntersecting && !loading) {
-      page++;
-      loadArticles(true);
-    }
-  }, { rootMargin: '200px' });
-  observer.observe(sentinel);
-}
+function ago(iso){if(!iso)return'—';const d=Math.floor((Date.now()-new Date(iso))/1000);if(d<60)return'الآن';if(d<3600)return`${Math.floor(d/60)}د`;if(d<86400)return`${Math.floor(d/3600)}س`;return`${Math.floor(d/86400)}ي`;}
+function updateClock(){document.getElementById('clock').textContent=new Date().toLocaleTimeString('ar-IQ',{hour12:false,timeZone:'Asia/Baghdad'})+' بغداد';}
 
-/* ═══════════════════════════════
-   AUTO REFRESH
-═══════════════════════════════ */
-function refresh() {
-  const btn = document.getElementById('refresh-btn');
-  btn.classList.add('spinning');
-  Promise.all([loadArticles(), loadCritical(), loadTrending()])
-    .finally(() => btn.classList.remove('spinning'));
-}
+function openCfg(){document.getElementById('ci-u').value=SB_URL;document.getElementById('ci-k').value=SB_KEY;document.getElementById('ov-cfg').classList.add('open');}
+function saveCfg(){SB_URL=document.getElementById('ci-u').value.trim();SB_KEY=document.getElementById('ci-k').value.trim();localStorage.setItem('sb_url',SB_URL);localStorage.setItem('sb_key',SB_KEY);closeOv('ov-cfg');location.reload();}
 
-// Auto-check for new items every 60 seconds
-setInterval(async () => {
-  if (!SB_URL || !SB_KEY) return;
-  const since = lastFetch.toISOString();
-  const res = await sbFetch('articles',
-    `?select=id&mentions_iraq=eq.true&fetched_at=gte.${since}&limit=1`);
-  if (res.count > 0) {
-    const badge = document.getElementById('new-badge');
-    badge.style.display = 'block';
-    badge.textContent = `↑ ${res.count} خبر جديد — اضغط للتحديث`;
-  }
-}, 60000);
+function demo(){return[
+  {id:'1',title_ar:'البرلمان العراقي يصادق على قانون الموازنة الاتحادية للعام 2025',title_original:'Iraqi Parliament approves 2025 federal budget',body_ar:'صادق مجلس النواب العراقي على مشروع قانون الموازنة الاتحادية للعام 2025 بأغلبية واسعة، وسط خلافات حادة حول حصة إقليم كردستان من الواردات النفطية وآليات توزيع الرواتب على المحافظات. وقد أثار القانون جدلاً واسعاً في أوساط البرلمانيين الكرد الذين رفضوا بعض بنوده المتعلقة بتمويل البيشمركة.',body_original:'The Iraqi Council of Representatives approved the 2025 federal budget law with a broad majority amid sharp disputes over Kurdistan region share of oil revenues.',category:'politics',importance_score:80,published_at:new Date(Date.now()-3600000).toISOString(),original_url:'#',iraq_keywords:['العراق','البرلمان','الموازنة'],sn:'Reuters',sr2:'western',sum:'المصادقة على الموازنة تأتي بعد أشهر من الخلاف، وتعكس توازناً دقيقاً بين المركز والإقليم.',act:'البرلمان العراقي، إقليم كردستان',sig:'high',sta:'neutral'},
+  {id:'2',title_ar:'الحشد الشعبي يعلن وقف عملياته — تحول استراتيجي في المشهد الأمني',title_original:'PMF announces halt to operations against US forces',body_ar:'أعلنت فصائل بارزة من الحشد الشعبي تعليق عملياتها ضد القوات الأمريكية المتمركزة في العراق وسوريا، في خطوة فسّرها المراقبون بأنها تحول استراتيجي مرتبط بمفاوضات إيرانية-أمريكية جارية.',body_original:'Prominent factions of the Popular Mobilization Forces announced a halt to operations against US forces in Iraq and Syria.',category:'military',importance_score:95,published_at:new Date(Date.now()-7200000).toISOString(),original_url:'#',iraq_keywords:['الحشد الشعبي','فصائل'],sn:'Al-Monitor',sr2:'international',sum:'وقف العمليات يشير إلى تحول تكتيكي إيراني — إذ تسعى طهران إلى تخفيف الضغط الأمريكي عبر ضبط وكلائها في المنطقة.',act:'الحشد الشعبي، كتائب حزب الله، القوات الأمريكية',sig:'critical',sta:'neutral'},
+  {id:'3',title_ar:'تقرير ICG: مخاطر متصاعدة في شمال العراق جراء العمليات التركية',title_original:'ICG: Escalating risks in northern Iraq',body_ar:'حذّر تقرير جديد لمجموعة الأزمات الدولية من تصاعد المخاطر الأمنية في المناطق الكردية شمال العراق، مشيراً إلى أن العمليات العسكرية التركية المتواصلة تؤدي إلى نزوح المدنيين.',body_original:'A new International Crisis Group report warned of escalating security risks in northern Iraq Kurdish regions.',category:'security',importance_score:85,published_at:new Date(Date.now()-10800000).toISOString(),original_url:'#',iraq_keywords:['كردستان','تركيا'],sn:'Crisis Group',sr2:'international',sum:'التقرير يرصد تحولاً خطيراً: العمليات التركية امتدت لمناطق مأهولة. يوصي بضغط دولي على أنقرة.',act:'تركيا، إقليم كردستان، PKK',sig:'high',sta:'neutral'},
+];}
 
-function loadNewItems() {
-  document.getElementById('new-badge').style.display = 'none';
-  refresh();
-}
-
-/* ═══════════════════════════════
-   HELPERS
-═══════════════════════════════ */
-function formatTime(iso) {
-  if (!iso) return '—';
-  const diff = Date.now() - new Date(iso).getTime();
-  const m = Math.floor(diff/60000);
-  const h = Math.floor(diff/3600000);
-  const d = Math.floor(diff/86400000);
-  if (m < 1)  return 'الآن';
-  if (m < 60) return `منذ ${m} د`;
-  if (h < 24) return `منذ ${h} س`;
-  return `منذ ${d} يوم`;
-}
-
-function updateClock() {
-  document.getElementById('clock').textContent =
-    new Date().toLocaleTimeString('ar-IQ',{hour12:false,timeZone:'Asia/Baghdad'}) + ' بغداد';
-}
-
-/* ═══════════════════════════════
-   DEMO DATA
-═══════════════════════════════ */
-function demoData() {
-  return [
-    {id:'1',title_ar:'البرلمان العراقي يصادق على قانون الموازنة الاتحادية للعام 2025',title_original:'Iraqi Parliament approves federal budget',body_ar:'صادق مجلس النواب العراقي على مشروع قانون الموازنة الاتحادية للعام 2025 بأغلبية واسعة، وسط خلافات حول حصة إقليم كردستان من الواردات النفطية وتوزيع الرواتب.',body_original:'The Iraqi parliament approved the 2025 federal budget law with a large majority.',category:'politics',importance_score:80,published_at:new Date(Date.now()-3600000).toISOString(),original_url:'#',iraq_keywords:['العراق','البرلمان','الموازنة'],source_name:'Reuters',source_region:'western',summary_ar:'صادق البرلمان على الموازنة وسط خلافات مع الإقليم حول النفط.',actors:'البرلمان العراقي، إقليم كردستان',significance:'high',stance:'neutral'},
-    {id:'2',title_ar:'الحشد الشعبي يعلن وقف عملياته ضد القوات الأمريكية في العراق',title_original:'PMF announces halt to operations against US forces in Iraq',body_ar:'أعلنت فصائل من الحشد الشعبي تعليق عملياتها ضد القوات الأمريكية في العراق وسوريا، في خطوة وصفها المحللون بأنها تحول استراتيجي في ضوء المستجدات الإقليمية.',body_original:'Factions of the Popular Mobilization Forces announced a halt to their operations against US forces in Iraq and Syria.',category:'military',importance_score:95,published_at:new Date(Date.now()-7200000).toISOString(),original_url:'#',iraq_keywords:['الحشد الشعبي','فصائل','العراق'],source_name:'Al-Monitor',source_region:'international',summary_ar:'تعليق عمليات الفصائل يعكس تحولاً استراتيجياً إيرانياً في ظل الضغوط الأمريكية.',actors:'الحشد الشعبي، القوات الأمريكية، إيران',significance:'critical',stance:'neutral'},
-    {id:'3',title_ar:'ICG: مخاطر التصعيد في شمال العراق مع تصاعد العمليات التركية',title_original:'ICG: Escalation risks in northern Iraq as Turkish operations intensify',body_ar:'حذّر تقرير جديد لمجموعة الأزمات الدولية من تصاعد المخاطر في شمال العراق، مشيراً إلى أن العمليات العسكرية التركية في المناطق الكردية تهدد باستنزاف الاستقرار الهش في الإقليم.',body_original:'A new International Crisis Group report warned of escalating risks in northern Iraq.',category:'security',importance_score:85,published_at:new Date(Date.now()-10800000).toISOString(),original_url:'#',iraq_keywords:['كردستان','تركيا','العمليات'],source_name:'Crisis Group',source_region:'international',summary_ar:'التقرير يحذر من أن العمليات التركية تزعزع استقرار كردستان وتعقد المشهد الأمني.',actors:'تركيا، إقليم كردستان، PKK',significance:'high',stance:'neutral'},
-  ];
-}
-
-/* ═══════════════════════════════
-   CONFIG
-═══════════════════════════════ */
-function openConfig() {
-  const url = prompt('SUPABASE_URL:', SB_URL);
-  if (url === null) return;
-  const key = prompt('SUPABASE_ANON_KEY:', SB_KEY);
-  if (key === null) return;
-  SB_URL = url.trim(); SB_KEY = key.trim();
-  localStorage.setItem('sb_url', SB_URL);
-  localStorage.setItem('sb_key', SB_KEY);
-  location.reload();
-}
-
-/* ═══════════════════════════════
-   INIT
-═══════════════════════════════ */
-window.addEventListener('DOMContentLoaded', () => {
-  updateClock();
-  setInterval(updateClock, 1000);
-  loadArticles();
-  loadSources();
-  loadCritical();
-  loadTrending();
+window.addEventListener('DOMContentLoaded',()=>{
+  updateClock();setInterval(updateClock,1000);
+  renderKgs();loadFeed();loadCritical();loadSrcs();buildBrief();startCD();
 });
 </script>
 </body>
