@@ -95,7 +95,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--t1);min-height:100
 .fhd-l b{color:var(--t1)}
 .sort-sel{background:var(--bg3);border:1px solid var(--line);color:var(--t2);padding:3px 7px;border-radius:var(--r);font-size:11px;font-family:var(--mono);outline:none;cursor:pointer}
 
-.card{border-bottom:1px solid var(--line);padding:15px 20px;transition:background .15s;animation:fup .28s ease both}
+.card{border-bottom:1px solid var(--line);padding:15px 20px;transition:background .15s;animation:fup .28s ease both;overflow:hidden;min-height:0}
 .card:hover{background:rgba(255,255,255,.01)}
 @keyframes fup{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
 .c-top{display:flex;align-items:center;gap:7px;margin-bottom:9px;flex-wrap:wrap}
@@ -125,7 +125,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--t1);min-height:100
 .tbtn{padding:5px 13px;font-size:11px;color:var(--t3);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .15s;user-select:none;font-family:var(--mono)}
 .tbtn:hover{color:var(--t2)}
 .tbtn.on{color:var(--accent);border-bottom-color:var(--accent)}
-.tpane{display:none}
+.tpane{display:none;overflow:hidden}
 .tpane.on{display:block}
 .tr-txt{font-size:13px;color:var(--t1);line-height:1.85;border-right:2px solid var(--accent);padding-right:13px}
 .or-txt{font-size:12px;color:var(--t3);line-height:1.75;direction:ltr;text-align:left;font-family:Georgia,serif;border-left:2px solid var(--line2);padding-left:11px}
@@ -179,12 +179,17 @@ body{font-family:var(--font);background:var(--bg);color:var(--t1);min-height:100
 .btn-s:hover{background:var(--accent2)}
 
 ::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--line2);border-radius:2px}
+.tr-btn{display:inline-flex;align-items:center;gap:4px;font-size:11px;color:var(--teal);border:1px solid rgba(13,122,106,.3);background:rgba(13,122,106,.07);padding:3px 9px;border-radius:var(--r);cursor:pointer;transition:all .2s;font-family:var(--font)}
+.tr-btn:hover{background:rgba(13,122,106,.15);border-color:rgba(13,122,106,.5)}
+.tr-btn.loading{opacity:.6;pointer-events:none}
+.tr-result{margin-top:10px;padding:10px 14px;background:rgba(13,122,106,.05);border:1px solid rgba(13,122,106,.15);border-radius:var(--r);font-size:13px;color:var(--t1);line-height:1.8;direction:rtl;text-align:right;border-right:2px solid var(--teal);display:none}
+.tr-result.show{display:block}
 </style>
 </head>
 <body>
 
 <header class="topbar">
-  <div class="tb-logo">IQ</div>
+  <img src="logo.png" alt="الراصد" style="width:32px;height:32px;border-radius:7px;object-fit:cover">
   <div class="tb-name">الراصد</div>
   <div class="tb-live"><div class="tb-dot"></div>مباشر</div>
   <div class="tb-sep"></div>
@@ -377,8 +382,10 @@ function card(a,i){
   </div>`:''}
   <div class="c-foot">
     ${a.original_url?`<a href="${a.original_url}" target="_blank" class="c-link">↗ المصدر</a>`:''}
+    ${!hasTr?`<button class="tr-btn" onclick="translateCard(this,'${(a.body_original||a.title_original||'').slice(0,500).replace(/'/g,'\\'')}')">🌐 ترجمة</button>`:''}
     <div class="mkws">${matched.map(k=>`<span class="mkw">${k}</span>`).join('')}</div>
   </div>
+  <div class="tr-result" id="tr-result-${i}"></div>
 </div>`;
 }
 
@@ -486,6 +493,34 @@ function demo(){return[
   {id:'3',title_ar:'تقرير ICG: مخاطر متصاعدة في شمال العراق جراء العمليات التركية',title_original:'ICG: Escalating risks in northern Iraq',body_ar:'حذّر تقرير جديد لمجموعة الأزمات الدولية من تصاعد المخاطر الأمنية في المناطق الكردية شمال العراق، مشيراً إلى أن العمليات العسكرية التركية المتواصلة تؤدي إلى نزوح المدنيين.',body_original:'A new International Crisis Group report warned of escalating security risks in northern Iraq Kurdish regions.',category:'security',importance_score:85,published_at:new Date(Date.now()-10800000).toISOString(),original_url:'#',iraq_keywords:['كردستان','تركيا'],sn:'Crisis Group',sr2:'international',sum:'التقرير يرصد تحولاً خطيراً: العمليات التركية امتدت لمناطق مأهولة. يوصي بضغط دولي على أنقرة.',act:'تركيا، إقليم كردستان، PKK',sig:'high',sta:'neutral'},
 ];}
 
+// TRANSLATE FUNCTION
+async function translateCard(btn, text) {
+  if (!text) return;
+  btn.classList.add('loading');
+  btn.textContent = '⏳ جاري الترجمة...';
+  
+  // Find result div - it is next sibling of parent card
+  const card = btn.closest('.card');
+  const resultDiv = card ? card.querySelector('.tr-result') : null;
+  
+  try {
+    const url = 'https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=ar&dt=t&q=' + encodeURIComponent(text.slice(0,2000));
+    const res = await fetch(url);
+    const data = await res.json();
+    const translated = data[0].map(t=>t[0]).join('');
+    
+    if (resultDiv) {
+      resultDiv.textContent = translated;
+      resultDiv.classList.add('show');
+    }
+    btn.textContent = '✓ مترجم';
+    btn.style.color = 'var(--green)';
+  } catch(e) {
+    btn.textContent = '✗ فشلت الترجمة';
+    btn.classList.remove('loading');
+  }
+}
+
 // AUTH CHECK
 const _sess = JSON.parse(localStorage.getItem('iq_session')||'null');
 if (!_sess || new Date(_sess.expires) < new Date()) { window.location.href='login.html'; }
@@ -508,5 +543,9 @@ window.addEventListener('DOMContentLoaded',()=>{
   renderKgs();loadFeed();loadCritical();loadSrcs();buildBrief();startCD();
 });
 </script>
+
+<footer style="text-align:center;padding:20px;font-size:11px;color:var(--t3);font-family:var(--mono);border-top:1px solid var(--line);margin-top:40px">
+  منصة الراصد — إعداد: <span style="color:var(--t2)">Momen Alzrzoor</span> | IRAQ INTEL PLATFORM
+</footer>
 </body>
 </html>
