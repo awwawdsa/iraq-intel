@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl" data-theme="light">
+<html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,239 +8,258 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-[data-theme="light"]{--bg:#f0f4f8;--bg2:#fff;--bg3:#f5f7fa;--bg4:#edf1f7;--line:#d1dce8;--line2:#b8c8d8;--t1:#0f1923;--t2:#3d5570;--t3:#7a96b0;}
-[data-theme="dark"]{--bg:#06080c;--bg2:#0f1520;--bg3:#141d2b;--bg4:#1a2535;--line:#1c2b3a;--line2:#243444;--t1:#e2eaf4;--t2:#7490a8;--t3:#3a5068;}
-:root{--accent:#1d4ed8;--a2:#1e40af;--a3:rgba(29,78,216,.1);--green:#15803d;--g2:rgba(21,128,61,.1);--red:#dc2626;--r2:rgba(220,38,38,.1);--gold:#b45309;--go2:rgba(180,83,9,.1);--teal:#0f766e;--te2:rgba(15,118,110,.1);--font:'IBM Plex Sans Arabic',sans-serif;--mono:'JetBrains Mono',monospace;--r:7px;--r2:12px;--r3:16px;}
+:root {
+  --bg:#f0f4f8; --bg2:#fff; --bg3:#f5f7fa; --bg4:#edf1f7;
+  --line:#d1dce8; --line2:#b8c8d8;
+  --t1:#0f1923; --t2:#3d5570; --t3:#7a96b0;
+  --accent:#1d4ed8; --a2:#1e40af; --a3:rgba(29,78,216,.1);
+  --green:#15803d; --g2:rgba(21,128,61,.1);
+  --red:#dc2626; --r2:rgba(220,38,38,.1);
+  --gold:#b45309; --teal:#0f766e;
+  --font:'IBM Plex Sans Arabic',sans-serif;
+  --mono:'JetBrains Mono',monospace;
+  --r:7px; --r2:12px;
+  --shadow:0 1px 4px rgba(0,0,0,.07);
+}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:var(--font);background:var(--bg);color:var(--t1);min-height:100vh;font-size:14px;line-height:1.6;}
+body{font-family:var(--font);background:var(--bg);color:var(--t1);min-height:100vh;font-size:14px;}
 
-.topbar{display:flex;align-items:center;gap:12px;padding:0 20px;height:50px;background:var(--bg2);border-bottom:2px solid var(--line);position:sticky;top:0;z-index:100;box-shadow:0 1px 4px rgba(0,0,0,.06);}
-.tb-logo{width:28px;height:28px;border-radius:6px;overflow:hidden;}
+/* TOPBAR */
+.topbar{display:flex;align-items:center;gap:12px;padding:0 20px;height:50px;background:var(--bg2);border-bottom:2px solid var(--line);position:sticky;top:0;z-index:100;box-shadow:var(--shadow);}
+.tb-logo{width:28px;height:28px;border-radius:6px;overflow:hidden;flex-shrink:0;}
 .tb-logo img{width:100%;height:100%;object-fit:cover;}
-.tb-name{font-size:14px;font-weight:700;color:var(--t1);}
-.sep{flex:1;}
+.tb-name{font-size:14px;font-weight:700;}
+.tb-sep{flex:1;}
 .tb-btn{background:var(--bg3);border:1px solid var(--line);color:var(--t2);padding:5px 12px;border-radius:var(--r);cursor:pointer;font-family:var(--font);font-size:12px;font-weight:600;text-decoration:none;transition:all .15s;display:inline-flex;align-items:center;gap:5px;}
 .tb-btn:hover{background:var(--bg4);color:var(--t1);}
 .tb-btn.danger{color:var(--red);border-color:rgba(220,38,38,.2);}
 
-.content{max-width:820px;margin:0 auto;padding:28px 20px;}
+/* LAYOUT */
+.content{max-width:880px;margin:0 auto;padding:24px 20px;}
+
+/* DB STATUS BAR */
+.db-bar{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:var(--r2);margin-bottom:20px;font-size:12px;font-weight:600;}
+.db-bar.ok{background:var(--g2);border:1px solid rgba(21,128,61,.2);color:var(--green);}
+.db-bar.err{background:var(--r2);border:1px solid rgba(220,38,38,.2);color:var(--red);}
+.db-bar.warn{background:rgba(180,83,9,.1);border:1px solid rgba(180,83,9,.2);color:var(--gold);}
+.db-dot{width:8px;height:8px;border-radius:50%;background:currentColor;flex-shrink:0;}
 
 /* TABS */
-.page-tabs{display:flex;gap:0;border-bottom:2px solid var(--line);margin-bottom:28px;}
-.pt{padding:10px 20px;font-size:14px;font-weight:700;color:var(--t3);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .2s;user-select:none;display:flex;align-items:center;gap:7px;}
+.page-tabs{display:flex;gap:0;border-bottom:2px solid var(--line);margin-bottom:24px;}
+.pt{padding:10px 20px;font-size:13px;font-weight:700;color:var(--t3);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .2s;user-select:none;display:flex;align-items:center;gap:6px;}
 .pt:hover{color:var(--t2);}
 .pt.on{color:var(--accent);border-bottom-color:var(--accent);}
 .panel{display:none;}
 .panel.on{display:block;}
 
 /* SECTION */
-.sec-hd{font-size:17px;font-weight:700;margin-bottom:5px;color:var(--t1);}
-.sec-sub{font-size:13px;color:var(--t2);margin-bottom:22px;line-height:1.6;}
+.sec-hd{font-size:16px;font-weight:700;margin-bottom:4px;}
+.sec-sub{font-size:13px;color:var(--t2);margin-bottom:20px;line-height:1.6;}
 
-/* HOW TO GUIDE */
-.how-to{background:linear-gradient(135deg,#eff6ff,#e0f2fe);border:1px solid #bfdbfe;border-radius:var(--r2);padding:16px 18px;margin-bottom:20px;}
-[data-theme="dark"] .how-to{background:rgba(29,78,216,.06);border-color:rgba(29,78,216,.15);}
-.how-to-title{font-size:12px;font-weight:700;color:var(--accent);margin-bottom:10px;display:flex;align-items:center;gap:5px;}
-.how-steps{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
-.how-step{display:flex;align-items:flex-start;gap:8px;}
-.how-num{width:20px;height:20px;background:var(--accent);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;flex-shrink:0;margin-top:1px;}
-.how-text{font-size:12px;color:var(--t2);line-height:1.5;}
-.how-text strong{color:var(--t1);}
-.rss-examples{margin-top:12px;padding-top:10px;border-top:1px solid rgba(29,78,216,.15);}
-.rss-ex-title{font-size:11px;font-weight:700;color:var(--t2);margin-bottom:6px;font-family:var(--mono);}
-.rss-ex-row{display:flex;align-items:center;gap:8px;margin-bottom:4px;}
-.rss-ex-name{font-size:11px;font-weight:700;color:var(--t1);min-width:140px;}
-.rss-ex-url{font-size:10px;color:var(--t3);font-family:var(--mono);background:var(--bg3);padding:2px 7px;border-radius:3px;cursor:pointer;transition:all .15s;}
-.rss-ex-url:hover{background:var(--a3);color:var(--accent);}
+/* RSS GUIDE */
+.rss-guide{background:#eff6ff;border:1px solid #bfdbfe;border-radius:var(--r2);padding:14px 16px;margin-bottom:18px;}
+.rss-guide-title{font-size:11px;font-weight:700;color:var(--accent);margin-bottom:10px;text-transform:uppercase;letter-spacing:.4px;}
+.rss-steps{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;}
+.rss-step{font-size:12px;color:var(--t2);line-height:1.5;display:flex;gap:6px;}
+.rss-num{background:var(--accent);color:#fff;border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;flex-shrink:0;margin-top:1px;}
+.rss-examples-title{font-size:10px;font-weight:700;color:var(--t3);margin-bottom:6px;font-family:var(--mono);}
+.rss-ex{display:flex;align-items:center;gap:8px;margin-bottom:3px;}
+.rss-ex-name{font-size:11px;font-weight:700;min-width:150px;}
+.rss-ex-url{font-size:10px;color:var(--t3);font-family:var(--mono);background:rgba(0,0,0,.04);padding:2px 7px;border-radius:3px;cursor:pointer;transition:all .15s;border:1px solid transparent;}
+.rss-ex-url:hover{background:var(--a3);color:var(--accent);border-color:rgba(29,78,216,.2);}
 
-/* FORM CARD */
-.form-card{background:var(--bg2);border:1px solid var(--line);border-radius:var(--r2);padding:22px;margin-bottom:16px;box-shadow:0 1px 4px rgba(0,0,0,.05);}
-.fc-title{font-size:13px;font-weight:700;color:var(--t1);margin-bottom:16px;display:flex;align-items:center;gap:7px;}
+/* FORM */
+.form-card{background:var(--bg2);border:1px solid var(--line);border-radius:var(--r2);padding:20px;margin-bottom:20px;box-shadow:var(--shadow);}
+.fc-hd{font-size:13px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:6px;}
 
 /* TYPE SELECTOR */
-.type-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:18px;}
-.type-card{background:var(--bg3);border:2px solid var(--line);border-radius:var(--r);padding:12px 8px;text-align:center;cursor:pointer;transition:all .2s;user-select:none;}
-.type-card:hover{border-color:var(--line2);background:var(--bg4);}
-.type-card.on{border-color:var(--accent);background:var(--a3);}
-.type-icon{font-size:22px;margin-bottom:5px;}
-.type-name{font-size:12px;font-weight:700;color:var(--t2);}
-.type-desc{font-size:10px;color:var(--t3);margin-top:2px;}
-.type-card.on .type-name{color:var(--accent);}
+.type-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px;}
+.tc{background:var(--bg3);border:2px solid var(--line);border-radius:var(--r);padding:11px 8px;text-align:center;cursor:pointer;transition:all .18s;user-select:none;}
+.tc:hover{border-color:var(--line2);background:var(--bg4);}
+.tc.on{border-color:var(--accent);background:var(--a3);}
+.tc-icon{font-size:20px;margin-bottom:4px;}
+.tc-name{font-size:11px;font-weight:700;color:var(--t2);}
+.tc-hint{font-size:9px;color:var(--t3);margin-top:2px;font-family:var(--mono);}
+.tc.on .tc-name{color:var(--accent);}
 
-/* GRID */
+/* FIELDS */
 .g2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
-.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;}
 .full{grid-column:1/-1;}
 .field{display:flex;flex-direction:column;gap:5px;}
-.lbl{font-size:11px;font-weight:700;color:var(--t2);font-family:var(--mono);letter-spacing:.2px;}
+.lbl{font-size:11px;font-weight:700;color:var(--t2);font-family:var(--mono);}
 .req{color:var(--red);}
 .inp,.sel{background:var(--bg3);border:1px solid var(--line);color:var(--t1);padding:9px 12px;border-radius:var(--r);font-family:var(--font);font-size:13px;outline:none;transition:all .2s;width:100%;}
-.inp:focus,.sel:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--a3);}
+.inp:focus,.sel:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--a3);background:var(--bg2);}
 .inp::placeholder{color:var(--t3);}
-.inp-hint{font-size:11px;color:var(--t3);margin-top:3px;line-height:1.4;}
-.inp-hint a{color:var(--accent);text-decoration:none;}
-
-/* Trust slider */
+.hint{font-size:11px;color:var(--t3);margin-top:3px;}
 .trust-row{display:flex;align-items:center;gap:10px;}
 .slider{flex:1;accent-color:var(--accent);}
-.trust-val{font-family:var(--mono);font-size:13px;font-weight:700;color:var(--accent);min-width:32px;text-align:center;}
+.trust-lbl{font-family:var(--mono);font-size:13px;font-weight:700;color:var(--accent);min-width:32px;text-align:center;}
 
-/* Submit */
-.submit-row{display:flex;align-items:center;justify-content:space-between;margin-top:20px;padding-top:18px;border-top:1px solid var(--line);}
-.btn-clear{background:none;border:1px solid var(--line);color:var(--t3);padding:9px 16px;border-radius:var(--r);cursor:pointer;font-family:var(--font);font-size:12px;font-weight:600;transition:all .15s;}
+/* SUBMIT */
+.form-btns{display:flex;gap:10px;margin-top:18px;padding-top:16px;border-top:1px solid var(--line);}
+.btn-clear{background:none;border:1px solid var(--line);color:var(--t3);padding:9px 16px;border-radius:var(--r);cursor:pointer;font-family:var(--font);font-size:12px;font-weight:600;}
 .btn-clear:hover{border-color:var(--red);color:var(--red);}
-.btn-submit{background:var(--accent);color:#fff;border:none;padding:10px 24px;border-radius:var(--r);font-family:var(--font);font-size:13px;font-weight:700;cursor:pointer;transition:background .2s;display:flex;align-items:center;gap:7px;box-shadow:0 2px 8px rgba(29,78,216,.3);}
+.btn-submit{background:var(--accent);color:#fff;border:none;padding:10px 24px;border-radius:var(--r);font-family:var(--font);font-size:13px;font-weight:700;cursor:pointer;transition:background .15s;display:flex;align-items:center;gap:6px;box-shadow:0 2px 8px rgba(29,78,216,.3);}
 .btn-submit:hover{background:var(--a2);}
+.btn-submit:disabled{opacity:.6;cursor:not-allowed;}
 
 /* SOURCES LIST */
-.sources-hd{display:flex;align-items:center;justify-content:space-between;margin:24px 0 12px;}
-.src-list-title{font-size:13px;font-weight:700;color:var(--t2);}
-.src-count{font-size:11px;color:var(--t3);font-family:var(--mono);background:var(--bg3);padding:2px 8px;border-radius:4px;}
-.src-item{background:var(--bg2);border:1px solid var(--line);border-radius:var(--r);padding:12px 14px;display:flex;align-items:center;gap:12px;margin-bottom:6px;transition:border-color .15s;}
-.src-item:hover{border-color:var(--line2);}
-.src-avatar{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:11px;font-weight:800;flex-shrink:0;}
+.list-hd{display:flex;align-items:center;justify-content:space-between;margin:20px 0 12px;}
+.list-title{font-size:13px;font-weight:700;color:var(--t2);}
+.list-count{font-size:10px;color:var(--t3);font-family:var(--mono);background:var(--bg3);padding:2px 8px;border-radius:4px;border:1px solid var(--line);font-weight:600;}
+.src-loading{text-align:center;padding:30px;color:var(--t3);font-size:13px;}
+
+.src-card{background:var(--bg2);border:1px solid var(--line);border-radius:var(--r);padding:12px 14px;margin-bottom:6px;display:flex;align-items:center;gap:12px;box-shadow:var(--shadow);transition:all .15s;}
+.src-card:hover{border-color:var(--line2);}
+.src-card.inactive{opacity:.55;}
+.src-avatar{width:38px;height:38px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:11px;font-weight:800;flex-shrink:0;}
 .src-info{flex:1;min-width:0;}
-.src-name{font-size:13px;font-weight:700;color:var(--t1);margin-bottom:2px;}
+.src-name{font-size:13px;font-weight:700;margin-bottom:2px;}
 .src-url{font-size:11px;color:var(--t3);font-family:var(--mono);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.src-badges{display:flex;gap:4px;margin-top:4px;}
-.src-badge{font-size:10px;padding:1px 6px;border-radius:3px;background:var(--bg3);color:var(--t3);font-family:var(--mono);font-weight:600;}
-.src-toggle{width:32px;height:18px;border-radius:9px;background:var(--line2);border:none;cursor:pointer;position:relative;transition:background .2s;flex-shrink:0;}
-.src-toggle.on{background:var(--green);}
-.src-toggle::after{content:'';position:absolute;width:12px;height:12px;border-radius:50%;background:#fff;top:3px;right:3px;transition:right .2s;}
-.src-toggle.on::after{right:17px;}
-.src-del{background:none;border:1px solid transparent;color:var(--t3);padding:5px 8px;border-radius:var(--r);cursor:pointer;transition:all .15s;font-size:12px;}
-.src-del:hover{border-color:var(--red);color:var(--red);background:var(--r2);}
+.src-badges{display:flex;gap:4px;margin-top:4px;flex-wrap:wrap;}
+.badge{font-size:10px;padding:1px 6px;border-radius:3px;background:var(--bg3);color:var(--t3);font-family:var(--mono);font-weight:600;border:1px solid var(--line);}
+.badge.active{background:var(--g2);color:var(--green);border-color:rgba(21,128,61,.2);}
+.badge.inactive{background:var(--r2);color:var(--red);border-color:rgba(220,38,38,.2);}
+
+/* ACTION BUTTONS */
+.src-actions{display:flex;gap:5px;flex-shrink:0;}
+.act-btn{padding:5px 10px;border-radius:var(--r);border:1px solid var(--line);background:var(--bg3);color:var(--t2);font-size:11px;font-weight:600;cursor:pointer;transition:all .15s;font-family:var(--font);}
+.act-btn:hover{background:var(--bg4);border-color:var(--line2);}
+.act-btn.toggle-on{background:var(--g2);border-color:rgba(21,128,61,.2);color:var(--green);}
+.act-btn.toggle-off{background:var(--r2);border-color:rgba(220,38,38,.2);color:var(--red);}
+.act-btn.del{color:var(--red);}
+.act-btn.del:hover{background:var(--r2);border-color:rgba(220,38,38,.3);}
+.act-btn:disabled{opacity:.5;cursor:not-allowed;}
+
+/* SAVE INDICATOR */
+.saving-badge{display:none;align-items:center;gap:5px;font-size:11px;color:var(--t3);font-family:var(--mono);}
+.saving-badge.show{display:flex;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.spin{animation:spin .7s linear infinite;display:inline-block;}
 
 /* KEYWORDS */
-.kg-card{background:var(--bg2);border:1px solid var(--line);border-radius:var(--r2);margin-bottom:12px;overflow:hidden;}
-.kg-card-hd{padding:12px 14px;background:var(--bg3);border-bottom:1px solid var(--line);display:flex;align-items:center;gap:8px;}
-.kg-color{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
-.kg-title{font-size:13px;font-weight:700;flex:1;}
-.kg-badge{font-size:10px;color:var(--t3);font-family:var(--mono);background:var(--bg4);padding:2px 7px;border-radius:3px;}
-.kg-del-btn{background:none;border:none;color:var(--t3);cursor:pointer;font-size:14px;padding:2px 5px;transition:color .15s;}
-.kg-del-btn:hover{color:var(--red);}
-.kg-chips{display:flex;flex-wrap:wrap;gap:5px;padding:10px 14px 8px;}
-.kw-chip{display:inline-flex;align-items:center;gap:4px;padding:4px 9px;border-radius:20px;font-size:11px;font-weight:600;border:1px solid;}
+.kg-card{background:var(--bg2);border:1px solid var(--line);border-radius:var(--r2);margin-bottom:10px;overflow:hidden;box-shadow:var(--shadow);}
+.kg-hd{padding:11px 14px;background:var(--bg3);border-bottom:1px solid var(--line);display:flex;align-items:center;gap:8px;}
+.kg-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
+.kg-title{font-size:12px;font-weight:700;flex:1;}
+.kg-cnt{font-size:10px;color:var(--t3);font-family:var(--mono);background:var(--bg4);padding:1px 6px;border-radius:3px;}
+.kg-del{background:none;border:none;color:var(--t3);cursor:pointer;font-size:14px;padding:2px 4px;transition:color .15s;}
+.kg-del:hover{color:var(--red);}
+.kw-chips{display:flex;flex-wrap:wrap;gap:4px;padding:10px 12px 6px;}
+.kw-chip{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:20px;font-size:10px;font-weight:600;border:1px solid;}
 .kw-chip.ar{background:rgba(29,78,216,.08);color:var(--accent);border-color:rgba(29,78,216,.2);}
 .kw-chip.en{background:rgba(21,128,61,.08);color:var(--green);border-color:rgba(21,128,61,.2);}
 .kw-chip.fa{background:rgba(180,83,9,.08);color:var(--gold);border-color:rgba(180,83,9,.2);}
 .kw-chip.tr{background:rgba(109,40,217,.08);color:#7c3aed;border-color:rgba(109,40,217,.2);}
 .kw-chip.hash{background:rgba(15,118,110,.08);color:var(--teal);border-color:rgba(15,118,110,.2);}
 .kw-chip.other{background:var(--bg3);color:var(--t2);border-color:var(--line);}
-.kw-rm{cursor:pointer;opacity:.5;font-size:13px;line-height:1;}
+.kw-rm{cursor:pointer;opacity:.5;font-size:12px;}
 .kw-rm:hover{opacity:1;color:var(--red);}
-.kw-add-row{display:flex;gap:7px;padding:6px 14px 12px;border-top:1px solid var(--line);}
-.kw-inp{flex:1;background:var(--bg3);border:1px solid var(--line);color:var(--t1);padding:6px 10px;border-radius:var(--r);font-family:var(--font);font-size:12px;outline:none;}
+.kw-add-row{display:flex;gap:6px;padding:6px 12px 10px;border-top:1px solid var(--line);}
+.kw-inp{flex:1;background:var(--bg3);border:1px solid var(--line);color:var(--t1);padding:5px 9px;border-radius:var(--r);font-family:var(--font);font-size:12px;outline:none;}
 .kw-inp:focus{border-color:var(--accent);}
 .kw-inp::placeholder{color:var(--t3);}
-.lang-sel{background:var(--bg3);border:1px solid var(--line);color:var(--t2);padding:6px 8px;border-radius:var(--r);font-family:var(--mono);font-size:11px;outline:none;cursor:pointer;font-weight:600;}
-.kw-add-btn{background:var(--accent);border:none;color:#fff;padding:6px 14px;border-radius:var(--r);cursor:pointer;font-family:var(--font);font-size:12px;font-weight:700;}
-.add-kg-btn{display:flex;align-items:center;gap:6px;background:var(--bg2);border:2px dashed var(--line2);color:var(--t3);padding:12px 16px;border-radius:var(--r);cursor:pointer;font-family:var(--font);font-size:13px;font-weight:600;width:100%;transition:all .15s;justify-content:center;}
+.lang-sel{background:var(--bg3);border:1px solid var(--line);color:var(--t2);padding:5px 7px;border-radius:var(--r);font-family:var(--mono);font-size:10px;outline:none;cursor:pointer;font-weight:600;}
+.kw-add-btn{background:var(--accent);border:none;color:#fff;padding:5px 12px;border-radius:var(--r);cursor:pointer;font-size:12px;font-weight:700;}
+.add-kg-btn{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;padding:12px;border:2px dashed var(--line2);border-radius:var(--r);background:none;color:var(--t3);font-family:var(--font);font-size:13px;font-weight:600;cursor:pointer;transition:all .15s;}
 .add-kg-btn:hover{border-color:var(--accent);color:var(--accent);background:var(--a3);}
 
 /* TOAST */
-.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(10px);background:var(--bg2);border:1px solid var(--line2);border-radius:10px;padding:10px 20px;font-size:13px;font-weight:600;opacity:0;transition:all .25s;z-index:999;pointer-events:none;box-shadow:0 4px 16px rgba(0,0,0,.1);}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(10px);background:var(--bg2);border:2px solid var(--line2);border-radius:10px;padding:10px 20px;font-size:13px;font-weight:600;opacity:0;transition:all .25s;z-index:999;pointer-events:none;box-shadow:0 4px 16px rgba(0,0,0,.1);}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 .toast.ok{border-color:var(--green);color:var(--green);}
 .toast.err{border-color:var(--red);color:var(--red);}
+.toast.info{border-color:var(--accent);color:var(--accent);}
 </style>
 </head>
 <body>
+
 <header class="topbar">
-  <div class="tb-logo"><img src="logo.png" alt="الراصد" onerror="this.parentElement.innerHTML='<div style=width:28px;height:28px;background:#1d4ed8;border-radius:6px;display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;font-size:11px>IQ</div>'"></div>
-  <div class="tb-name">الإضافة والإعداد</div>
-  <div class="sep"></div>
+  <div class="tb-logo">
+    <img src="logo.png" alt="" onerror="this.parentElement.innerHTML='<div style=width:28px;height:28px;background:#1d4ed8;border-radius:6px;display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;font-size:11px>IQ</div>'">
+  </div>
+  <div class="tb-name">إدارة المصادر والكلمات</div>
+  <div class="tb-sep"></div>
+  <div class="saving-badge" id="saving-badge"><span class="spin">⟳</span> جاري الحفظ...</div>
   <a href="index.html" class="tb-btn">← الرئيسية</a>
   <button class="tb-btn danger" onclick="logout()">خروج</button>
 </header>
 
 <div class="content">
-  <div class="page-tabs">
-    <div class="pt on" onclick="showTab('sources',this)"><span>📡</span> المصادر</div>
-    <div class="pt" onclick="showTab('keywords',this)"><span>🏷</span> الكلمات المفتاحية</div>
+
+  <!-- DB STATUS -->
+  <div class="db-bar" id="db-bar">
+    <div class="db-dot"></div>
+    <span id="db-msg">جاري الاتصال بقاعدة البيانات...</span>
   </div>
 
-  <!-- ══ SOURCES TAB ══ -->
-  <div class="panel on" id="panel-sources">
-    <div class="sec-hd">إضافة مصدر جديد</div>
-    <div class="sec-sub">أضف أي مصدر تريد رصده — موقع RSS أو قناة تلغرام أو حساب X. المصادر المفعّلة يجلب منها المحرك تلقائياً كل 15 دقيقة.</div>
+  <!-- TABS -->
+  <div class="page-tabs">
+    <div class="pt on" onclick="showTab('sources',this)">📡 المصادر</div>
+    <div class="pt" onclick="showTab('keywords',this)">🏷 الكلمات المفتاحية</div>
+  </div>
 
-    <!-- HOW TO GUIDE -->
-    <div class="how-to">
-      <div class="how-to-title">📖 كيف أجد رابط RSS لأي موقع؟</div>
-      <div class="how-steps">
-        <div class="how-step">
-          <div class="how-num">1</div>
-          <div class="how-text">جرّب <strong>/feed</strong> أو <strong>/rss</strong> بعد رابط الموقع<br><code style="font-size:10px;background:rgba(0,0,0,.06);padding:1px 5px;border-radius:3px">example.com/feed</code></div>
-        </div>
-        <div class="how-step">
-          <div class="how-num">2</div>
-          <div class="how-text">ابحث في Google:<br><strong>"اسم الموقع" site:example.com RSS</strong></div>
-        </div>
-        <div class="how-step">
-          <div class="how-num">3</div>
-          <div class="how-text">إذا لا يوجد RSS، استخدم <a href="https://rss.app" target="_blank">rss.app</a> لتحويل أي موقع لـ RSS مجاناً</div>
-        </div>
-        <div class="how-step">
-          <div class="how-num">4</div>
-          <div class="how-text">للتلغرام: استخدم <code style="font-size:10px;background:rgba(0,0,0,.06);padding:1px 5px;border-radius:3px">t.me/s/اسم_القناة</code></div>
-        </div>
+  <!-- ══ SOURCES PANEL ══ -->
+  <div class="panel on" id="panel-sources">
+
+    <div class="sec-hd">إضافة مصدر جديد</div>
+    <div class="sec-sub">المصادر المُفعّلة يجلب منها المحرك تلقائياً كل 15 دقيقة. يمكن إيقافها أو حذفها في أي وقت.</div>
+
+    <!-- RSS GUIDE -->
+    <div class="rss-guide">
+      <div class="rss-guide-title">📖 كيف أجد رابط RSS؟</div>
+      <div class="rss-steps">
+        <div class="rss-step"><div class="rss-num">1</div><div>جرّب إضافة <strong>/feed</strong> أو <strong>/rss</strong> لرابط الموقع</div></div>
+        <div class="rss-step"><div class="rss-num">2</div><div>ابحث في Google: <strong>"اسم الموقع RSS feed"</strong></div></div>
+        <div class="rss-step"><div class="rss-num">3</div><div>استخدم <a href="https://rss.app" target="_blank" style="color:var(--accent)">rss.app</a> لتحويل أي موقع لـ RSS</div></div>
+        <div class="rss-step"><div class="rss-num">4</div><div>للتلغرام: <code style="font-size:10px;background:rgba(0,0,0,.06);padding:1px 5px;border-radius:3px">t.me/s/channel_name</code></div></div>
       </div>
-      <div class="rss-examples">
-        <div class="rss-ex-title">أمثلة روابط RSS — انقر لنسخها:</div>
-        <div class="rss-ex-row"><span class="rss-ex-name">الجزيرة عربي</span><span class="rss-ex-url" onclick="copyRSS(this,'https://www.aljazeera.net/xml/rss/all.xml')">aljazeera.net/xml/rss/all.xml</span></div>
-        <div class="rss-ex-row"><span class="rss-ex-name">Al-Monitor Iraq</span><span class="rss-ex-url" onclick="copyRSS(this,'https://www.al-monitor.com/rss')">al-monitor.com/rss</span></div>
-        <div class="rss-ex-row"><span class="rss-ex-name">Reuters Iraq</span><span class="rss-ex-url" onclick="copyRSS(this,'https://feeds.reuters.com/reuters/topNews')">feeds.reuters.com/reuters/topNews</span></div>
-        <div class="rss-ex-row"><span class="rss-ex-name">Middle East Eye</span><span class="rss-ex-url" onclick="copyRSS(this,'https://www.middleeasteye.net/rss')">middleeasteye.net/rss</span></div>
-        <div class="rss-ex-row"><span class="rss-ex-name">Carnegie Endowment</span><span class="rss-ex-url" onclick="copyRSS(this,'https://carnegieendowment.org/rss/solr/q=iraq')">carnegieendowment.org/rss</span></div>
-        <div class="rss-ex-row"><span class="rss-ex-name">Crisis Group</span><span class="rss-ex-url" onclick="copyRSS(this,'https://www.crisisgroup.org/rss')">crisisgroup.org/rss</span></div>
-      </div>
+      <div class="rss-examples-title">روابط جاهزة — انقر لنسخها:</div>
+      <div class="rss-ex"><span class="rss-ex-name">الجزيرة عربي</span><span class="rss-ex-url" onclick="useRSS('الجزيرة عربي','https://www.aljazeera.net/xml/rss/all.xml','https://www.aljazeera.net','arab','ar')">aljazeera.net/xml/rss/all.xml</span></div>
+      <div class="rss-ex"><span class="rss-ex-name">Al-Monitor</span><span class="rss-ex-url" onclick="useRSS('Al-Monitor','https://www.al-monitor.com/rss','https://www.al-monitor.com','international','en')">al-monitor.com/rss</span></div>
+      <div class="rss-ex"><span class="rss-ex-name">Middle East Eye</span><span class="rss-ex-url" onclick="useRSS('Middle East Eye','https://www.middleeasteye.net/rss','https://www.middleeasteye.net','international','en')">middleeasteye.net/rss</span></div>
+      <div class="rss-ex"><span class="rss-ex-name">Reuters</span><span class="rss-ex-url" onclick="useRSS('Reuters','https://feeds.reuters.com/reuters/topNews','https://www.reuters.com','western','en')">feeds.reuters.com/reuters/topNews</span></div>
+      <div class="rss-ex"><span class="rss-ex-name">Crisis Group</span><span class="rss-ex-url" onclick="useRSS('Crisis Group','https://www.crisisgroup.org/rss','https://www.crisisgroup.org','international','en')">crisisgroup.org/rss</span></div>
+      <div class="rss-ex"><span class="rss-ex-name">Carnegie Endowment</span><span class="rss-ex-url" onclick="useRSS('Carnegie Endowment','https://carnegieendowment.org/rss','https://carnegieendowment.org','western','en')">carnegieendowment.org/rss</span></div>
     </div>
 
-    <!-- FORM -->
+    <!-- ADD FORM -->
     <div class="form-card">
-      <div class="fc-title">📡 نوع المصدر</div>
+      <div class="fc-hd">📡 نوع المصدر</div>
       <div class="type-grid">
-        <div class="type-card on" onclick="setType('rss',this)">
-          <div class="type-icon">🌐</div>
-          <div class="type-name">موقع RSS</div>
-          <div class="type-desc">example.com/feed</div>
+        <div class="tc on" onclick="setType('rss',this)">
+          <div class="tc-icon">🌐</div><div class="tc-name">موقع RSS</div><div class="tc-hint">example.com/feed</div>
         </div>
-        <div class="type-card" onclick="setType('telegram',this)">
-          <div class="type-icon">✈️</div>
-          <div class="type-name">تلغرام</div>
-          <div class="type-desc">t.me/s/channel</div>
+        <div class="tc" onclick="setType('telegram',this)">
+          <div class="tc-icon">✈️</div><div class="tc-name">تلغرام</div><div class="tc-hint">t.me/s/channel</div>
         </div>
-        <div class="type-card" onclick="setType('twitter',this)">
-          <div class="type-icon">𝕏</div>
-          <div class="type-name">X / Twitter</div>
-          <div class="type-desc">twitter.com/user</div>
+        <div class="tc" onclick="setType('twitter',this)">
+          <div class="tc-icon">𝕏</div><div class="tc-name">X / Twitter</div><div class="tc-hint">twitter.com/user</div>
         </div>
-        <div class="type-card" onclick="setType('youtube',this)">
-          <div class="type-icon">▶</div>
-          <div class="type-name">يوتيوب</div>
-          <div class="type-desc">youtube.com/@ch</div>
+        <div class="tc" onclick="setType('youtube',this)">
+          <div class="tc-icon">▶</div><div class="tc-name">يوتيوب</div><div class="tc-hint">youtube.com/@ch</div>
         </div>
       </div>
 
       <div class="g2">
         <div class="field">
           <label class="lbl"><span class="req">*</span> اسم المصدر</label>
-          <input class="inp" id="sf-name" placeholder="مثال: Al-Monitor Iraq">
+          <input class="inp" id="f-name" placeholder="مثال: Al-Monitor Iraq">
         </div>
         <div class="field">
           <label class="lbl"><span class="req">*</span> رابط RSS / المنصة</label>
-          <input class="inp" id="sf-url" placeholder="https://..." id="sf-url">
-          <div class="inp-hint" id="sf-hint">مثال: https://www.example.com/rss أو https://t.me/s/channel_name</div>
+          <input class="inp" id="f-url" placeholder="https://...">
+          <div class="hint" id="f-hint">مثال: https://example.com/feed.xml</div>
         </div>
         <div class="field">
           <label class="lbl">رابط الموقع الرسمي</label>
-          <input class="inp" id="sf-web" placeholder="https://www.example.com">
-          <div class="inp-hint">يُستخدم لجلب أيقونة المصدر</div>
+          <input class="inp" id="f-web" placeholder="https://www.example.com">
+          <div class="hint">لجلب أيقونة المصدر تلقائياً</div>
         </div>
         <div class="field">
           <label class="lbl">المنطقة</label>
-          <select class="sel" id="sf-region">
+          <select class="sel" id="f-region">
             <option value="international">🌍 دولية</option>
             <option value="western">🇺🇸 غربية</option>
             <option value="arab">🌙 عربية</option>
@@ -251,8 +270,8 @@ body{font-family:var(--font);background:var(--bg);color:var(--t1);min-height:100
           </select>
         </div>
         <div class="field">
-          <label class="lbl">اللغة الأساسية</label>
-          <select class="sel" id="sf-lang">
+          <label class="lbl">اللغة</label>
+          <select class="sel" id="f-lang">
             <option value="en">إنجليزية</option>
             <option value="ar">عربية</option>
             <option value="multi">متعددة</option>
@@ -261,176 +280,414 @@ body{font-family:var(--font);background:var(--bg);color:var(--t1);min-height:100
           </select>
         </div>
         <div class="field full">
-          <label class="lbl">درجة الموثوقية: <span id="trust-lbl" style="color:var(--accent);font-weight:700">75</span>%</label>
+          <label class="lbl">درجة الموثوقية: <span id="trust-val" style="color:var(--accent);font-weight:700">75</span>%</label>
           <div class="trust-row">
-            <input type="range" class="slider" id="sf-trust" min="0" max="100" value="75" oninput="document.getElementById('trust-lbl').textContent=this.value">
-            <span style="font-size:11px;color:var(--t3)">0 = غير موثوق — 100 = مرجع رئيسي</span>
+            <input type="range" class="slider" id="f-trust" min="0" max="100" value="75" oninput="document.getElementById('trust-val').textContent=this.value">
+            <span style="font-size:11px;color:var(--t3)">0 = غير موثوق &nbsp;|&nbsp; 100 = مرجع رئيسي</span>
           </div>
         </div>
       </div>
 
-      <div class="submit-row">
-        <button class="btn-clear" onclick="clearForm()">مسح الحقول</button>
-        <button class="btn-submit" onclick="addSource()">💾 حفظ المصدر</button>
+      <div class="form-btns">
+        <button class="btn-clear" onclick="clearForm()">مسح</button>
+        <button class="btn-submit" id="submit-btn" onclick="addSource()">
+          💾 حفظ المصدر في القاعدة
+        </button>
       </div>
     </div>
 
     <!-- SOURCES LIST -->
-    <div class="sources-hd">
-      <div class="src-list-title">المصادر المحفوظة</div>
-      <span class="src-count" id="src-count">0 مصدر</span>
+    <div class="list-hd">
+      <div class="list-title">المصادر المحفوظة في قاعدة البيانات</div>
+      <span class="list-count" id="src-count">—</span>
     </div>
-    <div id="src-list"></div>
+    <div id="src-list"><div class="src-loading">جاري التحميل...</div></div>
   </div>
 
-  <!-- ══ KEYWORDS TAB ══ -->
+  <!-- ══ KEYWORDS PANEL ══ -->
   <div class="panel" id="panel-keywords">
     <div class="sec-hd">مجموعات الكلمات المفتاحية</div>
-    <div class="sec-sub">كل مجموعة تضم كلمات ترصد بها الأخبار. أي خبر يحتوي كلمة واحدة منها يُعرض في نتائج مجموعتها.</div>
-    <div id="kw-groups-list"></div>
-    <button class="add-kg-btn" onclick="openAddKg()">+ إضافة مجموعة جديدة</button>
+    <div class="sec-sub">الكلمات محفوظة على جهازك. أي خبر يحتوي كلمة من المجموعة يُصنّف تحتها في الداشبورد.</div>
+    <div id="kw-list"></div>
+    <button class="add-kg-btn" onclick="addKgGroup()">+ مجموعة جديدة</button>
   </div>
+
 </div>
 
 <div class="toast" id="toast"></div>
 
 <script>
-const session=JSON.parse(localStorage.getItem('iq_session')||'null');
-if(!session||new Date(session.expires)<new Date())window.location.href='login.html';
-if(session.role==='viewer')window.location.href='index.html';
-function logout(){localStorage.removeItem('iq_session');window.location.href='login.html';}
+/* ══ AUTH ══ */
+const _s = JSON.parse(localStorage.getItem('iq_session')||'null');
+if (!_s || new Date(_s.expires) < new Date()) window.location.href = 'login.html';
+if (_s.role === 'viewer') window.location.href = 'index.html';
+function logout(){ localStorage.removeItem('iq_session'); window.location.href = 'login.html'; }
 
-const SB_URL=localStorage.getItem('sb_url')||'';
-const SB_KEY=localStorage.getItem('sb_key')||'';
+/* ══ SUPABASE ══ */
+const SB_URL = localStorage.getItem('sb_url') || '';
+const SB_KEY = localStorage.getItem('sb_key') || '';
 
-let srcType='rss';
-let localSrcs=JSON.parse(localStorage.getItem('iq_local_sources')||'[]');
-let kgs=JSON.parse(localStorage.getItem('iq_kgs')||'null')||defKgs();
-
-const RC={western:'#3b82f6',arab:'#f59e0b',iraqi:'#22c55e',iranian:'#ef4444',turkish:'#8b5cf6',international:'#0ea5e9',kurdish:'#f97316'};
-const HINTS={rss:'مثال: https://www.example.com/feed.xml أو /rss أو /feed',telegram:'مثال: https://t.me/s/channel_name (مع /s/ في المسار)',twitter:'مثال: https://twitter.com/username',youtube:'مثال: https://youtube.com/@channel'};
-
-function defKgs(){return[
-  {id:'g1',name:'العراق — أساسي',color:'#3b82f6',kws:[{w:'العراق',l:'ar'},{w:'بغداد',l:'ar'},{w:'iraq',l:'en'},{w:'baghdad',l:'en'},{w:'#العراق',l:'hash'}]},
-  {id:'g2',name:'الفصائل والحشد',color:'#ef4444',kws:[{w:'الحشد الشعبي',l:'ar'},{w:'فصائل',l:'ar'},{w:'PMF',l:'en'},{w:'كتائب',l:'ar'}]},
-  {id:'g3',name:'كردستان',color:'#f97316',kws:[{w:'كردستان',l:'ar'},{w:'البيشمركة',l:'ar'},{w:'kurdistan',l:'en'},{w:'peshmerga',l:'en'}]},
-  {id:'g4',name:'النفط والطاقة',color:'#0ea5e9',kws:[{w:'النفط',l:'ar'},{w:'البصرة',l:'ar'},{w:'iraq oil',l:'en'},{w:'basra',l:'en'}]},
-  {id:'g5',name:'الدبلوماسية',color:'#8b5cf6',kws:[{w:'السوداني',l:'ar'},{w:'إيران العراق',l:'ar'},{w:'iran iraq',l:'en'}]},
-];}
-
-function showTab(name,el){document.querySelectorAll('.panel').forEach(p=>p.classList.remove('on'));document.querySelectorAll('.pt').forEach(t=>t.classList.remove('on'));document.getElementById('panel-'+name).classList.add('on');el.classList.add('on');}
-function setType(t,el){srcType=t;document.querySelectorAll('.type-card').forEach(c=>c.classList.remove('on'));el.classList.add('on');document.getElementById('sf-hint').textContent=HINTS[t]||'';}
-function copyRSS(el,url){navigator.clipboard?.writeText(url);document.getElementById('sf-url').value=url;showToast('✓ تم نسخ الرابط وإضافته');}
-
-async function addSource(){
-  const name=document.getElementById('sf-name').value.trim();
-  const url=document.getElementById('sf-url').value.trim();
-  const web=document.getElementById('sf-web').value.trim();
-  const region=document.getElementById('sf-region').value;
-  const lang=document.getElementById('sf-lang').value;
-  const trust=parseInt(document.getElementById('sf-trust').value);
-  if(!name||!url){showToast('الاسم والرابط مطلوبان','err');return;}
-
-  const src={id:'src_'+Date.now(),name,type:srcType,url,website:web||url,region,lang,trust,active:true,added:new Date().toISOString()};
-  localSrcs.push(src);
-  localStorage.setItem('iq_local_sources',JSON.stringify(localSrcs));
-
-  // Save to Supabase
-  if(SB_URL&&SB_KEY){
-    const slug=name.toLowerCase().replace(/[^a-z0-9]/g,'-').replace(/-+/g,'-').slice(0,40)+'_'+Date.now();
-    try{
-      const r=await fetch(`${SB_URL}/rest/v1/sources`,{
-        method:'POST',
-        headers:{'apikey':SB_KEY,'Authorization':`Bearer ${SB_KEY}`,'Content-Type':'application/json','Prefer':'return=minimal'},
-        body:JSON.stringify({name,slug,type:srcType,region,language:lang,rss_url:url,website_url:web||url,trust_score:trust,is_active:true})
-      });
-      showToast(r.ok?'✓ تم الحفظ في قاعدة البيانات':'✓ تم الحفظ محلياً (تحقق من API)');
-    }catch{showToast('✓ تم الحفظ محلياً');}
-  }else{showToast('✓ تم الحفظ محلياً — أعدّ Supabase لحفظه في القاعدة');}
-  clearForm();renderSrcList();
+async function sbGet(table, params='') {
+  const r = await fetch(`${SB_URL}/rest/v1/${table}${params}`, {
+    headers: { 'apikey': SB_KEY, 'Authorization': `Bearer ${SB_KEY}`, 'Prefer': 'count=exact' }
+  });
+  const cnt = parseInt(r.headers.get('Content-Range')?.split('/')[1] || '0');
+  const d = await r.json();
+  return { data: Array.isArray(d) ? d : [], count: cnt, ok: r.ok };
 }
 
-function clearForm(){['sf-name','sf-url','sf-web'].forEach(id=>document.getElementById(id).value='');document.getElementById('sf-trust').value=75;document.getElementById('trust-lbl').textContent='75';}
+async function sbPost(table, body) {
+  const r = await fetch(`${SB_URL}/rest/v1/${table}`, {
+    method: 'POST',
+    headers: { 'apikey': SB_KEY, 'Authorization': `Bearer ${SB_KEY}`, 'Content-Type': 'application/json', 'Prefer': 'return=representation' },
+    body: JSON.stringify(body)
+  });
+  const d = await r.json();
+  return { data: d, ok: r.ok, status: r.status };
+}
 
-async function renderSrcList(){
-  let srcs=[...localSrcs];
-  if(SB_URL&&SB_KEY){
-    try{
-      const r=await fetch(`${SB_URL}/rest/v1/sources?select=id,name,type,region,language,rss_url,website_url,trust_score,is_active&order=created_at.desc&limit=40`,{headers:{'apikey':SB_KEY,'Authorization':`Bearer ${SB_KEY}`}});
-      const d=await r.json();
-      if(Array.isArray(d)&&d.length)srcs=d.map(s=>({id:s.id,name:s.name,type:s.type||'rss',url:s.rss_url||s.website_url||'',website:s.website_url||'',region:s.region,lang:s.language,trust:s.trust_score||75,active:s.is_active!==false}));
-    }catch{}
+async function sbPatch(table, id, body) {
+  const r = await fetch(`${SB_URL}/rest/v1/${table}?id=eq.${id}`, {
+    method: 'PATCH',
+    headers: { 'apikey': SB_KEY, 'Authorization': `Bearer ${SB_KEY}`, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+    body: JSON.stringify(body)
+  });
+  return { ok: r.ok, status: r.status };
+}
+
+async function sbDelete(table, id) {
+  const r = await fetch(`${SB_URL}/rest/v1/${table}?id=eq.${id}`, {
+    method: 'DELETE',
+    headers: { 'apikey': SB_KEY, 'Authorization': `Bearer ${SB_KEY}` }
+  });
+  return { ok: r.ok, status: r.status };
+}
+
+/* ══ DB STATUS ══ */
+async function checkDB() {
+  const bar = document.getElementById('db-bar');
+  const msg = document.getElementById('db-msg');
+  if (!SB_URL || !SB_KEY) {
+    bar.className = 'db-bar err';
+    msg.textContent = '⚠️ مفاتيح Supabase غير مضبوطة — اذهب لـ API Settings';
+    document.getElementById('submit-btn').disabled = true;
+    return false;
   }
-  document.getElementById('src-count').textContent=`${srcs.length} مصدر`;
-  const el=document.getElementById('src-list');
-  if(!srcs.length){el.innerHTML='<div style="color:var(--t3);font-size:13px;padding:20px 0;text-align:center">لا توجد مصادر بعد — أضف أول مصدر أعلاه</div>';return;}
-  const TYPE_I={rss:'🌐',telegram:'✈️',twitter:'𝕏',youtube:'▶',other:'📡'};
-  el.innerHTML=srcs.map((s,i)=>{
-    const clr=RC[s.region]||'#3b82f6';
-    const ini=s.name.split(' ').slice(0,2).map(w=>w[0]||'').join('').toUpperCase().slice(0,2);
-    return`<div class="src-item">
+  try {
+    const res = await sbGet('sources', '?select=id&limit=1');
+    if (res.ok || res.count >= 0) {
+      bar.className = 'db-bar ok';
+      msg.textContent = '✓ متصل بقاعدة البيانات — العمليات تُحفظ مباشرة';
+      return true;
+    }
+    throw new Error();
+  } catch {
+    bar.className = 'db-bar err';
+    msg.textContent = '✗ فشل الاتصال — تحقق من مفاتيح API';
+    return false;
+  }
+}
+
+/* ══ SOURCE TYPE ══ */
+let srcType = 'rss';
+const HINTS = {
+  rss: 'مثال: https://www.example.com/feed.xml أو /rss أو /feed',
+  telegram: 'مثال: https://t.me/s/channel_name (لازم يحتوي /s/ في الرابط)',
+  twitter: 'مثال: https://twitter.com/username أو @username',
+  youtube: 'مثال: https://youtube.com/@channelname'
+};
+
+function setType(t, el) {
+  srcType = t;
+  document.querySelectorAll('.tc').forEach(c => c.classList.remove('on'));
+  el.classList.add('on');
+  document.getElementById('f-hint').textContent = HINTS[t] || '';
+}
+
+function useRSS(name, url, web, region, lang) {
+  document.getElementById('f-name').value = name;
+  document.getElementById('f-url').value = url;
+  document.getElementById('f-web').value = web;
+  document.getElementById('f-region').value = region;
+  document.getElementById('f-lang').value = lang;
+  showToast('✓ تم ملء البيانات — اضغط "حفظ المصدر"', 'info');
+  document.getElementById('f-name').scrollIntoView({ behavior: 'smooth' });
+}
+
+/* ══ ADD SOURCE ══ */
+async function addSource() {
+  const name  = document.getElementById('f-name').value.trim();
+  const url   = document.getElementById('f-url').value.trim();
+  const web   = document.getElementById('f-web').value.trim();
+  const region= document.getElementById('f-region').value;
+  const lang  = document.getElementById('f-lang').value;
+  const trust = parseInt(document.getElementById('f-trust').value);
+
+  if (!name) { showToast('الاسم مطلوب', 'err'); return; }
+  if (!url)  { showToast('الرابط مطلوب', 'err'); return; }
+  if (!url.startsWith('http')) { showToast('الرابط يجب أن يبدأ بـ https://', 'err'); return; }
+
+  const btn = document.getElementById('submit-btn');
+  btn.disabled = true;
+  btn.textContent = '⏳ جاري الحفظ...';
+  showSaving(true);
+
+  const slug = name.toLowerCase().replace(/[^a-z0-9\u0600-\u06ff]/g, '-').replace(/-+/g, '-').slice(0, 40) + '_' + Date.now();
+
+  const res = await sbPost('sources', {
+    name,
+    slug,
+    type: srcType,
+    region,
+    language: lang,
+    rss_url: url,
+    website_url: web || url,
+    trust_score: trust,
+    is_active: true
+  });
+
+  showSaving(false);
+  btn.disabled = false;
+  btn.textContent = '💾 حفظ المصدر في القاعدة';
+
+  if (res.ok) {
+    showToast('✓ تم حفظ المصدر في قاعدة البيانات');
+    clearForm();
+    await loadSources();
+  } else {
+    const errMsg = Array.isArray(res.data) ? JSON.stringify(res.data) : (res.data?.message || 'خطأ غير معروف');
+    if (errMsg.includes('duplicate') || errMsg.includes('unique')) {
+      showToast('هذا المصدر موجود مسبقاً', 'err');
+    } else {
+      showToast('فشل الحفظ — ' + errMsg.slice(0, 60), 'err');
+    }
+  }
+}
+
+/* ══ LOAD SOURCES ══ */
+async function loadSources() {
+  document.getElementById('src-list').innerHTML = '<div class="src-loading">⏳ جاري التحميل...</div>';
+  const res = await sbGet('sources', '?select=id,name,type,region,language,rss_url,website_url,trust_score,is_active,created_at&order=created_at.desc&limit=50');
+  const srcs = res.data;
+  document.getElementById('src-count').textContent = `${srcs.length} مصدر`;
+
+  if (!srcs.length) {
+    document.getElementById('src-list').innerHTML = '<div class="src-loading">لا توجد مصادر بعد — أضف أول مصدر أعلاه</div>';
+    return;
+  }
+
+  const RC = { western:'#3b82f6', arab:'#f59e0b', iraqi:'#22c55e', iranian:'#ef4444', turkish:'#8b5cf6', international:'#0ea5e9', kurdish:'#f97316' };
+  const TYPE_I = { rss:'🌐', telegram:'✈️', twitter:'𝕏', youtube:'▶', other:'📡' };
+  const REGION_AR = { western:'غربية', arab:'عربية', iraqi:'عراقية', iranian:'إيرانية', turkish:'تركية', international:'دولية', kurdish:'كردية' };
+
+  document.getElementById('src-list').innerHTML = srcs.map(s => {
+    const clr = RC[s.region] || '#3b82f6';
+    const ini = s.name.split(' ').slice(0,2).map(w=>w[0]||'').join('').toUpperCase().slice(0,2);
+    const isActive = s.is_active !== false;
+    return `<div class="src-card${isActive?'':' inactive'}" id="sc-${s.id}">
       <div class="src-avatar" style="background:${clr}18;color:${clr}">${ini}</div>
       <div class="src-info">
-        <div class="src-name">${s.name}</div>
-        <div class="src-url">${s.url||''}</div>
+        <div class="src-name">${esc(s.name)}</div>
+        <div class="src-url">${esc(s.rss_url||'')}</div>
         <div class="src-badges">
-          <span class="src-badge">${TYPE_I[s.type]||'📡'} ${s.type||'rss'}</span>
-          <span class="src-badge">${s.lang||'en'}</span>
-          <span class="src-badge" style="color:${clr}">${s.region||''}</span>
-          <span class="src-badge">موثوقية ${s.trust||75}%</span>
+          <span class="badge">${TYPE_I[s.type]||'📡'} ${s.type||'rss'}</span>
+          <span class="badge">${REGION_AR[s.region]||s.region||''}</span>
+          <span class="badge">${s.language||'en'}</span>
+          <span class="badge">${s.trust_score||75}%</span>
+          <span class="badge ${isActive?'active':'inactive'}">${isActive?'✓ مفعّل':'✗ موقف'}</span>
         </div>
       </div>
-      <button class="src-toggle${s.active?' on':''}" onclick="toggleActive(${i},this)"></button>
-      <button class="src-del" onclick="delSrc(${i})" title="حذف">🗑</button>
+      <div class="src-actions">
+        <button class="act-btn ${isActive?'toggle-on':'toggle-off'}" id="tog-${s.id}"
+          onclick="toggleSource('${s.id}',${isActive})">
+          ${isActive?'⏸ إيقاف':'▶ تفعيل'}
+        </button>
+        <button class="act-btn del" onclick="deleteSource('${s.id}','${esc(s.name)}')">
+          🗑 حذف
+        </button>
+      </div>
     </div>`;
   }).join('');
 }
 
-function toggleActive(i,btn){btn.classList.toggle('on');localSrcs[i]&&(localSrcs[i].active=btn.classList.contains('on'));localStorage.setItem('iq_local_sources',JSON.stringify(localSrcs));}
-function delSrc(i){if(!confirm('حذف هذا المصدر؟'))return;localSrcs.splice(i,1);localStorage.setItem('iq_local_sources',JSON.stringify(localSrcs));renderSrcList();showToast('تم الحذف');}
+/* ══ TOGGLE SOURCE ══ */
+async function toggleSource(id, currentlyActive) {
+  const btn = document.getElementById('tog-' + id);
+  const card = document.getElementById('sc-' + id);
+  btn.disabled = true;
+  btn.textContent = '⏳';
+  showSaving(true);
 
-/* KEYWORDS */
-function saveKgs(){localStorage.setItem('iq_kgs',JSON.stringify(kgs));}
-function renderKws(){
-  const LANG_C={ar:'ar',en:'en',fa:'fa',tr:'tr',hash:'hash'};
-  document.getElementById('kw-groups-list').innerHTML=kgs.map((g,gi)=>`
+  const newActive = !currentlyActive;
+  const res = await sbPatch('sources', id, { is_active: newActive });
+
+  showSaving(false);
+
+  if (res.ok) {
+    // Update UI without full reload
+    btn.disabled = false;
+    btn.className = `act-btn ${newActive ? 'toggle-on' : 'toggle-off'}`;
+    btn.textContent = newActive ? '⏸ إيقاف' : '▶ تفعيل';
+    btn.setAttribute('onclick', `toggleSource('${id}',${newActive})`);
+    card.classList.toggle('inactive', !newActive);
+
+    // Update status badge
+    const badges = card.querySelectorAll('.badge');
+    badges.forEach(b => {
+      if (b.classList.contains('active') || b.classList.contains('inactive')) {
+        b.className = `badge ${newActive ? 'active' : 'inactive'}`;
+        b.textContent = newActive ? '✓ مفعّل' : '✗ موقف';
+      }
+    });
+
+    showToast(newActive ? '✓ تم تفعيل المصدر' : '✓ تم إيقاف المصدر');
+  } else {
+    btn.disabled = false;
+    btn.textContent = currentlyActive ? '⏸ إيقاف' : '▶ تفعيل';
+    showToast('فشل التعديل — تحقق من الصلاحيات', 'err');
+  }
+}
+
+/* ══ DELETE SOURCE ══ */
+async function deleteSource(id, name) {
+  if (!confirm(`هل تريد حذف "${name}" نهائياً من قاعدة البيانات؟\n\nلا يمكن التراجع عن هذه العملية.`)) return;
+
+  const card = document.getElementById('sc-' + id);
+  card.style.opacity = '.4';
+  showSaving(true);
+
+  const res = await sbDelete('sources', id);
+  showSaving(false);
+
+  if (res.ok) {
+    card.style.animation = 'fadeOut .3s ease forwards';
+    card.style.transition = 'all .3s ease';
+    card.style.transform = 'translateX(20px)';
+    setTimeout(() => { card.remove(); updateCount(); }, 300);
+    showToast('✓ تم حذف المصدر');
+  } else {
+    card.style.opacity = '1';
+    showToast('فشل الحذف — قد يكون هناك أخبار مرتبطة بهذا المصدر', 'err');
+  }
+}
+
+function updateCount() {
+  const cnt = document.querySelectorAll('.src-card').length;
+  document.getElementById('src-count').textContent = `${cnt} مصدر`;
+}
+
+/* ══ KEYWORDS ══ */
+let kgs = JSON.parse(localStorage.getItem('iq_kgs') || 'null') || defKgs();
+
+function defKgs() {
+  return [
+    {id:'g1',name:'العراق — أساسي',color:'#3b82f6',kws:[{w:'العراق',l:'ar'},{w:'بغداد',l:'ar'},{w:'iraq',l:'en'},{w:'baghdad',l:'en'},{w:'#العراق',l:'hash'}]},
+    {id:'g2',name:'الفصائل والحشد',color:'#ef4444',kws:[{w:'الحشد الشعبي',l:'ar'},{w:'فصائل',l:'ar'},{w:'PMF',l:'en'},{w:'كتائب',l:'ar'}]},
+    {id:'g3',name:'كردستان',color:'#f97316',kws:[{w:'كردستان',l:'ar'},{w:'البيشمركة',l:'ar'},{w:'kurdistan',l:'en'},{w:'peshmerga',l:'en'}]},
+    {id:'g4',name:'النفط والطاقة',color:'#0ea5e9',kws:[{w:'النفط',l:'ar'},{w:'البصرة',l:'ar'},{w:'iraq oil',l:'en'},{w:'basra',l:'en'}]},
+    {id:'g5',name:'الدبلوماسية',color:'#8b5cf6',kws:[{w:'السوداني',l:'ar'},{w:'إيران العراق',l:'ar'},{w:'iran iraq',l:'en'}]},
+  ];
+}
+
+function saveKgs() { localStorage.setItem('iq_kgs', JSON.stringify(kgs)); }
+
+function renderKws() {
+  const LANG_C = {ar:'ar',en:'en',fa:'fa',tr:'tr',hash:'hash',other:'other'};
+  document.getElementById('kw-list').innerHTML = kgs.map((g, gi) => `
     <div class="kg-card">
-      <div class="kg-card-hd">
-        <div class="kg-color" style="background:${g.color}"></div>
-        <div class="kg-title">${g.name}</div>
-        <div class="kg-badge">${g.kws.length} كلمة</div>
-        <button class="kg-del-btn" onclick="delKg(${gi})">🗑</button>
+      <div class="kg-hd">
+        <div class="kg-dot" style="background:${g.color}"></div>
+        <div class="kg-title">${esc(g.name)}</div>
+        <div class="kg-cnt">${g.kws.length} كلمة</div>
+        <button class="kg-del" onclick="delKg(${gi})" title="حذف المجموعة">🗑</button>
       </div>
-      <div class="kg-chips">${g.kws.map((k,ki)=>{
-        const kobj=typeof k==='string'?{w:k,l:'other'}:k;
-        const lc=LANG_C[kobj.l]||'other';
-        return`<span class="kw-chip ${lc}">
-          <span style="font-size:9px;opacity:.6">${kobj.l}</span> ${kobj.w}
-          <span class="kw-rm" onclick="rmKw(${gi},${ki})">×</span>
-        </span>`;
-      }).join('')}</div>
+      <div class="kw-chips">
+        ${g.kws.map((k,ki)=>{
+          const kobj = typeof k==='string'?{w:k,l:'other'}:k;
+          const lc = LANG_C[kobj.l]||'other';
+          return `<span class="kw-chip ${lc}">
+            <span style="font-size:9px;opacity:.5;font-family:var(--mono)">${kobj.l}</span>
+            ${esc(kobj.w)}
+            <span class="kw-rm" onclick="rmKw(${gi},${ki})" title="حذف">×</span>
+          </span>`;
+        }).join('')}
+      </div>
       <div class="kw-add-row">
-        <input class="kw-inp" id="kwi${gi}" placeholder="أضف كلمة..." onkeydown="if(event.key==='Enter')addKw(${gi})">
+        <input class="kw-inp" id="kwi${gi}" placeholder="+ أضف كلمة جديدة" onkeydown="if(event.key==='Enter')addKw(${gi})">
         <select class="lang-sel" id="kwl${gi}">
           <option value="ar">ع عربي</option>
-          <option value="en">EN</option>
-          <option value="fa">FA</option>
-          <option value="tr">TR</option>
+          <option value="en">EN إنجليزي</option>
+          <option value="fa">FA فارسي</option>
+          <option value="tr">TR تركي</option>
           <option value="hash"># هاشتاق</option>
         </select>
         <button class="kw-add-btn" onclick="addKw(${gi})">+ إضافة</button>
       </div>
     </div>`).join('');
 }
-function addKw(gi){const w=document.getElementById('kwi'+gi).value.trim();const l=document.getElementById('kwl'+gi).value;if(!w)return;if(kgs[gi].kws.some(k=>(typeof k==='string'?k:k.w)===w)){showToast('الكلمة موجودة مسبقاً','err');return;}kgs[gi].kws.push({w,l});saveKgs();renderKws();showToast('✓ تمت الإضافة');}
-function rmKw(gi,ki){kgs[gi].kws.splice(ki,1);saveKgs();renderKws();}
-function delKg(gi){if(!confirm(`حذف مجموعة "${kgs[gi].name}"؟`))return;kgs.splice(gi,1);saveKgs();renderKws();}
-function openAddKg(){const n=prompt('اسم المجموعة الجديدة:');if(!n?.trim())return;const cols=['#3b82f6','#ef4444','#22c55e','#f59e0b','#8b5cf6','#0ea5e9','#f97316'];kgs.push({id:'g'+Date.now(),name:n.trim(),color:cols[kgs.length%cols.length],kws:[]});saveKgs();renderKws();}
 
-let tt;
-function showToast(msg,type='ok'){const t=document.getElementById('toast');t.textContent=msg;t.className=`toast ${type} show`;clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('show'),2800);}
+function addKw(gi) {
+  const inp = document.getElementById('kwi'+gi);
+  const w = inp.value.trim(); if (!w) return;
+  const l = document.getElementById('kwl'+gi).value;
+  if (kgs[gi].kws.some(k=>(typeof k==='string'?k:k.w)===w)) { showToast('الكلمة موجودة مسبقاً','err'); return; }
+  kgs[gi].kws.push({w, l});
+  saveKgs(); inp.value=''; renderKws();
+  showToast('✓ تمت الإضافة وحُفظت');
+}
 
-window.addEventListener('DOMContentLoaded',()=>{renderSrcList();renderKws();});
+function rmKw(gi, ki) { kgs[gi].kws.splice(ki,1); saveKgs(); renderKws(); showToast('تم الحذف'); }
+
+function delKg(gi) {
+  if (!confirm(`حذف مجموعة "${kgs[gi].name}" مع كل كلماتها؟`)) return;
+  kgs.splice(gi,1); saveKgs(); renderKws();
+  showToast('✓ تم حذف المجموعة');
+}
+
+function addKgGroup() {
+  const n = prompt('اسم المجموعة الجديدة:');
+  if (!n?.trim()) return;
+  const cols=['#3b82f6','#ef4444','#22c55e','#f59e0b','#8b5cf6','#0ea5e9','#f97316'];
+  kgs.push({id:'g'+Date.now(),name:n.trim(),color:cols[kgs.length%cols.length],kws:[]});
+  saveKgs(); renderKws();
+  showToast('✓ تمت إضافة المجموعة');
+}
+
+/* ══ HELPERS ══ */
+function showTab(name, el) {
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.pt').forEach(t=>t.classList.remove('on'));
+  document.getElementById('panel-'+name).classList.add('on');
+  el.classList.add('on');
+}
+
+function clearForm() {
+  ['f-name','f-url','f-web'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('f-trust').value = 75;
+  document.getElementById('trust-val').textContent = '75';
+}
+
+function showSaving(v) {
+  document.getElementById('saving-badge').classList.toggle('show', v);
+}
+
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+let toastTimer;
+function showToast(msg, type='ok') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = `toast ${type} show`;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>t.classList.remove('show'), 3000);
+}
+
+/* ══ INIT ══ */
+window.addEventListener('DOMContentLoaded', async () => {
+  const ok = await checkDB();
+  if (ok) await loadSources();
+  renderKws();
+});
 </script>
 </body>
 </html>
