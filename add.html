@@ -216,29 +216,41 @@ body{font-family:var(--font);background:var(--bg);color:var(--t1);min-height:100
         <div class="rss-step"><div class="rss-num">4</div><div>للتلغرام: <code style="font-size:10px;background:rgba(0,0,0,.06);padding:1px 5px;border-radius:3px">t.me/s/channel_name</code></div></div>
       </div>
       <div class="rss-examples-title">روابط جاهزة — انقر لنسخها:</div>
-      <div class="rss-ex"><span class="rss-ex-name">الجزيرة عربي</span><span class="rss-ex-url" onclick="useRSS('الجزيرة عربي','https://www.aljazeera.net/xml/rss/all.xml','https://www.aljazeera.net','arab','ar')">aljazeera.net/xml/rss/all.xml</span></div>
-      <div class="rss-ex"><span class="rss-ex-name">Al-Monitor</span><span class="rss-ex-url" onclick="useRSS('Al-Monitor','https://www.al-monitor.com/rss','https://www.al-monitor.com','international','en')">al-monitor.com/rss</span></div>
-      <div class="rss-ex"><span class="rss-ex-name">Middle East Eye</span><span class="rss-ex-url" onclick="useRSS('Middle East Eye','https://www.middleeasteye.net/rss','https://www.middleeasteye.net','international','en')">middleeasteye.net/rss</span></div>
-      <div class="rss-ex"><span class="rss-ex-name">Reuters</span><span class="rss-ex-url" onclick="useRSS('Reuters','https://feeds.reuters.com/reuters/topNews','https://www.reuters.com','western','en')">feeds.reuters.com/reuters/topNews</span></div>
-      <div class="rss-ex"><span class="rss-ex-name">Crisis Group</span><span class="rss-ex-url" onclick="useRSS('Crisis Group','https://www.crisisgroup.org/rss','https://www.crisisgroup.org','international','en')">crisisgroup.org/rss</span></div>
-      <div class="rss-ex"><span class="rss-ex-name">Carnegie Endowment</span><span class="rss-ex-url" onclick="useRSS('Carnegie Endowment','https://carnegieendowment.org/rss','https://carnegieendowment.org','western','en')">carnegieendowment.org/rss</span></div>
+      <div class="rss-ex"><span class="rss-ex-name">الجزيرة عربي</span><span class="rss-ex-url" onclick="useRSS('الجزيرة عربي','https://www.aljazeera.net/xml/rss/all.xml','https://www.aljazeera.net','arab','ar','newspaper')">aljazeera.net/xml/rss/all.xml</span></div>
+      <div class="rss-ex"><span class="rss-ex-name">Al-Monitor</span><span class="rss-ex-url" onclick="useRSS('Al-Monitor','https://www.al-monitor.com/rss','https://www.al-monitor.com','international','en','newspaper')">al-monitor.com/rss</span></div>
+      <div class="rss-ex"><span class="rss-ex-name">Middle East Eye</span><span class="rss-ex-url" onclick="useRSS('Middle East Eye','https://www.middleeasteye.net/rss','https://www.middleeasteye.net','international','en','newspaper')">middleeasteye.net/rss</span></div>
+      <div class="rss-ex"><span class="rss-ex-name">Reuters</span><span class="rss-ex-url" onclick="useRSS('Reuters','https://feeds.reuters.com/reuters/topNews','https://www.reuters.com','western','en','agency')">feeds.reuters.com/reuters/topNews</span></div>
+      <div class="rss-ex"><span class="rss-ex-name">Crisis Group</span><span class="rss-ex-url" onclick="useRSS('Crisis Group','https://www.crisisgroup.org/rss','https://www.crisisgroup.org','international','en','think_tank')">crisisgroup.org/rss</span></div>
+      <div class="rss-ex"><span class="rss-ex-name">Carnegie Endowment</span><span class="rss-ex-url" onclick="useRSS('Carnegie Endowment','https://carnegieendowment.org/rss','https://carnegieendowment.org','western','en','think_tank')">carnegieendowment.org/rss</span></div>
     </div>
 
     <!-- ADD FORM -->
     <div class="form-card">
       <div class="fc-hd">📡 نوع المصدر</div>
-      <div class="type-grid">
-        <div class="tc on" onclick="setType('rss',this)">
-          <div class="tc-icon">🌐</div><div class="tc-name">موقع RSS</div><div class="tc-hint">example.com/feed</div>
+      <div class="type-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:16px">
+        <div class="tc on" onclick="setType('newspaper',this)">
+          <div class="tc-icon">📰</div><div class="tc-name">صحيفة / موقع</div><div class="tc-hint">RSS feed</div>
+        </div>
+        <div class="tc" onclick="setType('agency',this)">
+          <div class="tc-icon">📡</div><div class="tc-name">وكالة أنباء</div><div class="tc-hint">news agency</div>
+        </div>
+        <div class="tc" onclick="setType('think_tank',this)">
+          <div class="tc-icon">🏛</div><div class="tc-name">مركز بحثي</div><div class="tc-hint">think tank</div>
         </div>
         <div class="tc" onclick="setType('telegram',this)">
           <div class="tc-icon">✈️</div><div class="tc-name">تلغرام</div><div class="tc-hint">t.me/s/channel</div>
         </div>
-        <div class="tc" onclick="setType('twitter',this)">
-          <div class="tc-icon">𝕏</div><div class="tc-name">X / Twitter</div><div class="tc-hint">twitter.com/user</div>
-        </div>
         <div class="tc" onclick="setType('youtube',this)">
           <div class="tc-icon">▶</div><div class="tc-name">يوتيوب</div><div class="tc-hint">youtube.com/@ch</div>
+        </div>
+        <div class="tc" onclick="setType('blog',this)">
+          <div class="tc-icon">✍️</div><div class="tc-name">مدونة</div><div class="tc-hint">blog/personal</div>
+        </div>
+        <div class="tc" onclick="setType('government',this)">
+          <div class="tc-icon">🏢</div><div class="tc-name">حكومي</div><div class="tc-hint">gov source</div>
+        </div>
+        <div class="tc" onclick="setType('ngo',this)">
+          <div class="tc-icon">🤝</div><div class="tc-name">منظمة</div><div class="tc-hint">NGO/UN</div>
         </div>
       </div>
 
@@ -389,12 +401,16 @@ async function checkDB() {
 }
 
 /* ══ SOURCE TYPE ══ */
-let srcType = 'rss';
+let srcType = 'newspaper';
 const HINTS = {
-  rss: 'مثال: https://www.example.com/feed.xml أو /rss أو /feed',
-  telegram: 'مثال: https://t.me/s/channel_name (لازم يحتوي /s/ في الرابط)',
-  twitter: 'مثال: https://twitter.com/username أو @username',
-  youtube: 'مثال: https://youtube.com/@channelname'
+  newspaper: 'مثال: https://www.example.com/feed.xml أو /rss أو /feed',
+  agency:    'مثال: https://agency.com/rss أو /feed',
+  think_tank:'مثال: https://carnegieendowment.org/rss',
+  telegram:  'مثال: https://t.me/s/channel_name (لازم يحتوي /s/ في الرابط)',
+  youtube:   'مثال: https://youtube.com/@channelname',
+  blog:      'مثال: https://blog.example.com/feed',
+  government:'مثال: https://gov-site.iq/rss أو /feed',
+  ngo:       'مثال: https://www.unocha.org/rss'
 };
 
 function setType(t, el) {
@@ -404,12 +420,18 @@ function setType(t, el) {
   document.getElementById('f-hint').textContent = HINTS[t] || '';
 }
 
-function useRSS(name, url, web, region, lang) {
+function useRSS(name, url, web, region, lang, type='newspaper') {
   document.getElementById('f-name').value = name;
   document.getElementById('f-url').value = url;
   document.getElementById('f-web').value = web;
   document.getElementById('f-region').value = region;
   document.getElementById('f-lang').value = lang;
+  // Set type
+  srcType = type;
+  document.querySelectorAll('.tc').forEach(c=>c.classList.remove('on'));
+  document.querySelectorAll('.tc').forEach(c=>{
+    if(c.getAttribute('onclick')&&c.getAttribute('onclick').includes("'"+type+"'")) c.classList.add('on');
+  });
   showToast('✓ تم ملء البيانات — اضغط "حفظ المصدر"', 'info');
   document.getElementById('f-name').scrollIntoView({ behavior: 'smooth' });
 }
