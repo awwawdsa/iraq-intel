@@ -496,8 +496,11 @@ function buildCard(a, i) {
   const sig = a.sig || 'medium';
   const cat = a.category || 'other';
   const title = a.title_ar || a.title_original || '—';
-  const hasTr = !!(a.body_ar && a.body_ar.length > 10);
-  const hasOr = !!(a.body_original && a.body_original.length > 10);
+  // Strip HTML tags from text content
+  const cleanOr = (a.body_original||'').replace(/<[^>]*>/g,' ').replace(/&[a-z]+;/g,' ').replace(/\s+/g,' ').trim();
+  const cleanAr = (a.body_ar||'').replace(/<[^>]*>/g,' ').replace(/&[a-z]+;/g,' ').replace(/\s+/g,' ').trim();
+  const hasTr = !!(cleanAr && cleanAr.length > 10);
+  const hasOr = !!(cleanOr && cleanOr.length > 10);
   const hasAn = !!(a.sum && a.sum.length > 10);
   const matched = kgs.flatMap(g => g.kws).filter(k => title.includes(k)).slice(0, 3);
 
@@ -508,8 +511,8 @@ function buildCard(a, i) {
         ${hasOr ? `<div class="tb${!hasTr?' on':''}" onclick="swTab(this,'or${i}')">النص الأصلي</div>` : ''}
         ${hasAn ? `<div class="tb" onclick="swTab(this,'an${i}')">التحليل</div>` : ''}
       </div>
-      ${hasTr ? `<div class="tp on" id="tr${i}"><div class="tr-txt">${esc(a.body_ar).slice(0,600)}${a.body_ar.length>600?'...':''}</div></div>` : ''}
-      ${hasOr ? `<div class="tp${!hasTr?' on':''}" id="or${i}"><div class="or-txt">${esc(a.body_original).slice(0,500)}${a.body_original.length>500?'...':''}</div></div>` : ''}
+      ${hasTr ? `<div class="tp on" id="tr${i}"><div class="tr-txt">${esc(cleanAr).slice(0,600)}${cleanAr.length>600?'...':''}</div></div>` : ''}
+      ${hasOr ? `<div class="tp${!hasTr?' on':''}" id="or${i}"><div class="or-txt">${esc(cleanOr).slice(0,500)}${cleanOr.length>500?'...':''}</div></div>` : ''}
       ${hasAn ? `<div class="tp" id="an${i}"><div class="an-box"><div class="an-lbl">✦ تحليل</div><div class="an-txt">${esc(a.sum)}</div>${a.act?`<div class="actors">${a.act.split(/[،,]/).slice(0,5).map(s=>`<span class="atag">${esc(s.trim())}</span>`).join('')}</div>`:''}</div></div>` : ''}
     </div>
   ` : '';
@@ -547,7 +550,8 @@ function swTab(el, pid) {
 async function doTranslate(btn, idx) {
   const a = arts[idx];
   if (!a) return;
-  const text = (a.body_original || a.title_original || '').slice(0, 500);
+  const rawText = (a.body_original || a.title_original || '');
+  const text = rawText.replace(/<[^>]*>/g,' ').replace(/&[a-z]+;/g,' ').replace(/\s+/g,' ').trim().slice(0, 500);
   if (!text) return;
   btn.textContent = '⏳...';
   btn.disabled = true;
