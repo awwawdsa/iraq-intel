@@ -4,7 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>الراصد — منصة رصد العراق</title>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%232461d4'/><text y='.9em' font-size='65' x='15' fill='white' font-weight='bold'>IQ</text></svg>">
+<link rel="icon" href="logo.png" type="image/png">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%232461d4'/><text y='.9em' font-size='65' x='15' fill='white' font-weight='bold'>IQ</text></svg>" id="fallback-icon">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
@@ -122,7 +123,7 @@ body { font-family: var(--font); background: var(--bg); color: var(--t1); min-he
 .feed { border-left: 1px solid var(--line); border-right: 1px solid var(--line); }
 
 /* Briefing */
-.brief { background: linear-gradient(135deg, rgba(36,97,212,.07), rgba(36,97,212,.02)); border-bottom: 1px solid rgba(36,97,212,.12); padding: 14px 20px; cursor: pointer; user-select: none; }
+.brief { background: linear-gradient(135deg, rgba(36,97,212,.06), rgba(36,97,212,.01)); border-bottom: 1px solid rgba(36,97,212,.1); padding: 13px 20px; cursor: pointer; user-select: none; }
 .brief:hover { background: rgba(36,97,212,.08); }
 .brief-hd { display: flex; align-items: center; justify-content: space-between; }
 .brief-t { font-size: 13px; font-weight: 600; color: var(--accent); display: flex; align-items: center; gap: 6px; }
@@ -141,11 +142,13 @@ body { font-family: var(--font); background: var(--bg); color: var(--t1); min-he
 .sort-sel { background: var(--bg3); border: 1px solid var(--line); color: var(--t2); padding: 4px 8px; border-radius: var(--r); font-size: 11px; font-family: var(--mono); outline: none; cursor: pointer; }
 
 /* News card */
-.card { border-bottom: 1px solid var(--line); padding: 16px 20px; transition: background .15s; }
-.card:hover { background: rgba(255,255,255,.012); }
+.card { border-bottom: 1px solid var(--line); padding: 18px 20px 16px; transition: background .15s; position: relative; }
+.card:hover { background: rgba(255,255,255,.015); }
+.card.critical-card { border-right: 3px solid var(--red); }
+.card.high-card { border-right: 3px solid var(--orange); }
 
 .c-meta { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
-.c-src { display: flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 600; color: var(--t2); }
+.c-src { display: flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 600; color: var(--t2); letter-spacing: .2px; }
 .c-ico { width: 18px; height: 18px; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 8px; font-weight: 700; font-family: var(--mono); flex-shrink: 0; }
 .c-time { font-size: 11px; color: var(--t3); font-family: var(--mono); margin-right: auto; }
 .sig { display: inline-flex; align-items: center; gap: 3px; font-size: 10px; padding: 2px 7px; border-radius: 4px; font-family: var(--mono); }
@@ -163,8 +166,8 @@ body { font-family: var(--font); background: var(--bg); color: var(--t1); min-he
 .cat.ku { background: rgba(138,96,32,.1); color: #fcd34d; }
 .cat.ot { background: var(--bg3); color: var(--t3); }
 
-.c-title { font-size: 15px; font-weight: 600; color: var(--t1); line-height: 1.5; margin-bottom: 12px; }
-.c-title a { color: inherit; text-decoration: none; }
+.c-title { font-size: 15px; font-weight: 600; color: var(--t1); line-height: 1.55; margin-bottom: 12px; letter-spacing: .1px; }
+.c-title a { color: inherit; text-decoration: none; transition: color .15s; }
 .c-title a:hover { color: var(--accent); }
 
 /* Tabs */
@@ -198,11 +201,12 @@ body { font-family: var(--font); background: var(--bg); color: var(--t1); min-he
 
 /* ══ PAGINATION ══ */
 .pagination { display: flex; align-items: center; justify-content: center; gap: 6px; padding: 20px; border-top: 1px solid var(--line); }
-.pg-btn { width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border-radius: var(--r); border: 1px solid var(--line); background: var(--bg2); color: var(--t2); cursor: pointer; font-family: var(--mono); font-size: 13px; transition: all .18s; }
-.pg-btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
-.pg-btn:disabled { opacity: .3; cursor: not-allowed; }
-.pg-btn.on { background: var(--accent); border-color: var(--accent); color: #fff; }
-.pg-info { font-size: 12px; color: var(--t3); font-family: var(--mono); padding: 0 8px; }
+.pagination { background: var(--bg1); }
+.pg-btn { min-width: 36px; height: 34px; padding: 0 8px; display: flex; align-items: center; justify-content: center; border-radius: var(--r); border: 1px solid var(--line); background: var(--bg2); color: var(--t2); cursor: pointer; font-family: var(--mono); font-size: 12px; transition: all .18s; }
+.pg-btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); background: var(--a3); }
+.pg-btn:disabled { opacity: .25; cursor: not-allowed; }
+.pg-btn.on { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
+.pg-info { font-size: 11px; color: var(--t3); font-family: var(--mono); padding: 0 10px; border-right: 1px solid var(--line); margin-right: 4px; }
 
 /* Skeleton */
 .skel { padding: 16px 20px; border-bottom: 1px solid var(--line); }
@@ -498,17 +502,20 @@ function buildCard(a, i) {
   const matched = kgs.flatMap(g => g.kws).filter(k => title.includes(k)).slice(0, 3);
 
   const tabsHtml = (hasTr || hasOr || hasAn) ? `
-    <div class="tabs-nav">
-      ${hasTr ? `<div class="tb on" onclick="swTab(this,'tr${i}')">الترجمة</div>` : ''}
-      ${hasOr ? `<div class="tb${!hasTr?' on':''}" onclick="swTab(this,'or${i}')">النص الأصلي</div>` : ''}
-      ${hasAn ? `<div class="tb" onclick="swTab(this,'an${i}')">التحليل</div>` : ''}
+    <div class="tabs-wrap">
+      <div class="tabs-nav">
+        ${hasTr ? `<div class="tb on" onclick="swTab(this,'tr${i}')">الترجمة</div>` : ''}
+        ${hasOr ? `<div class="tb${!hasTr?' on':''}" onclick="swTab(this,'or${i}')">النص الأصلي</div>` : ''}
+        ${hasAn ? `<div class="tb" onclick="swTab(this,'an${i}')">التحليل</div>` : ''}
+      </div>
+      ${hasTr ? `<div class="tp on" id="tr${i}"><div class="tr-txt">${esc(a.body_ar).slice(0,600)}${a.body_ar.length>600?'...':''}</div></div>` : ''}
+      ${hasOr ? `<div class="tp${!hasTr?' on':''}" id="or${i}"><div class="or-txt">${esc(a.body_original).slice(0,500)}${a.body_original.length>500?'...':''}</div></div>` : ''}
+      ${hasAn ? `<div class="tp" id="an${i}"><div class="an-box"><div class="an-lbl">✦ تحليل</div><div class="an-txt">${esc(a.sum)}</div>${a.act?`<div class="actors">${a.act.split(/[،,]/).slice(0,5).map(s=>`<span class="atag">${esc(s.trim())}</span>`).join('')}</div>`:''}</div></div>` : ''}
     </div>
-    ${hasTr ? `<div class="tp on" id="tr${i}"><div class="tr-txt">${esc(a.body_ar).slice(0,600)}${a.body_ar.length>600?'...':''}</div></div>` : ''}
-    ${hasOr ? `<div class="tp${!hasTr?' on':''}" id="or${i}"><div class="or-txt">${esc(a.body_original).slice(0,500)}${a.body_original.length>500?'...':''}</div></div>` : ''}
-    ${hasAn ? `<div class="tp" id="an${i}"><div class="an-box"><div class="an-lbl">✦ تحليل</div><div class="an-txt">${esc(a.sum)}</div>${a.act?`<div class="actors">${a.act.split(/[،,]/).slice(0,5).map(s=>`<span class="atag">${esc(s.trim())}</span>`).join('')}</div>`:''}</div></div>` : ''}
   ` : '';
 
-  return `<div class="card">
+  const cardCls = sig==='critical'?' critical-card':sig==='high'?' high-card':'';
+  return `<div class="card${cardCls}">
   <div class="c-meta">
     <div class="c-src"><div class="c-ico" style="background:${clr}22;color:${clr}">${ini}</div>${esc(a.sn)}</div>
     <span class="c-time">${ago(a.published_at)}</span>
@@ -527,10 +534,10 @@ function buildCard(a, i) {
 }
 
 function swTab(el, pid) {
-  const nav = el.closest('.tabs-nav');
-  nav.querySelectorAll('.tb').forEach(b => b.classList.remove('on'));
-  const card = nav.parentElement;
-  card.querySelectorAll('.tp').forEach(p => p.classList.remove('on'));
+  const wrap = el.closest('.tabs-wrap');
+  if (!wrap) return;
+  wrap.querySelectorAll('.tb').forEach(b => b.classList.remove('on'));
+  wrap.querySelectorAll('.tp').forEach(p => p.classList.remove('on'));
   el.classList.add('on');
   const pane = document.getElementById(pid);
   if (pane) pane.classList.add('on');
