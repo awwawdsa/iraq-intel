@@ -513,7 +513,7 @@ footer { text-align: center; padding: 16px; font-size: 10px; color: var(--t3); f
       <div id="crit-list"><div style="color:var(--t3);font-size:11px;padding:4px 0">لا أحداث حرجة ✓</div></div>
     </div>
     <div class="sr-sec">
-      <div class="sr-hd">📡 المصادر</div>
+      <div class="sr-hd">📡 المصادر <span style="font-size:9px;color:var(--t3);font-weight:400;font-family:var(--mono)">(فلتر العرض)</span></div>
       <div class="src-actions">
         <button class="src-act-btn" onclick="selectAllSrc(true)">الكل</button>
         <button class="src-act-btn" onclick="selectAllSrc(false)">لا شيء</button>
@@ -671,9 +671,9 @@ function setTickerMode(visible) {
 function hideTicker() { setTickerMode(false); }
 
 async function loadTicker() {
-  const since = new Date(Date.now()-6*3600000).toISOString();
+  const since = new Date(Date.now()-24*3600000).toISOString();
   const res = await sb('articles',
-    `?select=title_ar,title_original,original_url,published_at,sources(name)&importance_score=gte.75&published_at=gte.${since}&order=published_at.desc&limit=15`);
+    `?select=title_ar,title_original,original_url,published_at,sources(name)&importance_score=gte.40&published_at=gte.${since}&order=published_at.desc&limit=15`);
   if (!res.data.length) return;
   const items = res.data.map(a => {
     const t = clean(a.title_ar||a.title_original||'').slice(0,80);
@@ -730,7 +730,7 @@ function closeAlert() { document.getElementById('alert-popup').classList.remove(
 async function checkBreaking() {
   const since = new Date(Date.now()-10*60000).toISOString(); // last 10 min
   const res = await sb('articles',
-    `?select=id,title_ar,title_original,original_url,published_at,sources(name)&importance_score=gte.85&published_at=gte.${since}&order=published_at.desc&limit=3`);
+    `?select=id,title_ar,title_original,original_url,published_at,sources(name)&importance_score=gte.75&published_at=gte.${since}&order=published_at.desc&limit=3`);
   res.data.forEach(a => showAlert(a));
 }
 
@@ -764,8 +764,12 @@ async function loadPage(page) {
   else if(['security','politics','diplomacy','economy','military','energy','kurdistan'].includes(filt)) p+=`&category=eq.${filt}`;
   if (period) p+=`&published_at=gte.${new Date(Date.now()-parseInt(period)*3600000).toISOString()}`;
   if (srch) p+=`&or=(title_ar.ilike.*${encodeURIComponent(srch)}*,title_original.ilike.*${encodeURIComponent(srch)}*)`;
-  if (selectedSrcIds.length > 0 && selectedSrcIds.length < allSrcs.length) {
-    p += `&source_id=in.(${selectedSrcIds.join(',')})`;
+  if (selectedSrcIds.length > 0) {
+    if (selectedSrcIds[0] === '__empty__') {
+      p += '&source_id=eq.00000000-0000-0000-0000-000000000000'; // لا نتائج
+    } else {
+      p += `&source_id=in.(${selectedSrcIds.join(',')})`;
+    }
   }
 
   // فلتر الكلمات المفتاحية - عرض الأخبار المرتبطة فقط
@@ -800,7 +804,7 @@ async function loadPage(page) {
   document.getElementById('pg-c').textContent = page;
   document.getElementById('pg-t').textContent = pages;
   renderFeed(); renderPagination(page, pages);
-  window.scrollTo({top:130,behavior:'smooth'});
+  window.scrollTo({top:0,behavior:'smooth'});
 }
 
 /* ══ RENDER ══ */
@@ -939,7 +943,8 @@ function renderSrcList() {
   const el=document.getElementById('src-list');
   if(!allSrcs.length){el.innerHTML='<div style="color:var(--t3);font-size:11px">لا توجد مصادر</div>';return;}
   el.innerHTML=allSrcs.map(s=>{
-    const on=selectedSrcIds.length===0||selectedSrcIds.includes(s.id);
+    const isEmpty = selectedSrcIds[0]==='__empty__';
+    const on = !isEmpty && (selectedSrcIds.length===0||selectedSrcIds.includes(s.id));
     const fav=getFav(s.website_url);
     const clr=RC[s.region]||'#3b82f6';
     const ini=s.name.split(' ').slice(0,2).map(w=>w[0]||'').join('').toUpperCase().slice(0,2);
@@ -965,8 +970,20 @@ function toggleSrc(id) {
   }
   renderSrcList();
 }
-function selectAllSrc(val){selectedSrcIds=val?[]:allSrcs.map(s=>s.id);renderSrcList();}
-function applySourceFilter(){loadPage(1);}
+function selectAllSrc(val) {
+  if (val) {
+    selectedSrcIds = []; // [] = كل المصادر
+  } else {
+    selectedSrcIds = ['__empty__']; // فلتر لا يطابق شيء
+  }
+  renderSrcList();
+}
+function applySourceFilter() {
+  if (selectedSrcIds[0] === '__empty__') {
+    selectedSrcIds = []; // reset to all
+  }
+  loadPage(1);
+}
 async function loadSrcs() {
   const res=await sb('sources','?select=id,name,region,website_url&is_active=eq.true&order=trust_score.desc&limit=30');
   allSrcs=res.data; renderSrcList();
@@ -975,7 +992,7 @@ async function loadSrcs() {
 /* ══ CRITICAL ══ */
 async function loadCritical() {
   const since = new Date(Date.now() - 48*3600000).toISOString();
-  let p = `?select=title_ar,title_original,published_at,original_url,importance_score,sources(name)&importance_score=gte.75&published_at=gte.${since}&order=importance_score.desc&limit=8`;
+  let p = `?select=title_ar,title_original,published_at,original_url,importance_score,sources(name)&importance_score=gte.50&published_at=gte.${since}&order=importance_score.desc&limit=8`;
   const res = await sb('articles', p);
   const el = document.getElementById('crit-list');
   if (!res.data.length) { el.innerHTML = '<div style="color:var(--t3);font-size:11px;padding:4px 0">لا أحداث حرجة ✓</div>'; return; }
