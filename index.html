@@ -446,7 +446,11 @@ footer { text-align: center; padding: 16px; font-size: 10px; color: var(--t3); f
   <div class="fdiv"></div>
   <select class="pd-sel" id="period" onchange="loadPage(1)">
     <option value="">كل الوقت</option>
+    <option value="0.5">آخر 30 دقيقة</option>
+    <option value="1">آخر ساعة</option>
+    <option value="3">آخر 3 ساعات</option>
     <option value="6">آخر 6 ساعات</option>
+    <option value="12">آخر 12 ساعة</option>
     <option value="24">آخر 24 ساعة</option>
     <option value="48">آخر 48 ساعة</option>
     <option value="168">آخر أسبوع</option>
@@ -515,9 +519,12 @@ footer { text-align: center; padding: 16px; font-size: 10px; color: var(--t3); f
     <div class="sr-sec">
       <div class="sr-hd">📡 المصادر <span style="font-size:9px;color:var(--t3);font-weight:400;font-family:var(--mono)">(فلتر العرض)</span></div>
       <div class="src-actions">
-        <button class="src-act-btn" onclick="selectAllSrc(true)">الكل</button>
-        <button class="src-act-btn" onclick="selectAllSrc(false)">لا شيء</button>
+        <button class="src-act-btn" onclick="selectAllSrc(true)" title="تحديد كل المصادر">الكل</button>
+        <button class="src-act-btn" onclick="resetSrcFilter()" title="إلغاء الفلتر">إلغاء</button>
         <button class="src-act-btn apply" onclick="applySourceFilter()">تطبيق ✓</button>
+      </div>
+      <div id="src-view-btn" style="display:none;margin-bottom:6px">
+        <a id="src-view-link" href="#" style="display:flex;align-items:center;justify-content:center;gap:4px;background:var(--a3);border:1px solid rgba(29,78,216,.2);color:var(--accent);padding:5px 8px;border-radius:var(--r);font-size:11px;font-weight:700;text-decoration:none;transition:background .15s" onmouseover="this.style.background='rgba(29,78,216,.2)'" onmouseout="this.style.background='var(--a3)'">↗ عرض كل مقالات هذا المصدر</a>
       </div>
       <div id="src-list"><div style="color:var(--t3);font-size:11px">جاري...</div></div>
     </div>
@@ -764,12 +771,8 @@ async function loadPage(page) {
   else if(['security','politics','diplomacy','economy','military','energy','kurdistan'].includes(filt)) p+=`&category=eq.${filt}`;
   if (period) p+=`&published_at=gte.${new Date(Date.now()-parseInt(period)*3600000).toISOString()}`;
   if (srch) p+=`&or=(title_ar.ilike.*${encodeURIComponent(srch)}*,title_original.ilike.*${encodeURIComponent(srch)}*)`;
-  if (selectedSrcIds.length > 0) {
-    if (selectedSrcIds[0] === '__empty__') {
-      p += '&source_id=eq.00000000-0000-0000-0000-000000000000'; // لا نتائج
-    } else {
-      p += `&source_id=in.(${selectedSrcIds.join(',')})`;
-    }
+  if (selectedSrcIds.length > 0 && selectedSrcIds[0] !== '__none__') {
+    p += `&source_id=in.(${selectedSrcIds.join(',')})`;
   }
 
   // فلتر الكلمات المفتاحية - عرض الأخبار المرتبطة فقط
@@ -943,8 +946,8 @@ function renderSrcList() {
   const el=document.getElementById('src-list');
   if(!allSrcs.length){el.innerHTML='<div style="color:var(--t3);font-size:11px">لا توجد مصادر</div>';return;}
   el.innerHTML=allSrcs.map(s=>{
-    const isEmpty = selectedSrcIds[0]==='__empty__';
-    const on = !isEmpty && (selectedSrcIds.length===0||selectedSrcIds.includes(s.id));
+    const isNone = selectedSrcIds[0]==='__none__';
+    const on = !isNone && (selectedSrcIds.length===0||selectedSrcIds.includes(s.id));
     const fav=getFav(s.website_url);
     const clr=RC[s.region]||'#3b82f6';
     const ini=s.name.split(' ').slice(0,2).map(w=>w[0]||'').join('').toUpperCase().slice(0,2);
@@ -957,36 +960,46 @@ function renderSrcList() {
   }).join('');
 }
 function toggleSrc(id) {
+  // [] = كل المصادر, ['id1','id2'...] = مصادر محددة
   if (selectedSrcIds.length === 0) {
-    // كل المصادر محددة — نرفع تحديد هذا المصدر فقط
-    selectedSrcIds = allSrcs.map(s=>s.id).filter(x=>x!==id);
+    // كان الكل محدداً — حدد هذا المصدر وحده
+    selectedSrcIds = [id];
   } else if (selectedSrcIds.includes(id)) {
-    selectedSrcIds = selectedSrcIds.filter(x=>x!==id);
-    // إذا أصبح الكل محددًا، نعود لـ [] (الكل)
-    if (selectedSrcIds.length === allSrcs.length) selectedSrcIds = [];
+    // إلغاء تحديد هذا المصدر
+    selectedSrcIds = selectedSrcIds.filter(x => x !== id);
+    // إذا أصبح لا شيء، أعد الكل
+    if (selectedSrcIds.length === 0) selectedSrcIds = [];
   } else {
+    // إضافة هذا المصدر للمحددين
     selectedSrcIds.push(id);
+    // إذا أصبح الكل محدداً، نعود لـ []
     if (selectedSrcIds.length === allSrcs.length) selectedSrcIds = [];
   }
   renderSrcList();
 }
 function selectAllSrc(val) {
-  if (val) {
-    selectedSrcIds = []; // [] = كل المصادر
-  } else {
-    selectedSrcIds = ['__empty__']; // فلتر لا يطابق شيء
-  }
+  selectedSrcIds = val ? [] : allSrcs.map(s=>s.id).slice(0,0); // val=true=الكل, false=لاشيء
+  if (!val) selectedSrcIds = ['__none__'];
   renderSrcList();
 }
 function applySourceFilter() {
-  if (selectedSrcIds[0] === '__empty__') {
-    selectedSrcIds = []; // reset to all
-  }
+  if (selectedSrcIds[0] === '__none__') selectedSrcIds = [];
+  const viewBtn = document.getElementById('src-view-btn');
+  const viewLink = document.getElementById('src-view-link');
+  if (viewBtn && viewLink && selectedSrcIds.length === 1) {
+    viewBtn.style.display = 'block';
+    viewLink.href = `source.html?id=${selectedSrcIds[0]}`;
+    const src = allSrcs.find(s=>s.id===selectedSrcIds[0]);
+    if (src) viewLink.innerHTML = `↗ كل مقالات ${esc(src.name)}`;
+  } else if (viewBtn) { viewBtn.style.display = 'none'; }
   loadPage(1);
 }
-async function loadSrcs() {
-  const res=await sb('sources','?select=id,name,region,website_url&is_active=eq.true&order=trust_score.desc&limit=30');
-  allSrcs=res.data; renderSrcList();
+
+function resetSrcFilter() {
+  selectedSrcIds = [];
+  const vb = document.getElementById('src-view-btn');
+  if (vb) vb.style.display = 'none';
+  renderSrcList(); loadPage(1);
 }
 
 /* ══ CRITICAL ══ */
@@ -1058,11 +1071,19 @@ function updateClock() {
 
 /* ══ HELPERS ══ */
 function ago(iso) {
-  if(!iso)return'—';
-  const d=Math.floor((Date.now()-new Date(iso))/1000);
-  if(d<60)return'الآن';if(d<3600)return`${Math.floor(d/60)}د`;
-  if(d<86400)return`${Math.floor(d/3600)}س`;
-  return new Date(iso).toLocaleDateString('ar-IQ',{month:'short',day:'numeric'});
+  if(!iso) return '—';
+  const d = Math.floor((Date.now()-new Date(iso))/1000);
+  if(d<60) return '<b>الآن</b>';
+  if(d<3600) return `<b>${Math.floor(d/60)}</b>د`;
+  if(d<86400) return `<b>${Math.floor(d/3600)}</b>س`;
+  const dt = new Date(iso);
+  const greg = dt.toLocaleDateString('ar-IQ',{month:'short',day:'numeric'});
+  try {
+    const hijri = dt.toLocaleDateString('ar-SA-u-ca-islamic',{day:'numeric',month:'short',year:'numeric'});
+    return `<b>${greg}</b> <span style="font-size:9px;color:var(--t3)">${hijri}</span>`;
+  } catch {
+    return `<b>${greg}</b>`;
+  }
 }
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 
