@@ -75,43 +75,48 @@ def translate_to_arabic(text: str, src_lang: str = 'auto') -> str:
 # ─────────────────────────────────────────────
 # كلمات مفتاحية — فلتر العراق
 # ─────────────────────────────────────────────
-IRAQ_KEYWORDS = {
-    # العربية
-    "ar": [
-        "العراق", "عراقي", "عراقية", "عراقيين",
-        "بغداد", "البصرة", "الموصل", "أربيل", "النجف", "كربلاء",
-        "الكوفة", "الرمادي", "تكريت", "الفلوجة", "كركوك",
-        "السليمانية", "دهوك", "الأنبار", "ذي قار", "ميسان",
-        "الحشد الشعبي", "الحشد", "فصائل", "الكاظمي", "السوداني",
-        "البرلمان العراقي", "مجلس النواب",
-        "اقليم كردستان", "البيشمركة", "مسعود بارزاني",
-        "كتائب حزب الله", "الحرس الثوري في العراق",
-        "سامراء", "الديوانية", "واسط", "صلاح الدين",
-    ],
-    # الإنجليزية
-    "en": [
-        "iraq", "iraqi", "baghdad", "basra", "mosul", "erbil", "irbil",
-        "najaf", "karbala", "kirkuk", "sulaymaniyah", "dohuk",
-        "anbar", "tikrit", "fallujah", "ramadi", "samarra",
-        "kurdistan", "peshmerga", "pmf", "popular mobilization",
-        "hashd", "hashd al-shaabi", "kataib hezbollah",
-        "iraqi parliament", "council of representatives",
-        "al-sudani", "sudani", "barzani", "masoud barzani",
-        "shia militias iraq", "iran iraq", "us forces iraq",
-        "isis iraq", "isil iraq", "daesh iraq",
-    ],
-    # الفارسية
-    "fa": [
-        "عراق", "بغداد", "بصره", "موصل", "اربیل",
-        "حشد شعبی", "کردستان عراق", "پیشمرگه",
-    ],
-    # التركية
-    "tr": [
-        "irak", "bağdat", "basra", "musul", "erbil",
-        "kürdistan", "peşmerge", "haşdi şabi",
-        "kuzey irak", "irak kürtleri",
-    ],
-}
+# ─────────────────────────────────────────────
+# الكلمات المفتاحية — تُحمّل من Supabase ديناميكياً
+# ─────────────────────────────────────────────
+_DYNAMIC_KEYWORDS: list[str] = []  # تُملأ عند بدء التشغيل
+
+# كلمات احتياطية إذا فشل جلب Supabase
+FALLBACK_KEYWORDS = [
+    # العراق
+    "العراق","عراقي","بغداد","البصرة","الموصل","أربيل","النجف","كركوك",
+    "الحشد الشعبي","فصائل","السوداني","البرلمان العراقي","كردستان",
+    "iraq","iraqi","baghdad","basra","mosul","erbil","kirkuk",
+    "pmf","peshmerga","kurdistan","al-sudani","iran iraq",
+    # سوريا
+    "سوريا","سوري","دمشق","حلب","إدلب","درعا","الأسد","هيئة تحرير الشام",
+    "syria","syrian","damascus","aleppo","idlib","hts","hayat tahrir",
+    # تركيا
+    "تركيا","أردوغان","أنقرة","العملية التركية",
+    "turkey","turkish","erdogan","ankara","pkk",
+    # إيران
+    "إيران","إيراني","طهران","الحرس الثوري","خامنئي",
+    "iran","iranian","tehran","irgc","khamenei",
+    # المنطقة
+    "الشرق الأوسط","middle east","خليج","gulf",
+]
+
+def load_keywords_from_db() -> list[str]:
+    """جلب الكلمات المفتاحية من Supabase"""
+    global _DYNAMIC_KEYWORDS
+    try:
+        res = supabase.table("keywords").select("word").eq("is_active", True).execute()
+        if res.data:
+            words = [r["word"].strip().lower() for r in res.data if r.get("word")]
+            _DYNAMIC_KEYWORDS = words
+            log.info(f"✓ جُلبت {len(words)} كلمة مفتاحية من قاعدة البيانات")
+            return words
+    except Exception as e:
+        log.warning(f"تعذّر جلب الكلمات من DB، استخدام الاحتياطية: {e}")
+    _DYNAMIC_KEYWORDS = [k.lower() for k in FALLBACK_KEYWORDS]
+    return _DYNAMIC_KEYWORDS
+
+def get_keywords() -> list[str]:
+    return _DYNAMIC_KEYWORDS if _DYNAMIC_KEYWORDS else [k.lower() for k in FALLBACK_KEYWORDS]
 
 # تصنيف تلقائي بناءً على كلمات مفتاحية
 CATEGORY_KEYWORDS = {
@@ -155,27 +160,20 @@ CATEGORY_KEYWORDS = {
 # دوال المعالجة
 # ─────────────────────────────────────────────
 
-def detect_iraq(text: str, lang: str = "en") -> tuple[bool, list[str]]:
+def detect_keywords(text: str, lang: str = "en") -> tuple[bool, list[str]]:
     """
-    يكشف إذا كان النص يذكر العراق.
-    يرجع (True/False, قائمة الكلمات المفتاحية التي وجدها)
+    يكشف الكلمات المفتاحية — يعمل مع أي موضوع وليس العراق فقط
     """
     text_lower = text.lower()
     found = []
+    for kw in get_keywords():
+        if kw.lower() in text_lower and kw.lower() not in found:
+            found.append(kw)
+    return len(found) > 0, found[:20]
 
-    # دائماً نفحص الإنجليزية والعربية بغض النظر عن لغة المصدر
-    langs_to_check = ["en", "ar"]
-    if lang in IRAQ_KEYWORDS and lang not in langs_to_check:
-        langs_to_check.append(lang)
-
-    for check_lang in langs_to_check:
-        for kw in IRAQ_KEYWORDS.get(check_lang, []):
-            if kw.lower() in text_lower:
-                found.append(kw)
-
-    return bool(found), list(set(found))
-
-
+def detect_iraq(text: str, lang: str = "en") -> tuple[bool, list[str]]:
+    """wrapper للتوافق"""
+    return detect_keywords(text, lang)
 def detect_category(text: str) -> str:
     """تصنيف المقالة تلقائياً"""
     text_lower = text.lower()
@@ -309,8 +307,12 @@ def process_source(source: dict) -> int:
         importance = 0
         category   = "other"
 
+        # حساب الأهمية والتصنيف لكل الأخبار المطابقة
         if mentions_iraq:
             importance = score_importance(entry, iraq_keywords)
+            category   = detect_category(full_text)
+        else:
+            importance = min(len(iraq_keywords) * 15, 70)
             category   = detect_category(full_text)
 
         # ترجمة العنوان والنص إذا لم يكن عربياً
@@ -337,8 +339,8 @@ def process_source(source: dict) -> int:
         try:
             supabase.table("articles").insert(row).execute()
             added += 1
-            status = "🇮🇶" if mentions_iraq else "  "
-            log.info(f"  {status} [{importance:3d}] {title[:70]}")
+            kw_count = len(iraq_keywords)
+            log.info(f"  ✓ [{importance:3d}] [{kw_count}kw] {title[:70]}")
         except Exception as e:
             log.error(f"  ✗ خطأ في الإدراج: {e}")
 
@@ -350,6 +352,9 @@ def run():
     log.info("=" * 60)
     log.info("Iraq Intel Fetcher — بدء الجلب")
     log.info("=" * 60)
+
+    # جلب الكلمات المفتاحية أولاً
+    load_keywords_from_db()
 
     # جلب المصادر النشطة من Supabase
     try:

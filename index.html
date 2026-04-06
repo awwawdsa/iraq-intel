@@ -626,7 +626,7 @@ function hideTicker() { setTickerMode(false); }
 async function loadTicker() {
   const since = new Date(Date.now()-6*3600000).toISOString();
   const res = await sb('articles',
-    `?select=title_ar,title_original,original_url,published_at,sources(name)&mentions_iraq=eq.true&importance_score=gte.75&published_at=gte.${since}&order=published_at.desc&limit=15`);
+    `?select=title_ar,title_original,original_url,published_at,sources(name)&importance_score=gte.75&published_at=gte.${since}&order=published_at.desc&limit=15`);
   if (!res.data.length) return;
   const items = res.data.map(a => {
     const t = clean(a.title_ar||a.title_original||'').slice(0,80);
@@ -683,7 +683,7 @@ function closeAlert() { document.getElementById('alert-popup').classList.remove(
 async function checkBreaking() {
   const since = new Date(Date.now()-10*60000).toISOString(); // last 10 min
   const res = await sb('articles',
-    `?select=id,title_ar,title_original,original_url,published_at,sources(name)&mentions_iraq=eq.true&importance_score=gte.85&published_at=gte.${since}&order=published_at.desc&limit=3`);
+    `?select=id,title_ar,title_original,original_url,published_at,sources(name)&importance_score=gte.85&published_at=gte.${since}&order=published_at.desc&limit=3`);
   res.data.forEach(a => showAlert(a));
 }
 
@@ -712,12 +712,20 @@ async function loadPage(page) {
   const offset = (page-1)*PAGE_SIZE;
 
   let p = `?select=id,title_ar,title_original,body_ar,body_original,original_url,category,importance_score,published_at,iraq_keywords,source_id,sources(id,name,region,website_url),analyses(summary_ar,actors,significance,stance)`;
-  p += `&mentions_iraq=eq.true&order=${sortF}.desc,published_at.desc&limit=${PAGE_SIZE}&offset=${offset}`;
+  p += `&order=${sortF}.desc,published_at.desc&limit=${PAGE_SIZE}&offset=${offset}`;
   if (filt==='critical') p+=`&importance_score=gte.80`;
   else if(['security','politics','diplomacy','economy','military','energy','kurdistan'].includes(filt)) p+=`&category=eq.${filt}`;
   if (period) p+=`&published_at=gte.${new Date(Date.now()-parseInt(period)*3600000).toISOString()}`;
   if (srch) p+=`&or=(title_ar.ilike.*${encodeURIComponent(srch)}*,title_original.ilike.*${encodeURIComponent(srch)}*)`;
   if (selectedSrcIds.length>0) p+=`&source_id=in.(${selectedSrcIds.join(',')})`;
+
+  // فلتر الكلمات المفتاحية - عرض الأخبار المرتبطة فقط
+  const allKws = kgs.flatMap(g=>g.kws).filter(k=>typeof k==='string'&&k.length>2);
+  if (allKws.length > 0 && !srch && filt === 'all') {
+    // عرض أخبار الكلمات المفتاحية الأساسية فقط
+    const topKws = allKws.slice(0,3).map(k=>encodeURIComponent(k));
+    p += `&or=(title_ar.ilike.*${topKws[0]}*,title_original.ilike.*${topKws[0]}*)`;
+  }
 
   const res = await sb('articles', p);
   totalCount = res.count;
@@ -914,7 +922,7 @@ async function loadSrcs() {
 /* ══ CRITICAL ══ */
 async function loadCritical() {
   const since=new Date(Date.now()-72*3600000).toISOString();
-  const res=await sb('articles',`?select=title_ar,title_original,published_at,original_url,sources(name)&mentions_iraq=eq.true&importance_score=gte.80&published_at=gte.${since}&order=importance_score.desc&limit=5`);
+  const res=await sb('articles',`?select=title_ar,title_original,published_at,original_url,sources(name)&importance_score=gte.80&published_at=gte.${since}&order=importance_score.desc&limit=5`);
   const el=document.getElementById('crit-list');
   if(!res.data.length){el.innerHTML='<div style="color:var(--t3);font-size:11px;padding:4px 0">لا أحداث حرجة ✓</div>';return;}
   el.innerHTML=res.data.map(a=>`
@@ -974,7 +982,7 @@ document.querySelectorAll('.ov').forEach(o=>o.addEventListener('click',e=>{if(e.
 async function buildBrief() {
   const today=new Date().toLocaleDateString('ar-IQ',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
   document.getElementById('brief-date').textContent=today;
-  const res=await sb('articles',`?select=category,importance_score&mentions_iraq=eq.true&published_at=gte.${new Date(Date.now()-86400000).toISOString()}&limit=200`);
+  const res=await sb('articles',`?select=category,importance_score&published_at=gte.${new Date(Date.now()-86400000).toISOString()}&limit=200`);
   const tot=res.count||res.data.length;
   const cr=res.data.filter(a=>(a.importance_score||0)>=80).length;
   const cats={};res.data.forEach(a=>{cats[a.category]=(cats[a.category]||0)+1;});
@@ -1002,7 +1010,7 @@ async function refresh() {
 }
 setInterval(async()=>{
   if(!SB_URL||!SB_KEY||!arts[0])return;
-  const res=await sb('articles',`?select=id&mentions_iraq=eq.true&published_at=gt.${arts[0].published_at}&limit=1`);
+  const res=await sb('articles',`?select=id&published_at=gt.${arts[0].published_at}&limit=1`);
   if(res.count>0){const t=document.getElementById('ntost');t.textContent=`↑ ${res.count} خبر جديد`;t.classList.add('show');}
   checkBreaking();
 },60000);
