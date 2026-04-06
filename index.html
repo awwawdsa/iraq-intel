@@ -588,6 +588,53 @@ function defKgs() {
   ];
 }
 
+function saveKgs() { localStorage.setItem('iq_kgs', JSON.stringify(kgs)); }
+
+function renderKgs() {
+  const el = document.getElementById('kg-list');
+  if (!el) return;
+  el.innerHTML = kgs.map((g, gi) => `
+    <div class="kg">
+      <div class="kg-hd">
+        <div class="kg-dot" style="background:${g.color}"></div>
+        <div class="kg-name">${esc(g.name)}</div>
+        <div class="kg-cnt">${g.kws.length}</div>
+        <div class="kg-del" onclick="event.stopPropagation();delGroup(${gi})" title="حذف">🗑</div>
+      </div>
+      <div class="kt">${g.kws.map((k,ki)=>{
+        const kstr = typeof k==='string' ? k : (k.w||k.word||'');
+        if (!kstr) return '';
+        return `<span class="kw${kwF===kstr?' on':''}" onclick="fKw('${kstr.replace(/'/g,"\'")}')">
+          ${esc(kstr)}<span class="kw-x" onclick="event.stopPropagation();rmKw(${gi},${ki})">×</span>
+        </span>`;
+      }).join('')}</div>
+      <div class="kg-add-row">
+        <input class="kg-add-inp" id="ki${gi}" placeholder="+ كلمة" onkeydown="if(event.key==='Enter')addKw(${gi})">
+        <button class="kg-add-btn" onclick="addKw(${gi})">+</button>
+      </div>
+    </div>`).join('');
+}
+
+function fKw(k) { kwF = kwF===k ? '' : k; document.getElementById('srch').value = kwF; srch = kwF; renderKgs(); loadPage(1); }
+function addKw(gi) {
+  const inp = document.getElementById('ki'+gi);
+  const v = inp.value.trim(); if (!v) return;
+  if (kgs[gi].kws.some(k=>(typeof k==='string'?k:k.w)===v)) { inp.value=''; return; }
+  kgs[gi].kws.push(v); saveKgs(); inp.value=''; renderKgs();
+}
+function rmKw(gi,ki) { kgs[gi].kws.splice(ki,1); saveKgs(); renderKgs(); }
+function delGroup(gi) { if (!confirm(`حذف "${kgs[gi].name}"؟`)) return; kgs.splice(gi,1); saveKgs(); renderKgs(); }
+function openAddG() { document.getElementById('ov-ag').classList.add('open'); document.getElementById('ag-n').focus(); }
+function saveG() {
+  const n = document.getElementById('ag-n').value.trim();
+  const ks = document.getElementById('ag-k').value.split(/[,،]/).map(k=>k.trim()).filter(Boolean);
+  if (!n) return;
+  const cols=['#3b82f6','#ef4444','#22c55e','#f59e0b','#8b5cf6','#0ea5e9','#f97316'];
+  kgs.push({id:'g'+Date.now(),name:n,color:cols[kgs.length%cols.length],kws:ks});
+  saveKgs(); renderKgs(); closeOv('ov-ag');
+  document.getElementById('ag-n').value=''; document.getElementById('ag-k').value='';
+}
+
 /* ══ THEME ══ */
 function applyTheme(t) {
   document.documentElement.setAttribute('data-theme', t);
