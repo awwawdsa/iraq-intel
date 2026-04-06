@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>عرض المصدر — الراصد</title>
+<link rel="icon" href="logo.png" type="image/png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+[data-theme="light"]{--bg:#f0f4f8;--bg2:#fff;--bg3:#f5f7fa;--bg4:#edf1f7;--line:#d1dce8;--t1:#0f1923;--t2:#3d5570;--t3:#7a96b0;}
+[data-theme="dark"]{--bg:#06080c;--bg2:#0f1520;--bg3:#141d2b;--bg4:#1a2535;--line:#1c2b3a;--t1:#e2eaf4;--t2:#7490a8;--t3:#3a5068;}
+:root{--accent:#1d4ed8;--a2:#1e40af;--a3:rgba(29,78,216,.1);--green:#15803d;--red:#dc2626;--gold:#b45309;--font:'IBM Plex Sans Arabic',sans-serif;--mono:'JetBrains Mono',monospace;--r:7px;--r2:12px;}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:var(--font);background:var(--bg);color:var(--t1);min-height:100vh;font-size:14px;}
+.topbar{display:flex;align-items:center;gap:12px;padding:0 20px;height:50px;background:var(--bg2);border-bottom:2px solid var(--line);position:sticky;top:0;z-index:100;box-shadow:0 1px 4px rgba(0,0,0,.06);}
+.tb-logo{width:28px;height:28px;border-radius:6px;overflow:hidden;}
+.tb-logo img{width:100%;height:100%;object-fit:cover;}
+.tb-sep{flex:1;}
+.tb-btn{background:var(--bg3);border:1px solid var(--line);color:var(--t2);padding:5px 12px;border-radius:var(--r);cursor:pointer;font-family:var(--font);font-size:12px;font-weight:600;text-decoration:none;transition:all .15s;display:inline-flex;align-items:center;gap:5px;}
+.tb-btn:hover{background:var(--bg4);color:var(--t1);}
+.theme-btn{background:var(--bg3);border:1px solid var(--line);color:var(--t2);width:32px;height:28px;border-radius:var(--r);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;}
+.src-hero{background:var(--bg2);border-bottom:2px solid var(--line);padding:18px 24px;}
+.src-inner{max-width:900px;margin:0 auto;display:flex;align-items:center;gap:14px;}
+.src-fav{width:48px;height:48px;border-radius:10px;overflow:hidden;border:2px solid var(--line);flex-shrink:0;}
+.src-fav img{width:100%;height:100%;object-fit:cover;}
+.src-fav-fb{width:48px;height:48px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:15px;font-weight:800;flex-shrink:0;}
+.src-info{flex:1;}
+.src-name{font-size:19px;font-weight:700;margin-bottom:5px;}
+.src-badges{display:flex;gap:6px;flex-wrap:wrap;}
+.sbadge{font-size:10px;color:var(--t3);font-family:var(--mono);background:var(--bg3);padding:2px 8px;border-radius:4px;border:1px solid var(--line);font-weight:600;}
+.src-ext{font-size:12px;color:var(--accent);text-decoration:none;font-weight:600;border:1px solid rgba(29,78,216,.2);padding:5px 12px;border-radius:var(--r);}
+.src-ext:hover{background:var(--a3);}
+.toolbar{background:var(--bg2);border-bottom:1px solid var(--line);padding:8px 20px;position:sticky;top:50px;z-index:90;}
+.tool-inner{max-width:900px;margin:0 auto;display:flex;align-items:center;gap:8px;}
+.t-inp{background:var(--bg3);border:1px solid var(--line);color:var(--t1);padding:6px 10px;border-radius:var(--r);font-family:var(--font);font-size:12px;outline:none;width:220px;}
+.t-inp:focus{border-color:var(--accent);}
+.t-inp::placeholder{color:var(--t3);}
+.t-sel{background:var(--bg3);border:1px solid var(--line);color:var(--t2);padding:5px 8px;border-radius:var(--r);font-family:var(--mono);font-size:11px;outline:none;cursor:pointer;}
+.t-sep{flex:1;}
+.t-info{font-size:11px;color:var(--t3);font-family:var(--mono);}
+.t-info b{color:var(--t1);font-weight:700;}
+.ref-btn{display:flex;align-items:center;gap:4px;background:var(--bg3);border:1px solid var(--line);color:var(--t2);padding:5px 10px;border-radius:var(--r);cursor:pointer;font-size:11px;font-weight:600;font-family:var(--font);transition:all .15s;}
+.ref-btn:hover{border-color:var(--accent);color:var(--accent);}
+@keyframes spin{to{transform:rotate(360deg)}}
+.spinning{animation:spin .7s linear infinite;}
+.content{max-width:900px;margin:0 auto;padding:16px 20px;}
+.date-sep{display:flex;align-items:center;gap:10px;margin:14px 0 8px;font-size:10px;font-weight:700;color:var(--t3);font-family:var(--mono);text-transform:uppercase;letter-spacing:.5px;}
+.date-sep::before,.date-sep::after{content:'';flex:1;height:1px;background:var(--line);}
+.card{background:var(--bg2);border:1px solid var(--line);border-radius:var(--r2);padding:13px 16px;margin-bottom:7px;transition:all .15s;border-right:3px solid transparent;box-shadow:0 1px 3px rgba(0,0,0,.04);}
+.card:hover{box-shadow:0 2px 8px rgba(0,0,0,.08);border-color:var(--line);}
+.card.cr{border-right-color:#dc2626;}
+.card.hi{border-right-color:#c2410c;}
+.c-hd{display:flex;align-items:center;gap:6px;margin-bottom:7px;flex-wrap:wrap;}
+.c-time{font-size:10px;color:var(--t3);font-family:var(--mono);font-weight:600;}
+.sig{font-size:10px;font-weight:700;padding:2px 6px;border-radius:4px;}
+.sig.cr{background:rgba(220,38,38,.1);color:#dc2626;}
+.sig.hi{background:rgba(194,65,12,.1);color:#c2410c;}
+.sig.me{background:rgba(180,83,9,.1);color:#b45309;}
+.sig.lo{background:var(--bg3);color:var(--t3);border:1px solid var(--line);}
+.cat{font-size:10px;font-weight:700;padding:2px 6px;border-radius:4px;}
+.cat.sc{background:rgba(194,65,12,.1);color:#c2410c;}.cat.po{background:var(--a3);color:var(--accent);}
+.cat.di{background:rgba(109,40,217,.1);color:#6d28d9;}.cat.ec{background:rgba(21,128,61,.1);color:#15803d;}
+.cat.mi{background:rgba(127,29,29,.1);color:#991b1b;}.cat.en{background:rgba(15,118,110,.1);color:#0f766e;}
+.cat.ku{background:rgba(120,53,15,.1);color:#92400e;}.cat.ot{background:var(--bg3);color:var(--t3);}
+.c-title{font-size:14px;font-weight:700;color:var(--t1);line-height:1.5;margin-bottom:6px;}
+.c-title a{color:inherit;text-decoration:none;}
+.c-title a:hover{color:var(--accent);}
+.c-body-ar{font-size:12px;color:var(--t1);line-height:1.75;border-right:2px solid var(--accent);padding-right:10px;margin-bottom:6px;}
+.c-body{font-size:12px;color:var(--t2);line-height:1.7;margin-bottom:6px;}
+.c-foot{display:flex;align-items:center;gap:6px;padding-top:7px;border-top:1px solid var(--line);flex-wrap:wrap;}
+.c-link{display:inline-flex;align-items:center;gap:3px;font-size:10px;font-weight:600;color:var(--t3);text-decoration:none;border:1px solid var(--line);padding:3px 8px;border-radius:var(--r);transition:all .15s;}
+.c-link:hover{color:var(--accent);border-color:var(--accent);}
+.mkw{font-size:10px;padding:2px 6px;background:var(--a3);color:var(--accent);border-radius:20px;font-weight:600;}
+.pagination{display:flex;align-items:center;justify-content:center;gap:5px;padding:20px;flex-wrap:wrap;}
+.pg-btn{min-width:34px;height:32px;padding:0 10px;display:flex;align-items:center;justify-content:center;border-radius:var(--r);border:1px solid var(--line);background:var(--bg2);color:var(--t2);cursor:pointer;font-family:var(--mono);font-size:11px;font-weight:700;transition:all .15s;}
+.pg-btn:hover:not(:disabled){border-color:var(--accent);color:var(--accent);}
+.pg-btn:disabled{opacity:.2;cursor:not-allowed;}
+.pg-btn.on{background:var(--accent);border-color:var(--accent);color:#fff;}
+.skel{background:var(--bg2);border:1px solid var(--line);border-radius:var(--r2);padding:13px 16px;margin-bottom:7px;}
+.sk{height:12px;background:var(--bg3);border-radius:3px;margin-bottom:8px;animation:sh 1.4s infinite;}
+.sk.m{width:65%}.sk.s{width:35%}
+@keyframes sh{0%,100%{opacity:.4}50%{opacity:.9}}
+.empty{text-align:center;padding:60px 20px;color:var(--t3);}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="tb-logo"><img src="logo.png" alt="" onerror="this.parentElement.innerHTML='<div style=width:28px;height:28px;background:#1d4ed8;border-radius:6px;display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;font-size:11px>IQ</div>'"></div>
+  <div class="tb-sep"></div>
+  <button class="theme-btn" onclick="toggleTheme()" id="tbtn">🌙</button>
+  <a href="index.html" class="tb-btn">← الرئيسية</a>
+</header>
+
+<div class="src-hero">
+  <div class="src-inner">
+    <div id="src-icon"></div>
+    <div class="src-info">
+      <div class="src-name" id="src-name">جاري التحميل...</div>
+      <div class="src-badges" id="src-badges"></div>
+    </div>
+    <a id="src-ext" href="#" target="_blank" class="src-ext" style="display:none">↗ زيارة الموقع</a>
+  </div>
+</div>
+
+<div class="toolbar">
+  <div class="tool-inner">
+    <input class="t-inp" id="srch" placeholder="🔍 بحث في مقالات هذا المصدر..." oninput="onSearch()">
+    <select class="t-sel" id="cat-f" onchange="load(1)">
+      <option value="">كل الأقسام</option>
+      <option value="security">أمن</option>
+      <option value="politics">سياسة</option>
+      <option value="diplomacy">دبلوماسية</option>
+      <option value="economy">اقتصاد</option>
+      <option value="military">عسكري</option>
+      <option value="energy">طاقة</option>
+      <option value="kurdistan">كردستان</option>
+    </select>
+    <select class="t-sel" id="sort-f" onchange="load(1)">
+      <option value="published_at">الأحدث أولاً</option>
+      <option value="importance_score">الأهم أولاً</option>
+    </select>
+    <div class="t-sep"></div>
+    <div class="t-info"><b id="cnt">—</b> مقال</div>
+    <button class="ref-btn" onclick="refresh()"><svg id="ri" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3"/></svg> تحديث</button>
+  </div>
+</div>
+
+<div class="content">
+  <div id="arts"></div>
+  <div class="pagination" id="pag"></div>
+</div>
+
+<script>
+const SB_URL=localStorage.getItem('sb_url')||'';
+const SB_KEY=localStorage.getItem('sb_key')||'';
+const PAGE=25;
+const CA={security:'أمن',politics:'سياسة',diplomacy:'دبلوماسية',economy:'اقتصاد',military:'عسكري',energy:'طاقة',kurdistan:'كردستان',other:'أخرى'};
+const SA={critical:'حرجة',high:'عالية',medium:'متوسطة',low:'منخفضة'};
+const RC={western:'#3b82f6',arab:'#f59e0b',iraqi:'#22c55e',iranian:'#ef4444',turkish:'#8b5cf6',international:'#0ea5e9',kurdish:'#f97316'};
+const RA={western:'غربية',arab:'عربية',iraqi:'عراقية',iranian:'إيرانية',turkish:'تركية',international:'دولية',kurdish:'كردية'};
+const TA={newspaper:'صحيفة',agency:'وكالة',think_tank:'مركز بحثي',telegram:'تلغرام',youtube:'يوتيوب',blog:'مدونة',government:'حكومي',ngo:'منظمة'};
+const SIC={critical:'cr',high:'hi',medium:'me',low:'lo'};
+const CC={security:'sc',politics:'po',diplomacy:'di',economy:'ec',military:'mi',energy:'en',kurdistan:'ku',other:'ot'};
+
+const params=new URLSearchParams(location.search);
+const SRC_ID=params.get('id');
+if(!SRC_ID){document.body.innerHTML='<div style="padding:40px;text-align:center;color:#888">لم يتم تحديد مصدر — <a href="index.html">العودة</a></div>';}
+
+let cur=1,total=0,srchT=null,srch='',srcData=null;
+
+async function sb(t,p=''){
+  if(!SB_URL||!SB_KEY)return{data:[],count:0};
+  try{
+    const r=await fetch(`${SB_URL}/rest/v1/${t}${p}`,{headers:{'apikey':SB_KEY,'Authorization':`Bearer ${SB_KEY}`,'Prefer':'count=exact'}});
+    const cnt=parseInt(r.headers.get('Content-Range')?.split('/')[1]||'0');
+    return{data:await r.json(),count:cnt};
+  }catch{return{data:[],count:0};}
+}
+
+async function loadSrc(){
+  const res=await sb('sources',`?select=*&id=eq.${SRC_ID}`);
+  if(!res.data.length){document.getElementById('src-name').textContent='مصدر غير موجود';return;}
+  srcData=res.data[0];
+  document.title=`${srcData.name} — الراصد`;
+  const clr=RC[srcData.region]||'#3b82f6';
+  const ini=srcData.name.split(' ').slice(0,2).map(w=>w[0]||'').join('').toUpperCase().slice(0,2);
+  let favHtml='';
+  if(srcData.website_url){
+    try{
+      const host=new URL(srcData.website_url).hostname;
+      favHtml=`<div class="src-fav"><img src="https://www.google.com/s2/favicons?domain=${host}&sz=64" onerror="this.parentElement.outerHTML='<div class=src-fav-fb style=background:${clr}18;color:${clr}>${ini}</div>'"></div>`;
+    }catch{favHtml=`<div class="src-fav-fb" style="background:${clr}18;color:${clr}">${ini}</div>`;}
+  }else{favHtml=`<div class="src-fav-fb" style="background:${clr}18;color:${clr}">${ini}</div>`;}
+  document.getElementById('src-icon').innerHTML=favHtml;
+  document.getElementById('src-name').textContent=srcData.name;
+  document.getElementById('src-badges').innerHTML=[
+    `<span class="sbadge">${TA[srcData.type]||srcData.type}</span>`,
+    `<span class="sbadge">${RA[srcData.region]||srcData.region}</span>`,
+    `<span class="sbadge">${srcData.language||'en'}</span>`,
+    `<span class="sbadge">موثوقية ${srcData.trust_score||75}%</span>`,
+  ].join('');
+  if(srcData.website_url){const e=document.getElementById('src-ext');e.href=srcData.website_url;e.style.display='';}
+}
+
+async function load(page=1){
+  cur=page;
+  document.getElementById('arts').innerHTML='<div class="skel"><div class="sk m"></div><div class="sk"></div><div class="sk s"></div></div>'.repeat(4);
+  const sf=document.getElementById('sort-f').value;
+  const cf=document.getElementById('cat-f').value;
+  const offset=(page-1)*PAGE;
+  let p=`?select=id,title_ar,title_original,body_ar,body_original,original_url,category,importance_score,published_at,iraq_keywords&source_id=eq.${SRC_ID}&order=${sf}.desc&limit=${PAGE}&offset=${offset}`;
+  if(cf)p+=`&category=eq.${cf}`;
+  if(srch)p+=`&or=(title_ar.ilike.*${encodeURIComponent(srch)}*,title_original.ilike.*${encodeURIComponent(srch)}*)`;
+  const res=await sb('articles',p);
+  total=res.count;
+  document.getElementById('cnt').textContent=total.toLocaleString('ar');
+  render(res.data||[]);
+  renderPag(page,Math.ceil(total/PAGE));
+}
+
+function clean(s){return(s||'').replace(/<[^>]*>/g,' ').replace(/&nbsp;/g,' ').replace(/\s+/g,' ').trim();}
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function ago(iso){
+  if(!iso)return'—';
+  const d=Math.floor((Date.now()-new Date(iso))/1000);
+  if(d<60)return'الآن';if(d<3600)return`${Math.floor(d/60)}د`;
+  if(d<86400)return`${Math.floor(d/3600)}س`;
+  return new Date(iso).toLocaleTimeString('ar-IQ',{hour:'2-digit',minute:'2-digit'});
+}
+function fullDate(iso){
+  if(!iso)return'تاريخ غير معروف';
+  return new Date(iso).toLocaleDateString('ar-IQ',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+}
+
+function render(arts){
+  const el=document.getElementById('arts');
+  if(!arts.length){el.innerHTML='<div class="empty"><div style="font-size:36px;margin-bottom:8px">📭</div><div style="font-weight:700;margin-bottom:4px">لا توجد مقالات</div><div style="font-size:12px">جرّب تغيير الفلتر</div></div>';return;}
+  const groups={};
+  arts.forEach(a=>{const d=fullDate(a.published_at);if(!groups[d])groups[d]=[];groups[d].push(a);});
+  let html='';
+  for(const[d,items]of Object.entries(groups)){
+    html+=`<div class="date-sep">${d}</div>`;
+    html+=items.map(a=>{
+      const sig=a.importance_score>=85?'critical':a.importance_score>=70?'high':a.importance_score>=50?'medium':'low';
+      const cat=a.category||'other';
+      const t=clean(a.title_ar||a.title_original||'—');
+      const bAr=clean(a.body_ar||'');
+      const bOr=clean(a.body_original||'');
+      const kws=(a.iraq_keywords||[]).slice(0,4);
+      return`<div class="card${sig==='critical'?' cr':sig==='high'?' hi':''}">
+        <div class="c-hd">
+          <span class="c-time">${ago(a.published_at)}</span>
+          <span class="sig ${SIC[sig]||'me'}">${SA[sig]||'متوسطة'}</span>
+          <span class="cat ${CC[cat]||'ot'}">${CA[cat]||'أخرى'}</span>
+        </div>
+        <div class="c-title">${a.original_url?`<a href="${a.original_url}" target="_blank" rel="noopener">${esc(t)}</a>`:esc(t)}</div>
+        ${bAr?`<div class="c-body-ar">${esc(bAr).slice(0,280)}${bAr.length>280?'...':''}</div>`:''}
+        ${!bAr&&bOr?`<div class="c-body">${esc(bOr).slice(0,240)}${bOr.length>240?'...':''}</div>`:''}
+        <div class="c-foot">
+          ${a.original_url?`<a href="${a.original_url}" target="_blank" rel="noopener" class="c-link">↗ اقرأ كاملاً</a>`:''}
+          ${kws.map(k=>`<span class="mkw">${esc(k)}</span>`).join('')}
+        </div>
+      </div>`;
+    }).join('');
+  }
+  el.innerHTML=html;
+}
+
+function renderPag(c,t){
+  const el=document.getElementById('pag');
+  if(t<=1){el.innerHTML='';return;}
+  let h=`<button class="pg-btn" onclick="load(${c-1})" ${c===1?'disabled':''}>←</button>`;
+  const ps=[];
+  if(t<=7){for(let i=1;i<=t;i++)ps.push(i);}
+  else{ps.push(1);if(c>3)ps.push('…');for(let i=Math.max(2,c-1);i<=Math.min(t-1,c+1);i++)ps.push(i);if(c<t-2)ps.push('…');ps.push(t);}
+  ps.forEach(p=>{if(p==='…')h+=`<span style="color:var(--t3);padding:0 4px">…</span>`;else h+=`<button class="pg-btn${p===c?' on':''}" onclick="load(${p})">${p}</button>`;});
+  h+=`<button class="pg-btn" onclick="load(${c+1})" ${c===t?'disabled':''}>→</button>`;
+  el.innerHTML=h;
+}
+
+function onSearch(){clearTimeout(srchT);srchT=setTimeout(()=>{srch=document.getElementById('srch').value.trim();load(1);},400);}
+async function refresh(){document.getElementById('ri').classList.add('spinning');await load(cur);document.getElementById('ri').classList.remove('spinning');}
+
+function toggleTheme(){const t=document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark';document.documentElement.setAttribute('data-theme',t);document.getElementById('tbtn').textContent=t==='dark'?'☀️':'🌙';localStorage.setItem('theme',t);}
+(()=>{const t=localStorage.getItem('theme')||(window.matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');document.documentElement.setAttribute('data-theme',t);document.getElementById('tbtn').textContent=t==='dark'?'☀️':'🌙';})();
+
+if(SRC_ID){loadSrc().then(()=>load(1));}
+</script>
+</body>
+</html>

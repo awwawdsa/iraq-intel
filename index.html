@@ -898,6 +898,7 @@ function renderSrcList() {
     return`<div class="src-row${on?' on':''}" onclick="toggleSrc('${s.id}')">
       <div class="src-chk">${on?'✓':''}</div>${fHtml}
       <div class="src-n">${esc(s.name)}</div>
+      <a href="source.html?id=${s.id}" target="_blank" title="عرض كل مقالات هذا المصدر" onclick="event.stopPropagation()" style="font-size:10px;color:var(--t3);text-decoration:none;opacity:.6;transition:opacity .15s;padding:1px 3px;" onmouseover="this.style.opacity=1;this.style.color='var(--accent)'" onmouseout="this.style.opacity=.6;this.style.color='var(--t3)'">↗</a>
     </div>`;
   }).join('');
 }
@@ -921,64 +922,26 @@ async function loadSrcs() {
 
 /* ══ CRITICAL ══ */
 async function loadCritical() {
-  const since=new Date(Date.now()-72*3600000).toISOString();
-  const res=await sb('articles',`?select=title_ar,title_original,published_at,original_url,sources(name)&importance_score=gte.80&published_at=gte.${since}&order=importance_score.desc&limit=5`);
-  const el=document.getElementById('crit-list');
-  if(!res.data.length){el.innerHTML='<div style="color:var(--t3);font-size:11px;padding:4px 0">لا أحداث حرجة ✓</div>';return;}
-  el.innerHTML=res.data.map(a=>`
-    <div class="crit-c" onclick="${a.original_url?`window.open('${a.original_url}','_blank')`:''}">
-      <div class="crit-t">${esc(clean(a.title_ar||a.title_original||'').slice(0,80))}</div>
-      <div class="crit-m">${esc(a.sources?.name||'')} · ${ago(a.published_at)}</div>
-    </div>`).join('');
+  const since = new Date(Date.now() - 48*3600000).toISOString();
+  let p = `?select=title_ar,title_original,published_at,original_url,importance_score,sources(name)&importance_score=gte.75&published_at=gte.${since}&order=importance_score.desc&limit=8`;
+  const res = await sb('articles', p);
+  const el = document.getElementById('crit-list');
+  if (!res.data.length) { el.innerHTML = '<div style="color:var(--t3);font-size:11px;padding:4px 0">لا أحداث حرجة ✓</div>'; return; }
+  el.innerHTML = res.data.map(a => {
+    const imp = a.importance_score || 0;
+    const clr = imp >= 85 ? '#dc2626' : imp >= 75 ? '#c2410c' : '#b45309';
+    return `<div class="crit-c" onclick="${a.original_url?`window.open('${a.original_url}','_blank')`:''}">
+      <div style="display:flex;align-items:center;gap:4px;margin-bottom:3px">
+        <span style="font-size:9px;font-family:var(--mono);font-weight:700;color:${clr}">${imp>=85?'🔴':imp>=75?'🟠':'🟡'} ${imp}%</span>
+        <span style="font-size:9px;color:var(--t3)">${ago(a.published_at)}</span>
+      </div>
+      <div class="crit-t">${esc(clean(a.title_ar||a.title_original||'—').slice(0,90))}</div>
+      <div class="crit-m">${esc(a.sources?.name||'')}</div>
+    </div>`;
+  }).join('');
 }
 
-/* ══ KEYWORD GROUPS ══ */
-function saveKgs(){localStorage.setItem('iq_kgs',JSON.stringify(kgs));}
-function renderKgs() {
-  document.getElementById('kg-list').innerHTML=kgs.map((g,gi)=>`
-    <div class="kg">
-      <div class="kg-hd">
-        <div class="kg-dot" style="background:${g.color}"></div>
-        <div class="kg-name">${esc(g.name)}</div>
-        <div class="kg-cnt">${g.kws.length}</div>
-        <div class="kg-del" onclick="event.stopPropagation();delGroup(${gi})" title="حذف المجموعة">🗑</div>
-      </div>
-      <div class="kt">${g.kws.map((k,ki)=>{
-        const kstr=typeof k==='string'?k:(k.w||k.word||'');
-        if(!kstr)return'';
-        return`<span class="kw${kwF===kstr?' on':''}" onclick="fKw('${kstr.replace(/'/g,"\\'")}')">
-          ${esc(kstr)}<span class="kw-x" onclick="event.stopPropagation();rmKw(${gi},${ki})">×</span>
-        </span>`;
-      }).join('')}</div>
-      <div class="kg-add-row">
-        <input class="kg-add-inp" id="ki${gi}" placeholder="+ أضف كلمة" onkeydown="if(event.key==='Enter')addKw(${gi})">
-        <button class="kg-add-btn" onclick="addKw(${gi})">+</button>
-      </div>
-    </div>`).join('');
-}
-function fKw(k){kwF=kwF===k?'':k;document.getElementById('srch').value=kwF;srch=kwF;renderKgs();loadPage(1);}
-function addKw(gi){
-  const inp=document.getElementById('ki'+gi);
-  const v=inp.value.trim();if(!v)return;
-  if(kgs[gi].kws.some(k=>(typeof k==='string'?k:k.w)===v)){inp.value='';return;}
-  kgs[gi].kws.push(v);saveKgs();inp.value='';renderKgs();
-}
-function rmKw(gi,ki){kgs[gi].kws.splice(ki,1);saveKgs();renderKgs();}
-function delGroup(gi){if(!confirm(`حذف مجموعة "${kgs[gi].name}"؟`))return;kgs.splice(gi,1);saveKgs();renderKgs();}
-function openAddG(){document.getElementById('ov-ag').classList.add('open');document.getElementById('ag-n').focus();}
-function saveG(){
-  const n=document.getElementById('ag-n').value.trim();
-  const ks=document.getElementById('ag-k').value.split(/[,،]/).map(k=>k.trim()).filter(Boolean);
-  if(!n)return;
-  const cols=['#3b82f6','#ef4444','#22c55e','#f59e0b','#8b5cf6','#0ea5e9','#f97316'];
-  kgs.push({id:'g'+Date.now(),name:n,color:cols[kgs.length%cols.length],kws:ks});
-  saveKgs();renderKgs();closeOv('ov-ag');
-  document.getElementById('ag-n').value='';document.getElementById('ag-k').value='';
-}
-function closeOv(id){document.getElementById(id).classList.remove('open');}
-document.querySelectorAll('.ov').forEach(o=>o.addEventListener('click',e=>{if(e.target===e.currentTarget)o.classList.remove('open');}));
 
-/* ══ BRIEFING ══ */
 async function buildBrief() {
   const today=new Date().toLocaleDateString('ar-IQ',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
   document.getElementById('brief-date').textContent=today;
@@ -1058,6 +1021,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 
   // Check breaking every 5 minutes
   setInterval(checkBreaking, 5*60000);
+  setInterval(()=>{loadTicker();loadCritical();}, 10*60000);
 });
 </script>
 </body>

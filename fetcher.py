@@ -1,400 +1,341 @@
 """
-Iraq Intel Platform — RSS Fetcher & Iraq Filter
-================================================
-يسحب المقالات من 26 مصدر، يفلتر ذكر العراق،
-ويكتب النتائج في Supabase.
+الراصد — محرك الجلب v3.0
+=========================
+- RSS محسّن مع User-Agent حقيقي + retry
+- تلغرام عبر t.me/s/channel scraping
+- كلمات مفتاحية ديناميكية من Supabase
+- يخزن كل الأخبار (ليس فقط العراق)
+- ترجمة تلقائية
+- منع التكرار بـ url_hash
 
-التشغيل:
-    pip install feedparser httpx supabase python-dotenv
-    python fetcher.py
-
-أو عبر cron كل 30 دقيقة:
-    */30 * * * * /usr/bin/python3 /path/to/fetcher.py
+pip install feedparser httpx supabase python-dotenv
 """
 
-import os
-import re
-import json
-import hashlib
-import logging
-from datetime import datetime, timezone
-from typing import Optional
+import os, re, hashlib, logging, time
+from datetime import datetime, timezone, timedelta
 
 import feedparser
 import httpx
 from supabase import create_client, Client
 from dotenv import load_dotenv
 
-# ─────────────────────────────────────────────
-# الإعداد
-# ─────────────────────────────────────────────
 load_dotenv()
-
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s [%(levelname)s] %(message)s",
-    datefmt="%Y-%m-%d %H:%M:%S"
-)
+logging.basicConfig(level=logging.INFO, format="%(asctime)s %(message)s", datefmt="%H:%M:%S")
 log = logging.getLogger(__name__)
 
 SUPABASE_URL = os.environ["SUPABASE_URL"]
-SUPABASE_KEY = os.environ["SUPABASE_KEY"]  # service_role key
-
+SUPABASE_KEY = os.environ["SUPABASE_KEY"]
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
-# ─────────────────────────────────────────────
-# ترجمة تلقائية بـ Google Translate (مجاني)
-# ─────────────────────────────────────────────
-def translate_to_arabic(text: str, src_lang: str = 'auto') -> str:
-    """ترجمة النص للعربية باستخدام Google Translate غير الرسمي"""
-    if not text or src_lang == 'ar':
-        return text
-    try:
-        url = 'https://translate.googleapis.com/translate_a/single'
-        params = {
-            'client': 'gtx',
-            'sl': src_lang if src_lang != 'multi' else 'auto',
-            'tl': 'ar',
-            'dt': 't',
-            'q': text[:2000]  # حد الترجمة
-        }
-        with httpx.Client(timeout=15) as client:
-            resp = client.get(url, params=params)
-            resp.raise_for_status()
-            data = resp.json()
-            if data and data[0]:
-                translated = ''.join([t[0] for t in data[0] if t[0]])
-                return translated
-    except Exception as e:
-        log.debug(f"ترجمة فاشلة: {e}")
-    return text
+BROWSER_UA = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 Chrome/120.0.0.0 Safari/537.36"
+FEED_UA    = "Mozilla/5.0 (compatible; RasidBot/3.0; +https://awwawdsa.github.io/iraq-intel)"
 
-
-
-
-# ─────────────────────────────────────────────
-# كلمات مفتاحية — فلتر العراق
-# ─────────────────────────────────────────────
-# ─────────────────────────────────────────────
-# الكلمات المفتاحية — تُحمّل من Supabase ديناميكياً
-# ─────────────────────────────────────────────
-_DYNAMIC_KEYWORDS: list[str] = []  # تُملأ عند بدء التشغيل
-
-# كلمات احتياطية إذا فشل جلب Supabase
-FALLBACK_KEYWORDS = [
-    # العراق
-    "العراق","عراقي","بغداد","البصرة","الموصل","أربيل","النجف","كركوك",
-    "الحشد الشعبي","فصائل","السوداني","البرلمان العراقي","كردستان",
-    "iraq","iraqi","baghdad","basra","mosul","erbil","kirkuk",
-    "pmf","peshmerga","kurdistan","al-sudani","iran iraq",
-    # سوريا
-    "سوريا","سوري","دمشق","حلب","إدلب","درعا","الأسد","هيئة تحرير الشام",
-    "syria","syrian","damascus","aleppo","idlib","hts","hayat tahrir",
-    # تركيا
-    "تركيا","أردوغان","أنقرة","العملية التركية",
-    "turkey","turkish","erdogan","ankara","pkk",
-    # إيران
-    "إيران","إيراني","طهران","الحرس الثوري","خامنئي",
-    "iran","iranian","tehran","irgc","khamenei",
-    # المنطقة
+_KEYWORDS = []
+FALLBACK_KW = [
+    "العراق","عراقي","بغداد","البصرة","الموصل","أربيل","النجف","كركوك","الحشد الشعبي","فصائل","السوداني","كردستان",
+    "iraq","iraqi","baghdad","basra","mosul","erbil","kirkuk","pmf","peshmerga","kurdistan","al-sudani","iran iraq",
+    "سوريا","دمشق","حلب","الأسد","هيئة تحرير الشام",
+    "syria","damascus","aleppo","hts","hayat tahrir al-sham",
+    "تركيا","أردوغان","أنقرة","turkey","turkish","erdogan","ankara","pkk",
+    "إيران","طهران","الحرس الثوري","iran","tehran","irgc","khamenei",
     "الشرق الأوسط","middle east","خليج","gulf",
 ]
 
-def load_keywords_from_db() -> list[str]:
-    """جلب الكلمات المفتاحية من Supabase"""
-    global _DYNAMIC_KEYWORDS
+def load_keywords():
+    global _KEYWORDS
     try:
         res = supabase.table("keywords").select("word").eq("is_active", True).execute()
         if res.data:
-            words = [r["word"].strip().lower() for r in res.data if r.get("word")]
-            _DYNAMIC_KEYWORDS = words
-            log.info(f"✓ جُلبت {len(words)} كلمة مفتاحية من قاعدة البيانات")
-            return words
+            words = [r["word"].strip() for r in res.data if r.get("word","").strip()]
+            if words:
+                _KEYWORDS = words
+                log.info(f"✓ كلمات من DB: {len(words)}")
+                return
     except Exception as e:
-        log.warning(f"تعذّر جلب الكلمات من DB، استخدام الاحتياطية: {e}")
-    _DYNAMIC_KEYWORDS = [k.lower() for k in FALLBACK_KEYWORDS]
-    return _DYNAMIC_KEYWORDS
+        log.warning(f"keywords: {e}")
+    _KEYWORDS = FALLBACK_KW.copy()
+    log.info(f"✓ كلمات احتياطية: {len(_KEYWORDS)}")
 
-def get_keywords() -> list[str]:
-    return _DYNAMIC_KEYWORDS if _DYNAMIC_KEYWORDS else [k.lower() for k in FALLBACK_KEYWORDS]
+def get_kws():
+    return _KEYWORDS or FALLBACK_KW
 
-# تصنيف تلقائي بناءً على كلمات مفتاحية
-CATEGORY_KEYWORDS = {
-    "security": [
-        "attack", "strike", "bomb", "explosion", "killed", "wounded",
-        "arrest", "isis", "daesh", "militia", "armed", "weapon",
-        "هجوم", "انفجار", "قتيل", "اعتقال", "داعش", "مسلحين",
-    ],
-    "politics": [
-        "parliament", "election", "government", "minister", "prime minister",
-        "political", "party", "vote", "coalition", "برلمان", "انتخابات",
-        "حكومة", "وزير", "رئيس الوزراء", "ائتلاف", "حزب",
-    ],
-    "diplomacy": [
-        "ambassador", "embassy", "visit", "treaty", "agreement", "sanctions",
-        "diplomatic", "foreign minister", "سفير", "سفارة", "اتفاقية",
-        "وزير الخارجية", "علاقات دولية", "عقوبات",
-    ],
-    "economy": [
-        "oil", "budget", "gdp", "economy", "trade", "investment",
-        "inflation", "currency", "نفط", "موازنة", "اقتصاد", "تجارة",
-        "استثمار", "تضخم",
-    ],
-    "military": [
-        "military", "army", "forces", "troops", "operation", "airstrike",
-        "drone", "missile", "عسكري", "جيش", "قوات", "عملية", "طائرة مسيرة",
-        "صاروخ", "قصف جوي",
-    ],
-    "energy": [
-        "oil field", "gas", "pipeline", "opec", "barrel", "energy",
-        "حقل نفط", "غاز", "خط أنابيب", "أوبك", "برميل", "طاقة",
-    ],
-    "kurdistan": [
-        "kurdistan", "peshmerga", "barzani", "erbil", "sulaymaniyah",
-        "كردستان", "بيشمركة", "بارزاني", "أربيل", "السليمانية",
-    ],
+def match_kws(text):
+    t = text.lower()
+    found = [k for k in get_kws() if k.lower() in t]
+    return bool(found), found[:20]
+
+CATEGORY_KW = {
+    "security":  ["attack","strike","bomb","explosion","killed","wounded","arrest","isis","داعش","هجوم","انفجار","قتيل","اعتقال"],
+    "politics":  ["parliament","election","government","minister","party","vote","برلمان","انتخابات","حكومة","وزير","رئيس"],
+    "diplomacy": ["ambassador","embassy","treaty","agreement","sanctions","diplomatic","سفير","اتفاقية","دبلوماسي","عقوبات"],
+    "economy":   ["oil","budget","economy","trade","investment","gdp","نفط","موازنة","اقتصاد","تجارة","استثمار"],
+    "military":  ["military","army","forces","operation","airstrike","drone","missile","عسكري","جيش","قوات","عملية","صاروخ"],
+    "energy":    ["oil field","gas","pipeline","opec","barrel","energy","حقل","غاز","أوبك","طاقة"],
+    "kurdistan": ["kurdistan","peshmerga","barzani","erbil","كردستان","بيشمركة","بارزاني"],
 }
 
-
-# ─────────────────────────────────────────────
-# دوال المعالجة
-# ─────────────────────────────────────────────
-
-def detect_keywords(text: str, lang: str = "en") -> tuple[bool, list[str]]:
-    """
-    يكشف الكلمات المفتاحية — يعمل مع أي موضوع وليس العراق فقط
-    """
-    text_lower = text.lower()
-    found = []
-    for kw in get_keywords():
-        if kw.lower() in text_lower and kw.lower() not in found:
-            found.append(kw)
-    return len(found) > 0, found[:20]
-
-def detect_iraq(text: str, lang: str = "en") -> tuple[bool, list[str]]:
-    """wrapper للتوافق"""
-    return detect_keywords(text, lang)
-def detect_category(text: str) -> str:
-    """تصنيف المقالة تلقائياً"""
-    text_lower = text.lower()
-    scores = {cat: 0 for cat in CATEGORY_KEYWORDS}
-
-    for cat, keywords in CATEGORY_KEYWORDS.items():
-        for kw in keywords:
-            if kw.lower() in text_lower:
-                scores[cat] += 1
-
+def detect_cat(text):
+    t = text.lower()
+    scores = {c: sum(1 for k in kws if k in t) for c, kws in CATEGORY_KW.items()}
     best = max(scores, key=scores.get)
     return best if scores[best] > 0 else "other"
 
+def score_imp(text, kw_count, title=""):
+    s = min(kw_count * 10, 40)
+    urgent = ["عاجل","breaking","urgent","killed","explosion","انفجار","قتل","attack","airstrike","مجزرة"]
+    if any(u in text.lower() or u in title.lower() for u in urgent):
+        s += 30
+    return min(s, 100)
 
-def score_importance(entry: dict, iraq_keywords: list) -> int:
-    """
-    يحسب درجة أهمية المقالة (0-100)
-    المعايير: عدد كلمات العراق + طول المقالة + الأولوية
-    """
-    score = 0
-
-    # كثافة ذكر العراق
-    score += min(len(iraq_keywords) * 8, 40)
-
-    # وجود عنوان قوي
-    title = entry.get("title", "")
-    if any(kw.lower() in title.lower()
-           for kw_list in IRAQ_KEYWORDS.values()
-           for kw in kw_list):
-        score += 20
-
-    # طول المحتوى
-    summary = entry.get("summary", "")
-    if len(summary) > 500:
-        score += 10
-    if len(summary) > 1500:
-        score += 10
-
-    # وجود تاريخ حديث
-    published = entry.get("published_parsed")
-    if published:
-        score += 10
-
-    # وجود رابط أصلي
-    if entry.get("link"):
-        score += 10
-
-    return min(score, 100)
-
-
-def url_hash(url: str) -> str:
-    """معرف فريد للرابط لتجنب التكرار"""
-    return hashlib.md5(url.encode()).hexdigest()
-
-
-def parse_date(entry) -> Optional[str]:
-    """تحليل التاريخ من feedparser"""
-    if entry.get("published_parsed"):
-        try:
-            dt = datetime(*entry.published_parsed[:6], tzinfo=timezone.utc)
-            return dt.isoformat()
-        except Exception:
-            pass
-    return None
-
-
-def extract_body(entry) -> str:
-    """استخراج النص الكامل من المقالة"""
-    # feedparser يضع المحتوى الكامل في content[0].value إن وجد
-    if entry.get("content"):
-        return entry.content[0].get("value", "")
-    return entry.get("summary", "")
-
-
-def article_exists(url: str) -> bool:
-    """تحقق إذا كان الرابط موجود مسبقاً"""
+def translate(text, lang="auto"):
+    if not text or lang == "ar": return text
     try:
-        res = supabase.table("articles")\
-            .select("id")\
-            .eq("original_url", url)\
-            .limit(1)\
-            .execute()
-        return len(res.data) > 0
-    except Exception:
+        r = httpx.get("https://translate.googleapis.com/translate_a/single",
+            params={"client":"gtx","sl":lang if lang!="multi" else "auto","tl":"ar","dt":"t","q":text[:2000]},
+            headers={"User-Agent": BROWSER_UA}, timeout=15)
+        d = r.json()
+        return "".join(t[0] for t in d[0] if t[0]) if d and d[0] else text
+    except:
+        return text
+
+def clean(html):
+    return re.sub(r"<[^>]+>", " ", html or "").replace("&nbsp;"," ").replace("&amp;","&").replace("&quot;",'"').strip()
+
+def url_hash(url, title):
+    return hashlib.md5(f"{url}:{title[:60]}".encode()).hexdigest()
+
+def exists(url, title):
+    try:
+        h = url_hash(url, title)
+        r = supabase.table("articles").select("id").eq("url_hash", h).limit(1).execute()
+        return bool(r.data)
+    except:
         return False
 
+def parse_date(entry):
+    for f in ["published_parsed","updated_parsed","created_parsed"]:
+        t = entry.get(f)
+        if t:
+            try: return datetime(*t[:6], tzinfo=timezone.utc).isoformat()
+            except: pass
+    return datetime.now(timezone.utc).isoformat()
 
-# ─────────────────────────────────────────────
-# المعالج الرئيسي
-# ─────────────────────────────────────────────
+def get_body(entry):
+    for f in ["content","summary","description"]:
+        v = entry.get(f)
+        if v:
+            if isinstance(v, list) and v: return clean(v[0].get("value",""))
+            if isinstance(v, str): return clean(v)
+    return ""
 
-def process_source(source: dict) -> int:
-    """
-    يعالج مصدراً واحداً ويرجع عدد المقالات المضافة.
-    """
-    rss_url = source.get("rss_url")
-    if not rss_url:
-        log.debug(f"[{source['slug']}] لا يوجد RSS — تخطّي")
-        return 0
+def insert_article(source, title, body, url, pub_date, lang, kws):
+    category   = detect_cat(f"{title} {body}")
+    importance = score_imp(f"{title} {body}", len(kws), title)
+    title_ar   = title if lang == "ar" else translate(title, lang)
+    body_ar    = (body if lang == "ar" else translate(body[:1500], lang)) if body else ""
+    iraq_kws   = ["العراق","iraq","iraqi","baghdad","بغداد","الحشد","pmf"]
+    mentions   = any(k.lower() in f"{title} {body}".lower() for k in iraq_kws)
 
-    log.info(f"[{source['slug']}] جلب: {rss_url}")
-
+    row = {
+        "source_id": source["id"],
+        "title_original": title,
+        "title_ar": title_ar,
+        "body_original": body[:8000],
+        "body_ar": body_ar,
+        "language": lang,
+        "original_url": url,
+        "url_hash": url_hash(url, title),
+        "mentions_iraq": mentions,
+        "iraq_keywords": kws,
+        "iraq_relevance_score": min(len(kws)*10, 100),
+        "category": category,
+        "importance_score": importance,
+        "published_at": pub_date,
+        "fetched_at": datetime.now(timezone.utc).isoformat(),
+    }
     try:
-        feed = feedparser.parse(rss_url)
+        supabase.table("articles").insert(row).execute()
+        return True
     except Exception as e:
-        log.error(f"[{source['slug']}] خطأ في الجلب: {e}")
+        if "duplicate" not in str(e).lower() and "unique" not in str(e).lower():
+            log.debug(f"insert: {e}")
+        return False
+
+# ══ RSS ══
+def fetch_rss(source):
+    url  = source.get("rss_url","")
+    lang = source.get("language","en")
+    if not url: return 0
+
+    feed = None
+    uas = [FEED_UA, BROWSER_UA, "FeedFetcher-Google", "python-feedparser/6.0"]
+
+    for ua in uas:
+        try:
+            r = httpx.get(url, headers={"User-Agent":ua,"Accept":"application/xml,text/xml,*/*"}, timeout=20, follow_redirects=True)
+            if r.status_code == 200:
+                feed = feedparser.parse(r.text)
+                if feed.entries: break
+            elif r.status_code in [403,429,503]:
+                time.sleep(3)
+        except Exception as e:
+            log.debug(f"  rss attempt: {e}")
+    
+    if not feed or not feed.entries:
+        # محاولة أخيرة بـ feedparser مباشرة
+        try:
+            feed = feedparser.parse(url)
+        except: pass
+
+    if not feed or not feed.entries:
+        log.warning(f"  ✗ {source['name']}: لا توجد مداخل RSS")
         return 0
 
-    if feed.bozo and not feed.entries:
-        log.warning(f"[{source['slug']}] تغذية معطوبة أو فارغة")
-        return 0
-
+    log.info(f"  ✓ {source['name']}: {len(feed.entries)} مدخل")
+    cutoff = datetime.now(timezone.utc) - timedelta(days=7)
     added = 0
 
-    for entry in feed.entries:
-        url = entry.get("link", "")
-        if not url:
-            continue
+    for entry in feed.entries[:30]:
+        title = clean(entry.get("title","")).strip()
+        if not title or len(title) < 5: continue
+        art_url = entry.get("link","") or entry.get("url","")
+        if exists(art_url, title): continue
 
-        # تجنب التكرار
-        if article_exists(url):
-            continue
+        body = get_body(entry)
+        full = f"{title} {body}"
 
-        title = entry.get("title", "").strip()
-        body  = extract_body(entry)
-        full_text = f"{title} {body}"
+        _, kws = match_kws(full)
 
-        lang = source.get("language", "en")
-        mentions_iraq, iraq_keywords = detect_iraq(full_text, lang)
-
-        importance = 0
-        category   = "other"
-
-        # حساب الأهمية والتصنيف لكل الأخبار المطابقة
-        if mentions_iraq:
-            importance = score_importance(entry, iraq_keywords)
-            category   = detect_category(full_text)
-        else:
-            importance = min(len(iraq_keywords) * 15, 70)
-            category   = detect_category(full_text)
-
-        # ترجمة العنوان والنص إذا لم يكن عربياً
-        title_ar = title if lang == 'ar' else translate_to_arabic(title, lang)
-        body_ar  = body[:2000] if lang == 'ar' else translate_to_arabic(body[:2000], lang)
-
-        row = {
-            "source_id":          source["id"],
-            "title_original":     title,
-            "title_ar":           title_ar,
-            "body_original":      body[:10000],
-            "body_ar":            body_ar,
-            "language":           lang,
-            "original_url":       url,
-            "mentions_iraq":      mentions_iraq,
-            "iraq_keywords":      iraq_keywords,
-            "iraq_relevance_score": min(len(iraq_keywords) * 10, 100),
-            "category":           category,
-            "importance_score":   importance,
-            "published_at":       parse_date(entry),
-            "fetched_at":         datetime.now(timezone.utc).isoformat(),
-        }
-
+        pub = parse_date(entry)
         try:
-            supabase.table("articles").insert(row).execute()
+            dt = datetime.fromisoformat(pub.replace("Z","+00:00"))
+            if dt < cutoff: continue
+        except: pass
+
+        if insert_article(source, title, body, art_url, pub, lang, kws):
             added += 1
-            kw_count = len(iraq_keywords)
-            log.info(f"  ✓ [{importance:3d}] [{kw_count}kw] {title[:70]}")
-        except Exception as e:
-            log.error(f"  ✗ خطأ في الإدراج: {e}")
+            log.info(f"  + [{score_imp(full,len(kws),title):3d}] {title[:65]}")
 
     return added
 
+# ══ تلغرام ══
+def fetch_telegram(source):
+    url  = source.get("rss_url","")
+    lang = source.get("language","ar")
 
-def run():
-    """الدالة الرئيسية"""
-    log.info("=" * 60)
-    log.info("Iraq Intel Fetcher — بدء الجلب")
-    log.info("=" * 60)
+    # تحويل الرابط
+    if "t.me/" in url:
+        parts = url.replace("https://","").replace("http://","").split("t.me/")
+        channel = parts[-1].split("/")[0].strip("@/ ")
+    else:
+        channel = url.strip("@/ ")
+    
+    tg_url = f"https://t.me/s/{channel}"
+    log.info(f"  تلغرام: {tg_url}")
 
-    # جلب الكلمات المفتاحية أولاً
-    load_keywords_from_db()
-
-    # جلب المصادر النشطة من Supabase
     try:
-        res = supabase.table("sources")\
-            .select("*")\
-            .eq("is_active", True)\
-            .not_.is_("rss_url", "null")\
-            .execute()
-        sources = res.data
+        r = httpx.get(tg_url, headers={
+            "User-Agent": BROWSER_UA,
+            "Accept": "text/html,application/xhtml+xml",
+            "Accept-Language": "ar,en;q=0.8",
+        }, timeout=25, follow_redirects=True)
+        
+        if r.status_code != 200:
+            log.warning(f"  تلغرام HTTP {r.status_code}")
+            return 0
     except Exception as e:
-        log.error(f"فشل جلب المصادر: {e}")
-        return
+        log.warning(f"  تلغرام: {e}")
+        return 0
+
+    html = r.text
+
+    # استخراج الرسائل
+    # نمط 1: div class tgme_widget_message_text
+    msgs = re.findall(r'class="tgme_widget_message_text[^"]*"[^>]*>(.*?)</div>', html, re.DOTALL)
+    
+    # نمط 2: إذا لم يجد
+    if not msgs:
+        msgs = re.findall(r'<div class="js-message_text[^>]*>(.*?)</div>', html, re.DOTALL)
+
+    # نمط 3: أي نص داخل message wrapper
+    if not msgs:
+        msgs = re.findall(r'tgme_widget_message_wrap[^>]*>.*?<div[^>]*>(.*?)</div>', html, re.DOTALL)
+
+    # استخراج التواريخ
+    dates = re.findall(r'<time[^>]*datetime="([^"]+)"', html)
+    # استخراج روابط الرسائل
+    links = re.findall(rf'href="(https://t\.me/{channel}/\d+)"', html)
+
+    log.info(f"  تلغرام: {len(msgs)} رسالة، {len(dates)} تاريخ")
+
+    added = 0
+    for i, msg_html in enumerate(msgs[:25]):
+        text = clean(msg_html).strip()
+        if len(text) < 15: continue
+
+        art_url = links[i] if i < len(links) else f"{tg_url}#{i}"
+        pub = dates[i] if i < len(dates) else datetime.now(timezone.utc).isoformat()
+
+        if exists(art_url, text): continue
+
+        _, kws = match_kws(text)
+        title = text[:120].replace("\n"," ").strip()
+
+        if insert_article(source, title, text, art_url, pub, lang, kws):
+            added += 1
+            log.info(f"  + [TG] {title[:60]}")
+
+    return added
+
+# ══ معالجة مصدر ══
+def process_source(source):
+    typ = source.get("type","newspaper")
+    url = source.get("rss_url","") or ""
+
+    if not url:
+        log.info(f"  [{source.get('name','?')}] لا رابط")
+        return 0
+
+    if typ == "telegram" or "t.me" in url:
+        return fetch_telegram(source)
+    
+    if typ == "youtube" or "youtube.com" in url:
+        log.info(f"  [{source.get('name','?')}] يوتيوب — يحتاج YouTube API")
+        return 0
+
+    return fetch_rss(source)
+
+# ══ RUN ══
+def run():
+    log.info("=" * 50)
+    log.info(f"الراصد v3.0 | {datetime.now().strftime('%Y-%m-%d %H:%M')}")
+    log.info("=" * 50)
+
+    load_keywords()
+
+    try:
+        res = supabase.table("sources").select("*").eq("is_active", True).execute()
+        sources = res.data or []
+    except Exception as e:
+        log.error(f"sources: {e}"); return
 
     log.info(f"مصادر نشطة: {len(sources)}")
+    if not sources:
+        log.warning("أضف مصادر من صفحة الإضافة أولاً")
+        return
 
-    total_added   = 0
-    total_iraq    = 0
+    total = 0
+    for s in sources:
+        try:
+            n = process_source(s)
+            total += n
+        except Exception as e:
+            log.error(f"  ✗ {s.get('name','?')}: {e}")
+        time.sleep(1.5)
 
-    for source in sources:
-        added = process_source(source)
-        total_added += added
-
-    # إحصائية سريعة من قاعدة البيانات
-    try:
-        res = supabase.table("articles")\
-            .select("id", count="exact")\
-            .eq("mentions_iraq", True)\
-            .gte("fetched_at",
-                 datetime.now(timezone.utc).replace(
-                     hour=0, minute=0, second=0
-                 ).isoformat())\
-            .execute()
-        total_iraq = res.count or 0
-    except Exception:
-        pass
-
-    log.info("=" * 60)
-    log.info(f"✓ تمت الدورة — مضاف: {total_added} | عراقي اليوم: {total_iraq}")
-    log.info("=" * 60)
-
+    log.info("=" * 50)
+    log.info(f"✓ انتهى | مضاف: {total}")
+    log.info("=" * 50)
 
 if __name__ == "__main__":
     run()
