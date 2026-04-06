@@ -717,7 +717,9 @@ async function loadPage(page) {
   else if(['security','politics','diplomacy','economy','military','energy','kurdistan'].includes(filt)) p+=`&category=eq.${filt}`;
   if (period) p+=`&published_at=gte.${new Date(Date.now()-parseInt(period)*3600000).toISOString()}`;
   if (srch) p+=`&or=(title_ar.ilike.*${encodeURIComponent(srch)}*,title_original.ilike.*${encodeURIComponent(srch)}*)`;
-  if (selectedSrcIds.length>0) p+=`&source_id=in.(${selectedSrcIds.join(',')})`;
+  if (selectedSrcIds.length > 0 && selectedSrcIds.length < allSrcs.length) {
+    p += `&source_id=in.(${selectedSrcIds.join(',')})`;
+  }
 
   // فلتر الكلمات المفتاحية - عرض الأخبار المرتبطة فقط
   const allKws = kgs.flatMap(g=>g.kws).filter(k=>typeof k==='string'&&k.length>2);
@@ -903,18 +905,21 @@ function renderSrcList() {
   }).join('');
 }
 function toggleSrc(id) {
-  if(selectedSrcIds.length===0) selectedSrcIds=allSrcs.map(s=>s.id).filter(x=>x!==id);
-  else if(selectedSrcIds.includes(id)){
-    selectedSrcIds=selectedSrcIds.filter(x=>x!==id);
-    if(selectedSrcIds.length===allSrcs.length)selectedSrcIds=[];
+  if (selectedSrcIds.length === 0) {
+    // كل المصادر محددة — نرفع تحديد هذا المصدر فقط
+    selectedSrcIds = allSrcs.map(s=>s.id).filter(x=>x!==id);
+  } else if (selectedSrcIds.includes(id)) {
+    selectedSrcIds = selectedSrcIds.filter(x=>x!==id);
+    // إذا أصبح الكل محددًا، نعود لـ [] (الكل)
+    if (selectedSrcIds.length === allSrcs.length) selectedSrcIds = [];
   } else {
     selectedSrcIds.push(id);
-    if(selectedSrcIds.length===allSrcs.length)selectedSrcIds=[];
+    if (selectedSrcIds.length === allSrcs.length) selectedSrcIds = [];
   }
   renderSrcList();
 }
-function selectAllSrc(val){selectedSrcIds=val?[]:['__none__'];renderSrcList();}
-function applySourceFilter(){if(!selectedSrcIds.includes('__none__'))loadPage(1);}
+function selectAllSrc(val){selectedSrcIds=val?[]:allSrcs.map(s=>s.id);renderSrcList();}
+function applySourceFilter(){loadPage(1);}
 async function loadSrcs() {
   const res=await sb('sources','?select=id,name,region,website_url&is_active=eq.true&order=trust_score.desc&limit=30');
   allSrcs=res.data; renderSrcList();

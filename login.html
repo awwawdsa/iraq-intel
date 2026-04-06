@@ -6,148 +6,333 @@
 <title>الراصد — تسجيل الدخول</title>
 <link rel="icon" href="logo.png" type="image/png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-:root{
-  --bg:#07090d;--bg2:#111520;--bg3:#161d2a;--bg4:#1c2535;
-  --line:#1e2d3e;--line2:#263548;
-  --t1:#dde4ed;--t2:#7b92a8;--t3:#3d5268;
-  --accent:#2461d4;--accent2:#1a4db8;
-  --red:#c42b2b;--green:#1a8a42;
-  --font:'IBM Plex Sans Arabic',sans-serif;--mono:'JetBrains Mono',monospace;
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'IBM Plex Sans Arabic', sans-serif;
+  background: #f0f4f8;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
 }
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-body{font-family:var(--font);background:var(--bg);color:var(--t1);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
 
-/* Background grid */
-body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(36,97,212,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(36,97,212,.04) 1px,transparent 1px);background-size:40px 40px;pointer-events:none}
+/* Background pattern */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 20% 50%, rgba(29,78,216,.08) 0%, transparent 60%),
+    radial-gradient(ellipse at 80% 20%, rgba(29,78,216,.05) 0%, transparent 50%);
+  pointer-events: none;
+}
 
-.box{width:400px;max-width:100%}
+.page {
+  display: flex;
+  width: 100%;
+  max-width: 900px;
+  min-height: 520px;
+  background: #fff;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0,0,0,.12);
+  position: relative;
+}
 
-.logo-wrap{text-align:center;margin-bottom:32px}
-.logo{width:56px;height:56px;background:var(--accent);border-radius:14px;display:inline-flex;align-items:center;justify-content:center;font-family:var(--mono);font-weight:600;color:#fff;font-size:22px;margin-bottom:12px}
-.logo-name{font-size:22px;font-weight:600;color:var(--t1)}
-.logo-sub{font-size:12px;color:var(--t3);font-family:var(--mono);margin-top:3px}
+/* LEFT PANEL - Branding */
+.brand-panel {
+  flex: 1;
+  background: linear-gradient(145deg, #1d4ed8 0%, #1e3a8a 60%, #1e2d78 100%);
+  padding: 48px 40px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-width: 280px;
+  position: relative;
+  overflow: hidden;
+}
 
-.card{background:var(--bg2);border:1px solid var(--line);border-radius:16px;padding:28px}
-.card-title{font-size:16px;font-weight:600;margin-bottom:6px}
-.card-sub{font-size:13px;color:var(--t2);margin-bottom:24px}
+.brand-panel::before {
+  content: '';
+  position: absolute;
+  top: -60px;
+  left: -60px;
+  width: 200px;
+  height: 200px;
+  background: rgba(255,255,255,.06);
+  border-radius: 50%;
+}
 
-.field{margin-bottom:16px}
-.label{font-size:11px;color:var(--t2);font-family:var(--mono);margin-bottom:6px;display:block;letter-spacing:.3px}
-.inp{width:100%;background:var(--bg3);border:1px solid var(--line);color:var(--t1);padding:10px 13px;border-radius:8px;font-family:var(--font);font-size:14px;outline:none;transition:border-color .2s}
-.inp:focus{border-color:var(--accent)}
-.inp::placeholder{color:var(--t3)}
+.brand-panel::after {
+  content: '';
+  position: absolute;
+  bottom: -40px;
+  right: -40px;
+  width: 150px;
+  height: 150px;
+  background: rgba(255,255,255,.04);
+  border-radius: 50%;
+}
 
-.btn-login{width:100%;background:var(--accent);color:#fff;border:none;padding:11px;border-radius:8px;font-family:var(--font);font-size:14px;font-weight:600;cursor:pointer;transition:background .2s;margin-top:4px}
-.btn-login:hover{background:var(--accent2)}
-.btn-login:disabled{opacity:.5;cursor:not-allowed}
+.brand-logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  position: relative;
+  z-index: 1;
+}
 
-.err{background:rgba(196,43,43,.1);border:1px solid rgba(196,43,43,.2);color:#f87171;padding:10px 13px;border-radius:8px;font-size:13px;margin-top:12px;display:none}
-.err.show{display:block}
+.brand-logo img {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  object-fit: cover;
+}
 
-.footer-note{text-align:center;margin-top:20px;font-size:12px;color:var(--t3)}
+.brand-logo-fb {
+  width: 48px;
+  height: 48px;
+  background: rgba(255,255,255,.2);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 800;
+  color: #fff;
+  font-size: 16px;
+}
 
-/* Role badges */
-.roles{display:flex;gap:8px;margin-top:20px;padding-top:20px;border-top:1px solid var(--line)}
-.role-badge{flex:1;text-align:center;padding:8px;border-radius:8px;font-size:11px;font-family:var(--mono)}
-.role-admin{background:rgba(196,146,50,.1);color:#fbbf24;border:1px solid rgba(196,146,50,.15)}
-.role-editor{background:rgba(36,97,212,.1);color:#60a5fa;border:1px solid rgba(36,97,212,.15)}
-.role-viewer{background:var(--bg3);color:var(--t2);border:1px solid var(--line)}
-.role-badge b{display:block;font-size:13px;margin-bottom:2px}
+.brand-logo-text { color: #fff; }
+.brand-logo-name { font-size: 20px; font-weight: 700; line-height: 1; }
+.brand-logo-sub { font-size: 10px; opacity: .6; font-family: 'JetBrains Mono', monospace; letter-spacing: .5px; margin-top: 2px; }
+
+.brand-body { position: relative; z-index: 1; }
+.brand-title { font-size: 26px; font-weight: 700; color: #fff; line-height: 1.4; margin-bottom: 12px; }
+.brand-desc { font-size: 13px; color: rgba(255,255,255,.7); line-height: 1.7; }
+
+.brand-features { position: relative; z-index: 1; display: flex; flex-direction: column; gap: 10px; }
+.feat { display: flex; align-items: center; gap: 10px; }
+.feat-icon { width: 28px; height: 28px; background: rgba(255,255,255,.15); border-radius: 7px; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
+.feat-text { font-size: 12px; color: rgba(255,255,255,.8); font-weight: 500; }
+
+/* RIGHT PANEL - Form */
+.form-panel {
+  flex: 0 0 380px;
+  padding: 48px 40px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.form-title { font-size: 22px; font-weight: 700; color: #0f1923; margin-bottom: 4px; }
+.form-sub { font-size: 13px; color: #7a96b0; margin-bottom: 32px; }
+
+.field { margin-bottom: 18px; }
+.lbl { font-size: 11px; font-weight: 700; color: #3d5570; font-family: 'JetBrains Mono', monospace; letter-spacing: .3px; display: block; margin-bottom: 7px; }
+.inp {
+  width: 100%;
+  background: #f5f7fa;
+  border: 1.5px solid #d1dce8;
+  color: #0f1923;
+  padding: 11px 14px;
+  border-radius: 8px;
+  font-family: 'IBM Plex Sans Arabic', sans-serif;
+  font-size: 14px;
+  outline: none;
+  transition: all .2s;
+}
+.inp:focus { border-color: #1d4ed8; background: #fff; box-shadow: 0 0 0 3px rgba(29,78,216,.1); }
+.inp::placeholder { color: #b0c0d0; }
+
+.btn-login {
+  width: 100%;
+  background: #1d4ed8;
+  color: #fff;
+  border: none;
+  padding: 12px;
+  border-radius: 8px;
+  font-family: 'IBM Plex Sans Arabic', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all .2s;
+  margin-top: 4px;
+  box-shadow: 0 4px 12px rgba(29,78,216,.3);
+}
+.btn-login:hover { background: #1e40af; transform: translateY(-1px); box-shadow: 0 6px 16px rgba(29,78,216,.35); }
+.btn-login:active { transform: translateY(0); }
+.btn-login:disabled { opacity: .6; cursor: not-allowed; transform: none; }
+
+.err {
+  background: rgba(220,38,38,.08);
+  border: 1px solid rgba(220,38,38,.2);
+  color: #dc2626;
+  padding: 10px 13px;
+  border-radius: 7px;
+  font-size: 12px;
+  font-weight: 500;
+  margin-top: 12px;
+  display: none;
+}
+.err.show { display: block; }
+
+.roles-section { margin-top: 28px; padding-top: 22px; border-top: 1px solid #e8eef5; }
+.roles-title { font-size: 10px; font-weight: 700; color: #7a96b0; font-family: 'JetBrains Mono', monospace; letter-spacing: .5px; text-transform: uppercase; margin-bottom: 10px; }
+.roles { display: flex; gap: 8px; }
+.role-card {
+  flex: 1;
+  padding: 10px 8px;
+  border-radius: 8px;
+  text-align: center;
+  border: 1px solid;
+}
+.role-card.admin  { background: rgba(180,83,9,.06);  border-color: rgba(180,83,9,.15);  }
+.role-card.editor { background: rgba(29,78,216,.06);  border-color: rgba(29,78,216,.15);  }
+.role-card.viewer { background: rgba(100,116,139,.06); border-color: rgba(100,116,139,.15); }
+.role-name { font-size: 12px; font-weight: 700; margin-bottom: 2px; }
+.role-card.admin  .role-name { color: #b45309; }
+.role-card.editor .role-name { color: #1d4ed8; }
+.role-card.viewer .role-name { color: #475569; }
+.role-desc { font-size: 10px; color: #94a3b8; }
+
+.footer-note {
+  text-align: center;
+  margin-top: 20px;
+  font-size: 11px;
+  color: #94a3b8;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+@media (max-width: 700px) {
+  .page { flex-direction: column; max-width: 400px; }
+  .brand-panel { min-width: unset; padding: 32px 28px; }
+  .brand-body { display: none; }
+  .form-panel { flex: unset; padding: 32px 28px; }
+}
 </style>
 </head>
 <body>
-<div class="box">
-  <div class="logo-wrap">
-    <img src="logo.png" alt="الراصد" style="width:56px;height:56px;border-radius:14px;object-fit:cover" onerror="this.outerHTML="<div class=\"logo\">IQ</div>"">
-    <div class="logo-name">الراصد</div>
-    <div class="logo-sub">IRAQ INTEL PLATFORM</div>
+
+<div class="page">
+  <!-- BRAND PANEL -->
+  <div class="brand-panel">
+    <div class="brand-logo">
+      <img src="logo.png" alt="الراصد" onerror="this.outerHTML='<div class=brand-logo-fb>IQ</div>'">
+      <div class="brand-logo-text">
+        <div class="brand-logo-name">الراصد</div>
+        <div class="brand-logo-sub">IRAQ INTEL PLATFORM</div>
+      </div>
+    </div>
+
+    <div class="brand-body">
+      <div class="brand-title">منصة رصد<br>إعلامية متكاملة</div>
+      <div class="brand-desc">رصد وتتبع الأخبار من عشرات المصادر الدولية والإقليمية في مكان واحد مع تحليل ذكي وترجمة فورية.</div>
+    </div>
+
+    <div class="brand-features">
+      <div class="feat">
+        <div class="feat-icon">📡</div>
+        <div class="feat-text">جلب تلقائي كل 15 دقيقة</div>
+      </div>
+      <div class="feat">
+        <div class="feat-icon">🔔</div>
+        <div class="feat-text">تنبيهات الأحداث الحرجة</div>
+      </div>
+      <div class="feat">
+        <div class="feat-icon">🌐</div>
+        <div class="feat-text">ترجمة فورية متعددة اللغات</div>
+      </div>
+      <div class="feat">
+        <div class="feat-icon">🔍</div>
+        <div class="feat-text">رصد بكلمات مفتاحية مخصصة</div>
+      </div>
+    </div>
   </div>
 
-  <div class="card">
-    <div class="card-title">تسجيل الدخول</div>
-    <div class="card-sub">أدخل بياناتك للوصول للمنصة</div>
+  <!-- FORM PANEL -->
+  <div class="form-panel">
+    <div class="form-title">تسجيل الدخول</div>
+    <div class="form-sub">أدخل بياناتك للوصول للمنصة</div>
 
     <div class="field">
-      <label class="label">اسم المستخدم</label>
+      <label class="lbl">اسم المستخدم</label>
       <input class="inp" id="username" type="text" placeholder="username" autocomplete="username" onkeydown="if(event.key==='Enter')login()">
     </div>
     <div class="field">
-      <label class="label">كلمة المرور</label>
+      <label class="lbl">كلمة المرور</label>
       <input class="inp" id="password" type="password" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')login()">
     </div>
 
-    <button class="btn-login" id="login-btn" onclick="login()">دخول →</button>
-    <div class="err" id="err">اسم المستخدم أو كلمة المرور غير صحيحة</div>
+    <button class="btn-login" id="login-btn" onclick="login()">دخول ←</button>
+    <div class="err" id="err"></div>
 
-    <div class="roles">
-      <div class="role-badge role-admin"><b>مدير</b>كل الصلاحيات</div>
-      <div class="role-badge role-editor"><b>محرر</b>إضافة وتعديل</div>
-      <div class="role-badge role-viewer"><b>مشاهد</b>قراءة فقط</div>
+    <div class="roles-section">
+      <div class="roles-title">مستويات الوصول</div>
+      <div class="roles">
+        <div class="role-card admin">
+          <div class="role-name">مدير</div>
+          <div class="role-desc">كل الصلاحيات</div>
+        </div>
+        <div class="role-card editor">
+          <div class="role-name">محرر</div>
+          <div class="role-desc">إضافة وتعديل</div>
+        </div>
+        <div class="role-card viewer">
+          <div class="role-name">مشاهد</div>
+          <div class="role-desc">قراءة فقط</div>
+        </div>
+      </div>
     </div>
-  </div>
 
-  <div class="footer-note">منصة رصد العراق الإعلامية — نسخة مؤمّنة</div>
+    <div class="footer-note">Momen Alzrzoor | الراصد v2.0</div>
+  </div>
 </div>
 
 <script>
-// نظام المستخدمين — مُخزّن في localStorage
-// في الإنتاج يجب ربطه بـ Supabase Auth
 function getUsers() {
-  const stored = localStorage.getItem('iq_users');
-  if (stored) return JSON.parse(stored);
-  // المستخدمون الافتراضيون
-  const defaults = [
-    { id:'1', username:'admin',   password:'admin2025',  role:'admin',  name:'المدير العام',    active:true },
-    { id:'2', username:'editor1', password:'editor123',  role:'editor', name:'المحرر الأول',    active:true },
-    { id:'3', username:'viewer1', password:'viewer123',  role:'viewer', name:'مستخدم مشاهد',    active:true },
+  const s = localStorage.getItem('iq_users');
+  if (s) return JSON.parse(s);
+  const d = [
+    { id:'1', username:'admin',   password:'admin2025',  role:'admin',  name:'المدير العام',  active:true },
+    { id:'2', username:'editor1', password:'editor123',  role:'editor', name:'المحرر الأول', active:true },
+    { id:'3', username:'viewer1', password:'viewer123',  role:'viewer', name:'مستخدم مشاهد', active:true },
   ];
-  localStorage.setItem('iq_users', JSON.stringify(defaults));
-  return defaults;
+  localStorage.setItem('iq_users', JSON.stringify(d));
+  return d;
 }
 
 function login() {
-  const username = document.getElementById('username').value.trim();
-  const password = document.getElementById('password').value;
-  const err      = document.getElementById('err');
-  const btn      = document.getElementById('login-btn');
-
-  if (!username || !password) { err.textContent='الرجاء إدخال اسم المستخدم وكلمة المرور'; err.classList.add('show'); return; }
-
-  btn.disabled = true;
-  btn.textContent = 'جاري التحقق...';
-
+  const un  = document.getElementById('username').value.trim();
+  const pw  = document.getElementById('password').value;
+  const err = document.getElementById('err');
+  const btn = document.getElementById('login-btn');
+  if (!un || !pw) { err.textContent = 'الرجاء إدخال اسم المستخدم وكلمة المرور'; err.classList.add('show'); return; }
+  btn.disabled = true; btn.textContent = '⏳ جاري التحقق...';
   setTimeout(() => {
-    const users = getUsers();
-    const user  = users.find(u => u.username === username && u.password === password && u.active);
-
+    const user = getUsers().find(u => u.username === un && u.password === pw && u.active);
     if (user) {
-      // حفظ جلسة المستخدم
-      const session = {
-        id: user.id,
-        username: user.username,
-        name: user.name,
-        role: user.role,
+      localStorage.setItem('iq_session', JSON.stringify({
+        id: user.id, username: user.username, name: user.name, role: user.role,
         loginAt: new Date().toISOString(),
-        expires: new Date(Date.now() + 7 * 24 * 3600000).toISOString() // 7 أيام
-      };
-      localStorage.setItem('iq_session', JSON.stringify(session));
+        expires: new Date(Date.now() + 7*24*3600000).toISOString()
+      }));
       window.location.href = 'index.html';
     } else {
       err.textContent = 'اسم المستخدم أو كلمة المرور غير صحيحة';
       err.classList.add('show');
-      btn.disabled = false;
-      btn.textContent = 'دخول →';
+      btn.disabled = false; btn.textContent = 'دخول ←';
     }
-  }, 600);
+  }, 500);
 }
 
-// إذا كان مسجّل دخوله مسبقاً
-const session = JSON.parse(localStorage.getItem('iq_session') || 'null');
-if (session && new Date(session.expires) > new Date()) {
-  window.location.href = 'index.html';
-}
+// إذا مسجّل مسبقاً
+const sess = JSON.parse(localStorage.getItem('iq_session')||'null');
+if (sess && new Date(sess.expires) > new Date()) window.location.href = 'index.html';
+document.getElementById('username').focus();
 </script>
 </body>
 </html>

@@ -105,10 +105,18 @@ def url_hash(url, title):
     return hashlib.md5(f"{url}:{title[:60]}".encode()).hexdigest()
 
 def exists(url, title):
+    if not url: return False
     try:
         h = url_hash(url, title)
-        r = supabase.table("articles").select("id").eq("url_hash", h).limit(1).execute()
-        return bool(r.data)
+        # Try url_hash first (faster)
+        try:
+            r = supabase.table("articles").select("id").eq("url_hash", h).limit(1).execute()
+            if r.data: return True
+        except:
+            pass
+        # Fallback: check by original_url
+        r2 = supabase.table("articles").select("id").eq("original_url", url).limit(1).execute()
+        return bool(r2.data)
     except:
         return False
 
@@ -157,8 +165,20 @@ def insert_article(source, title, body, url, pub_date, lang, kws):
         supabase.table("articles").insert(row).execute()
         return True
     except Exception as e:
-        if "duplicate" not in str(e).lower() and "unique" not in str(e).lower():
-            log.debug(f"insert: {e}")
+        err_str = str(e).lower()
+        if "duplicate" in err_str or "unique" in err_str:
+            return False
+        if "url_hash" in err_str or "column" in err_str:
+            # Try without url_hash if column doesn't exist
+            row2 = {k:v for k,v in row.items() if k != "url_hash"}
+            try:
+                supabase.table("articles").insert(row2).execute()
+                return True
+            except Exception as e2:
+                if "duplicate" not in str(e2).lower():
+                    log.debug(f"insert2: {e2}")
+                return False
+        log.debug(f"insert: {e}")
         return False
 
 # ══ RSS ══
